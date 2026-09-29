@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Geist, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { site } from "@/lib/site";
+import { site, siteOrigin } from "@/lib/site";
 import { ThemeProvider, themeInitScript } from "@/components/ui/theme-provider";
 import { MotionProvider } from "@/components/animations/motion-primitives";
 import { CustomCursor } from "@/components/ui/cursor";
@@ -39,9 +39,10 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://kazifahim.dev",
-  ),
+  /* Resolves every relative URL in the metadata tree (canonical, OG images)
+     against the real origin. See siteOrigin() for why there is no guessed
+     fallback domain here. */
+  metadataBase: new URL(siteOrigin()),
   title: {
     default: site.seo.title,
     template: `%s — ${site.name}`,

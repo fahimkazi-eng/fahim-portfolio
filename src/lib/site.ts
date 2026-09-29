@@ -44,6 +44,34 @@ export const site = {
 
 export type Site = typeof site;
 
+/**
+ * Canonical origin for absolute URLs (sitemap, robots, Open Graph).
+ *
+ * Resolution order:
+ *   1. NEXT_PUBLIC_SITE_URL — set this to the real domain once one is bought.
+ *   2. Vercel's own build-time variables, so production is self-describing
+ *      with no manual configuration.
+ *   3. localhost, so a local build produces obviously-local URLs.
+ *
+ * It deliberately does NOT fall back to a guessed production domain. A
+ * sitemap pointing at the wrong host is worse than no sitemap: it advertises
+ * URLs that do not resolve.
+ */
+export function siteOrigin(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "");
+  if (configured) return configured;
+
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : null;
+
+  if (vercel) return vercel;
+
+  return "http://localhost:3000";
+}
+
 /** A value the owner has not supplied yet. Rendered, never hidden. */
 export type Placeholder = { __placeholder: true; label?: string };
 export const placeholder = (label?: string): Placeholder => ({

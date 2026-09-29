@@ -4,7 +4,7 @@ import type {
   Experience,
   Project,
 } from "@/lib/db/schema";
-import { site } from "./site";
+import { site, siteOrigin } from "./site";
 
 /**
  * Structured data. Everything here is derived from the database or the
@@ -80,7 +80,7 @@ export function buildWebSiteSchema() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: `${site.name} — Portfolio`,
-    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://kazifahim.dev",
+    url: siteOrigin(),
     inLanguage: "en",
     description: site.seo.description,
   };
