@@ -447,10 +447,15 @@
   }
 
   /* Anything JS would have revealed must be legible with JS disabled or
-     reduced motion active. */
+     reduced motion active. `visibility` is included deliberately: GSAP's
+     autoAlpha sets an INLINE visibility:hidden, and an inline style only
+     loses to a stylesheet rule that is itself !important. Without this an
+     element caught mid-reveal would stay invisible even though its opacity
+     was forced back to 1. */
   [data-reveal],
   [data-split] {
     opacity: 1 !important;
+    visibility: visible !important;
     transform: none !important;
     clip-path: none !important;
   }
