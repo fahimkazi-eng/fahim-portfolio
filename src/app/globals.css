@@ -26,7 +26,9 @@
   --color-ink-700: #1f1f22;
   --color-ink-600: #2b2b2f;
   --color-ink-500: #3d3d43;
+  --color-ink-450: #4a4a52;
   --color-ink-400: #5c5c65;
+  --color-ink-350: #9c9ca6;
   --color-ink-300: #8b8b95;
   --color-ink-200: #b6b6bd;
   --color-ink-100: #d9d8d4;
@@ -89,11 +91,16 @@
   --surface: color-mix(in oklab, var(--color-paper) 94%, var(--color-ink-100));
   --surface-strong: #ffffff;
   --fg: var(--color-ink-900);
-  --fg-muted: var(--color-ink-400);
-  --fg-subtle: var(--color-ink-300);
+  /* Muted and subtle are chosen for WCAG AA (>= 4.5:1) against every light
+     background they sit on, not for how faint they look. On paper, ink-400
+     is already too light for body-adjacent copy, so the two tiers sit close
+     together — AA compresses the hierarchy. */
+  --fg-muted: var(--color-ink-450);
+  --fg-subtle: var(--color-ink-400);
   --line: color-mix(in oklab, var(--color-ink-900) 12%, transparent);
   --line-strong: color-mix(in oklab, var(--color-ink-900) 24%, transparent);
-  --accent: var(--color-signal-600);
+  /* signal-600 is only 4.29:1 on paper; signal-700 clears 6.2:1. */
+  --accent: var(--color-signal-700);
   --accent-fg: #fffaf7;
   --accent-soft: color-mix(in oklab, var(--color-signal-500) 12%, transparent);
   --grain-opacity: 0.28;
@@ -109,8 +116,11 @@
   --surface: var(--color-ink-900);
   --surface-strong: var(--color-ink-850);
   --fg: var(--color-ink-50);
-  --fg-muted: var(--color-ink-400);
-  --fg-subtle: var(--color-ink-500);
+  /* On ink, a "faint" grey is still body copy to a screen reader, so these
+     clear 6:1 against the canvas rather than fading into it. The visual
+     hierarchy now comes from size and weight, not from opacity. */
+  --fg-muted: var(--color-ink-350);
+  --fg-subtle: var(--color-ink-300);
   --line: color-mix(in oklab, var(--color-ink-50) 12%, transparent);
   --line-strong: color-mix(in oklab, var(--color-ink-50) 22%, transparent);
   --accent: var(--color-signal-400);

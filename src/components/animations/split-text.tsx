@@ -11,11 +11,12 @@ import { usePrefersReducedMotion } from "./motion-primitives";
    with a masked clip translate. Runs on a wrapper that GSAP animates; the
    inner spans are static markup, so nothing re-renders during animation.
 
-   The accessible name is preserved: the wrapper is a real element containing
-   the full text, and the split spans are aria-hidden duplicates? No — the
-   opposite. The wrapper holds the real text, split spans are the only
-   content, and we mark the whole thing aria-label with the original string
-   so screen readers read a sentence rather than "K A Z I".
+   The accessible name is preserved: the element carries a visually-hidden
+   copy of the full text and the split spans are aria-hidden, so a screen
+   reader reads one clean sentence rather than announcing each word
+   separately. Using hidden text instead of aria-label matters — aria-label
+   is prohibited on a role-less span, which is what this renders to by
+   default.
    ========================================================================== */
 
 type SplitTextProps = {
@@ -89,15 +90,14 @@ export function SplitText({
   const words = text.split(" ");
 
   return (
-    <Tag
-      ref={ref as never}
-      className={className}
-      /* The split spans would otherwise be announced as separate words, so
-         the wrapper carries the real accessible name and the visual copy is
-         hidden from assistive tech. */
-      aria-label={text}
-      data-split=""
-    >
+    <Tag ref={ref as never} className={className} data-split="">
+      {/* The visual copy is split across spans and hidden from assistive tech,
+          so the element needs its own real text for the accessible name. It
+          goes in as visually-hidden content rather than aria-label: aria-label
+          is only valid on an element with a role, and Tag is usually a bare
+          span. Using real text also means the name is read by anything that
+          reads content instead of ARIA. */}
+      <span className="sr-only">{text}</span>
       <span aria-hidden="true" className="block">
         {words.map((word, i) => (
           <span

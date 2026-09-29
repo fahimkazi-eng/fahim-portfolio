@@ -125,16 +125,20 @@ export function FloatingNav() {
               : "h-14 w-[min(100%-2.5rem,68rem)] border-transparent bg-transparent pl-1 pr-1",
           )}
         >
-          {/* Wordmark */}
+          {/* Wordmark.
+
+              No aria-label here on purpose. The link is to #hero, but the
+              visible wordmark changes with the breakpoint ("KF" alone on
+              mobile, "KF Kazi Fahim" above it), so any hardcoded aria-label
+              would fail to contain the visible text on one of them. Letting
+              the name come from the content keeps the accessible name and the
+              visible label identical at every width. */}
           <Link
             href="#hero"
             className="group mr-1 flex items-center gap-2.5 rounded-pill py-1 pr-2"
-            aria-label={`${site.name} — back to top`}
+            title="Back to top"
           >
-            <span
-              aria-hidden="true"
-              className="grid size-8 place-items-center rounded-full bg-fg text-[0.7rem] font-semibold tracking-tight text-canvas transition-colors duration-300 group-hover:bg-accent group-hover:text-accent-fg"
-            >
+            <span className="grid size-8 place-items-center rounded-full bg-fg text-[0.7rem] font-semibold tracking-tight text-canvas transition-colors duration-300 group-hover:bg-accent group-hover:text-accent-fg">
               {site.initials}
             </span>
             <span className="hidden font-display text-[0.95rem] font-semibold tracking-tight text-fg sm:inline">
@@ -164,7 +168,9 @@ export function FloatingNav() {
                       activeId === item.id ? "text-fg" : "text-fg-muted hover:text-fg",
                     )}
                   >
-                    <span className="type-mono text-[0.55rem] text-accent/80 tabular-nums">
+                    {/* Full accent, not /80: at 9px the dimmed version measured
+                        4.48:1 against the canvas, a hair under WCAG AA. */}
+                    <span className="type-mono text-[0.55rem] text-accent tabular-nums">
                       {item.index}
                     </span>
                     {item.label}
