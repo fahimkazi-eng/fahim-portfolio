@@ -1,26 +1,459 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/* ==========================================================================
+   KAZI FAHIM — DESIGN SYSTEM
+   Concept: "Signal & Paper". An editorial/technical portfolio.
+
+   Rules that keep it one system rather than a bag of effects:
+   1. One accent hue (vermillion). Everything else is neutral ink/paper.
+      Colour in the aurora shader is a derivative of the same hue family,
+      so glow never fights the UI.
+   2. One type scale, built with clamp() so it is fluid at every breakpoint.
+      Display + mono carry the identity; body stays quiet.
+   3. Motion has three owners and they never share a DOM property
+      (see MOTION.md). Everything else inherits the same easing vocabulary.
+   ========================================================================== */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ---- Neutral ramp: ink (dark canvas) → paper (light canvas) ---------- */
+  --color-ink-950: #060607;
+  --color-ink-900: #0b0b0c;
+  --color-ink-850: #101012;
+  --color-ink-800: #161618;
+  --color-ink-700: #1f1f22;
+  --color-ink-600: #2b2b2f;
+  --color-ink-500: #3d3d43;
+  --color-ink-400: #5c5c65;
+  --color-ink-300: #8b8b95;
+  --color-ink-200: #b6b6bd;
+  --color-ink-100: #d9d8d4;
+  --color-ink-50: #efede7;
+  --color-paper: #f4f1ea;
+
+  /* ---- Single accent: signal vermillion -------------------------------- */
+  --color-signal-50: #fff1ed;
+  --color-signal-100: #ffddd4;
+  --color-signal-200: #ffb8a6;
+  --color-signal-300: #ff8a6e;
+  --color-signal-400: #ff5c39;
+  --color-signal-500: #f5410f;
+  --color-signal-600: #d63308;
+  --color-signal-700: #a92609;
+  --color-signal-800: #7d1d0b;
+  --color-signal-900: #52150c;
+
+  /* ---- Type ----------------------------------------------------------- */
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif,
+    system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Fluid type scale. min at 380px viewport, max at 1600px. */
+  --text-micro: clamp(0.625rem, 0.6rem + 0.12vw, 0.7rem);
+  --text-tiny: clamp(0.7rem, 0.68rem + 0.12vw, 0.78rem);
+  --text-caption: clamp(0.8rem, 0.77rem + 0.15vw, 0.9rem);
+  --text-body: clamp(0.95rem, 0.91rem + 0.2vw, 1.05rem);
+  --text-lead: clamp(1.15rem, 1.05rem + 0.5vw, 1.45rem);
+  --text-h4: clamp(1.35rem, 1.2rem + 0.75vw, 1.75rem);
+  --text-h3: clamp(1.75rem, 1.45rem + 1.5vw, 2.75rem);
+  --text-h2: clamp(2.25rem, 1.7rem + 2.75vw, 4.25rem);
+  --text-h1: clamp(3rem, 1.9rem + 5.5vw, 7.5rem);
+  --text-mega: clamp(3.5rem, 1.4rem + 10.5vw, 13rem);
+
+  /* ---- Motion: one easing vocabulary ---------------------------------- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+
+  --shadow-lift: 0 1px 0 0 color-mix(in oklab, var(--color-ink-950) 8%, transparent),
+    0 18px 50px -18px color-mix(in oklab, var(--color-ink-950) 45%, transparent);
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--color-signal-500) 35%, transparent),
+    0 0 42px -6px color-mix(in oklab, var(--color-signal-500) 45%, transparent);
+
+  --breakpoint-xs: 26rem;
+}
+
+/* ==========================================================================
+   Theme tokens — semantic layer consumed by components
+   ========================================================================== */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: var(--color-paper);
+  --canvas-veil: color-mix(in oklab, var(--color-paper) 82%, transparent);
+  --surface: color-mix(in oklab, var(--color-paper) 94%, var(--color-ink-100));
+  --surface-strong: #ffffff;
+  --fg: var(--color-ink-900);
+  --fg-muted: var(--color-ink-400);
+  --fg-subtle: var(--color-ink-300);
+  --line: color-mix(in oklab, var(--color-ink-900) 12%, transparent);
+  --line-strong: color-mix(in oklab, var(--color-ink-900) 24%, transparent);
+  --accent: var(--color-signal-600);
+  --accent-fg: #fffaf7;
+  --accent-soft: color-mix(in oklab, var(--color-signal-500) 12%, transparent);
+  --grain-opacity: 0.28;
+  --grid-line: color-mix(in oklab, var(--color-ink-900) 6%, transparent);
+  --grain-blend: multiply;
+  --aurora-opacity: 0.5;
+  --color-scheme: light;
+}
+
+.dark {
+  --canvas: var(--color-ink-950);
+  --canvas-veil: color-mix(in oklab, var(--color-ink-950) 72%, transparent);
+  --surface: var(--color-ink-900);
+  --surface-strong: var(--color-ink-850);
+  --fg: var(--color-ink-50);
+  --fg-muted: var(--color-ink-400);
+  --fg-subtle: var(--color-ink-500);
+  --line: color-mix(in oklab, var(--color-ink-50) 12%, transparent);
+  --line-strong: color-mix(in oklab, var(--color-ink-50) 22%, transparent);
+  --accent: var(--color-signal-400);
+  --accent-fg: var(--color-ink-950);
+  --accent-soft: color-mix(in oklab, var(--color-signal-500) 16%, transparent);
+  --grain-opacity: 0.16;
+  --grid-line: color-mix(in oklab, var(--color-ink-50) 7%, transparent);
+  --grain-blend: overlay;
+  --aurora-opacity: 0.85;
+  --color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-canvas-veil: var(--canvas-veil);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  /* Visible, on-brand focus. Never removed. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Display type utility: the identity's core typographic move. */
+  .type-display {
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 92;
+    letter-spacing: -0.04em;
+    line-height: 0.88;
+  }
+
+  .type-mono {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* Fluid edges: one gutter value that adapts from phone to ultrawide. */
+  .gutter {
+    padding-inline: clamp(1.15rem, 0.6rem + 2.6vw, 4.5rem);
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 96rem;
+    margin-inline: auto;
+  }
+
+  .rule {
+    border-top: 1px solid var(--line);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+/* Animated gradient hairline border (conic sweep), used sparingly. */
+@utility border-sweep {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--sweep-angle, 0deg),
+      transparent 0deg,
+      var(--accent) 60deg,
+      transparent 130deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-out-expo);
+    pointer-events: none;
+  }
+
+  &:hover::before,
+  &:focus-within::before,
+  &[data-active="true"]::before {
+    opacity: 1;
+  }
+
+  @property --sweep-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+}
+
+@utility text-balance-none {
+  text-wrap: balance;
+}
+
+/* Text gradient used only on the mega hero words. */
+@utility text-signal-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--fg) 0%,
+    var(--fg) 38%,
+    var(--accent) 62%,
+    var(--fg) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility glass {
+  background-color: color-mix(in oklab, var(--surface) 62%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--line);
+}
+
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Clamp helpers for marquee/track overflow. */
+@utility clamp-y-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 1;
+}
+@utility clamp-y-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 2;
+}
+@utility clamp-y-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 3;
+}
+
+/* ==========================================================================
+   Ambient texture layers — pure CSS, zero JS, GPU-cheap
+   ========================================================================== */
+
+@keyframes rule-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  55%, 100% { opacity: 0; }
+}
+
+/* Route change: a short lift + fade. Cheap because it only touches
+   transform and opacity, both composited. */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Indeterminate loading hairline. Scale is a direct function of the
+   animation phase, so it never triggers layout. */
+@keyframes load-bar {
+  from { transform: scaleX(0.08); }
+  to { transform: scaleX(0.92); }
+}
+
+@layer base {
+  /* Film grain. A single fixed pseudo-element, no repaint on scroll. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: -120%;
+    z-index: 60;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+    mix-blend-mode: var(--grain-blend);
+    will-change: transform;
+    animation: grain-drift 7s steps(6) infinite;
+  }
+
+  @keyframes grain-drift {
+    0% { transform: translate3d(0, 0, 0); }
+    20% { transform: translate3d(-3%, 2%, 0); }
+    40% { transform: translate3d(2%, -3%, 0); }
+    60% { transform: translate3d(-2%, -2%, 0); }
+    80% { transform: translate3d(3%, 1%, 0); }
+    100% { transform: translate3d(0, 0, 0); }
+  }
+
+  /* Editorial baseline grid, drawn once, extremely low contrast. */
+  .grid-lines {
+    background-image: linear-gradient(
+        to right,
+        var(--grid-line) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: clamp(60px, 8vw, 120px) clamp(60px, 8vw, 120px);
+  }
+
+  /* Vignette — sits above canvas art, below content. */
+  .vignette::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(
+      118% 92% at 50% 42%,
+      transparent 42%,
+      color-mix(in oklab, var(--canvas) 72%, transparent) 100%
+    );
+  }
+}
+
+/* ==========================================================================
+   Reduced motion: kill ambient loops, keep content visible
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  body::after {
+    animation: none !important;
+  }
+
+  /* Anything JS would have revealed must be legible with JS disabled or
+     reduced motion active. */
+  [data-reveal],
+  [data-split] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+
+  /* The intro is theatre, not content. Removing it in CSS means a
+     reduced-motion visitor never sees a frame of it, regardless of how
+     late hydration lands. */
+  [data-preloader] {
+    display: none !important;
+  }
+
+  /* Focus rings must stay instant, not 0.001ms-faded. */
+  :focus-visible {
+    transition-duration: 0.01ms !important;
+  }
 }
