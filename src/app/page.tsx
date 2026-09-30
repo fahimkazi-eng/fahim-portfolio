@@ -3,7 +3,6 @@ import { Hero } from "@/components/sections/hero";
 import { AboutSection } from "@/components/sections/about";
 import { StackSection } from "@/components/sections/stack";
 import { WorkSection } from "@/components/sections/work";
-import { StorySection } from "@/components/sections/story";
 import { PathSection } from "@/components/sections/path";
 import { ServicesSection } from "@/components/sections/services";
 import { ContactSection } from "@/components/sections/contact";
@@ -66,7 +65,6 @@ export default async function HomePage() {
         <AboutSection />
         <StackSection skills={skills} />
         <WorkSection projects={projects} />
-        <StorySection projects={projects} />
         <PathSection experiences={experiences} educations={educations} />
         <ServicesSection services={services} />
         <ContactSection />
@@ -79,8 +77,8 @@ export default async function HomePage() {
       <p className="sr-only">
         Portfolio of {site.name}, {site.roleLine} Based in {site.location},
         studying at {site.university}. Sections on this page: about,
-        capabilities, selected work, case studies, experience and education,
-        services, and contact.
+        capabilities, selected work, experience and education, services, and
+        contact.
       </p>
     </>
   );

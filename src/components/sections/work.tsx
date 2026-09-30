@@ -1,8 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { gsap } from "gsap";
 import type { Project } from "@/lib/db/schema";
 import {
@@ -14,17 +12,26 @@ import {
 import { SplitText } from "@/components/animations/split-text";
 import { HorizontalScroll } from "@/components/animations/scroll-motion";
 import { usePrefersReducedMotion } from "@/components/animations/motion-primitives";
-import { ProjectFrame } from "./project-frame";
+import { ProjectLoopVideo } from "./project-loop-video";
 
 /* ==========================================================================
    Featured work
 
-   Desktop: a pinned horizontal track. Each case study gets a full panel, so
-             the storytelling stays readable instead of being crammed into a
-             narrow column.
+   Each panel's primary visual is the project's real demo recording, played
+   silently on a loop (see ProjectLoopVideo). A project with no recording yet
+   falls back to its still and then to its signature, so anything added from
+   the admin appears here correctly with no code change.
+
+   Nothing here links to a separate case-study page. "Live" and "Source" are
+   the only outbound links, and each renders only when the project has a real
+   URL behind it.
+
+   Desktop: a pinned horizontal track. Each project gets a full panel, so the
+              presentation stays readable instead of being crammed into a
+              narrow column.
    Mobile:   native vertical stack. Turning a vertical gesture into
-             horizontal movement is where these sections usually become
-             unusable, so pinning is never enabled on coarse pointers.
+              horizontal movement is where these sections usually become
+              unusable, so pinning is never enabled on coarse pointers.
    ========================================================================== */
 
 export function WorkSection({ projects }: { projects: Project[] }) {
@@ -40,7 +47,7 @@ export function WorkSection({ projects }: { projects: Project[] }) {
           title={<SplitText text="Selected work." duration={1} />}
           lede={
             list.length
-              ? `${list.length} case ${list.length === 1 ? "study" : "studies"}, structured the way I actually build: problem, solution, features, implementation, result.`
+              ? `${list.length} ${list.length === 1 ? "project" : "projects"}, each with a silent looping demo of the real thing.`
               : undefined
           }
         />
@@ -125,8 +132,10 @@ function ProjectPanel({
       className="flex w-[min(88vw,60rem)] shrink-0 flex-col overflow-hidden rounded-card border border-line bg-surface lg:w-[min(86vw,66rem)]"
     >
       <div className="grid grid-cols-1 lg:grid-cols-12">
-        <ProjectFrame
-          src={project.imageUrl}
+        <ProjectLoopVideo
+          src={project.videoUrl}
+          poster={project.videoPosterUrl}
+          stillSrc={project.imageUrl}
           title={project.title}
           slug={project.slug}
           className="h-[clamp(15rem,42vw,28rem)] w-full lg:col-span-7"
@@ -168,41 +177,35 @@ function ProjectPanel({
             ) : null}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href={`/work/${project.slug}`}
-              data-cursor="view"
-              className="group inline-flex h-11 items-center gap-2.5 rounded-pill bg-fg px-6 text-[0.9rem] font-medium text-canvas transition-colors duration-300 hover:bg-accent hover:text-accent-fg"
-            >
-              Read case study
-              <ArrowUpRight
-                className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                strokeWidth={2}
-              />
-            </Link>
-            {project.liveUrl ? (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-cursor="view"
-                className="inline-flex h-11 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
-              >
-                Live demo
-              </a>
-            ) : null}
-            {project.repoUrl ? (
-              <a
-                href={project.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-cursor="view"
-                className="inline-flex h-11 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
-              >
-                Source
-              </a>
-            ) : null}
-          </div>
+          {/* The only outbound links on the panel. Each renders solely when
+              the project has a real URL behind it, so "Live" is never a claim
+              the project cannot back up. */}
+          {project.liveUrl || project.repoUrl ? (
+            <div className="flex flex-wrap items-center gap-3">
+              {project.liveUrl ? (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-cursor="view"
+                  className="inline-flex h-11 items-center rounded-pill bg-fg px-6 text-[0.9rem] font-medium text-canvas transition-colors duration-300 hover:bg-accent hover:text-accent-fg"
+                >
+                  Live
+                </a>
+              ) : null}
+              {project.repoUrl ? (
+                <a
+                  href={project.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-cursor="view"
+                  className="inline-flex h-11 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
+                >
+                  Source
+                </a>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </article>

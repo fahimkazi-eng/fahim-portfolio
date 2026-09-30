@@ -9,7 +9,7 @@ export function ServicesSection({ services }: { services: Service[] }) {
   return (
     <Section id="build">
       <SectionHeading
-        index="06"
+        index="05"
         eyebrow="What I build"
         title={<SplitText text="From data model to interface." duration={1} />}
         lede="The kinds of problems I take on, and what you get at the end of each."

@@ -86,7 +86,7 @@ export function PathSection({
   return (
     <Section id="path">
       <SectionHeading
-        index="05"
+        index="04"
         eyebrow="Path"
         title={<SplitText text="Where the practice comes from." duration={1} />}
         lede="A degree in progress, and two years of being the person customers and volunteers actually talk to."

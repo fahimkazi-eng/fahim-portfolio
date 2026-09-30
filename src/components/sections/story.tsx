@@ -1,5 +1,22 @@
 "use client";
 
+/* ==========================================================================
+   NOT CURRENTLY RENDERED — kept intact on purpose.
+
+   This section is no longer mounted on the homepage. It was removed because
+   every narrative field it reads (problem / solution / features /
+   implementation / result) is empty in the database, so it rendered ten
+   "TBD — nothing written here yet" panels, and because it was the only
+   remaining thing linking to a separate case-study page.
+
+   Nothing here is deleted: the fields, the validation and the admin editor
+   all still exist, and /work/[slug] still renders this component for anyone
+   with the URL. To bring the section back, write real content for at least
+   one project in the admin, then mount <StorySection projects={projects} />
+   between <WorkSection> and <PathSection> in src/app/page.tsx. Do not mount
+   it while the fields are empty — that is what produced the placeholder wall.
+   ========================================================================== */
+
 import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";

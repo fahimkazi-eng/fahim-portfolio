@@ -103,10 +103,9 @@ export const navItems: NavItem[] = [
   { id: "about", label: "About", index: "01" },
   { id: "stack", label: "Stack", index: "02" },
   { id: "work", label: "Work", index: "03" },
-  { id: "story", label: "Story", index: "04" },
-  { id: "path", label: "Path", index: "05" },
-  { id: "build", label: "Build", index: "06" },
-  { id: "contact", label: "Contact", index: "07" },
+  { id: "path", label: "Path", index: "04" },
+  { id: "build", label: "Build", index: "05" },
+  { id: "contact", label: "Contact", index: "06" },
 ];
 
 export type Pillar = {
