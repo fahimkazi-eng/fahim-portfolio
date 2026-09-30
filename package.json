@@ -15,7 +15,7 @@
     "db:studio": "node scripts/with-env.mjs drizzle-kit studio",
     "db:seed": "node scripts/seed.mjs",
     "db:setup": "npm run db:migrate && npm run db:seed",
-    "db:set-password": "node scripts/set-admin-password.mjs",
+    "db:set-password": "node scripts/with-env.mjs node scripts/set-admin-password.mjs",
     "db:check": "node scripts/check-db.mjs"
   },
   "dependencies": {
