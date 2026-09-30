@@ -15,8 +15,7 @@ export const site = {
   location: "Bangladesh",
   university: "Northern University Bangladesh",
   degree: "BSc in Computer Science & Engineering",
-  /** Placeholder until the owner's public handles are supplied. */
-  email: "kazi.fahim@example.com",
+  email: "fahimirfan867@gmail.com",
   /**
    * Portrait. Drop the owner's photo at this exact path inside `public/` and
    * both the hero and the header pick it up — there is nothing else to wire.
