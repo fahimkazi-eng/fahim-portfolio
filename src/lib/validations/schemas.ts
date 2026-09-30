@@ -18,6 +18,21 @@ const optionalUrl = z
     "Must be a full URL starting with http:// or https://",
   );
 
+/**
+ * An asset may be either a site-relative path served from `public/` OR a full
+ * http(s) URL. Admin media fields store both kinds (e.g. `/projects/foo.jpg`
+ * or `https://cdn.example/foo.jpg`), so they must not be validated as plain
+ * URLs — doing so would reject every path-based asset the site actually uses.
+ */
+const assetRef = z
+  .union([z.literal(""), trimmed])
+  .optional()
+  .transform((v) => (v ? v : null))
+  .refine(
+    (v) => v === null || /^https?:\/\/.+\..+/.test(v) || /^\/[\w\-./]+\.[a-z0-9]{2,5}$/i.test(v),
+    "Use a path like /projects/cover.jpg or a full https:// URL",
+  );
+
 const boolField = z
   .union([z.boolean(), z.literal("on"), z.literal("true"), z.literal("false")])
   .optional()
@@ -66,8 +81,10 @@ export const projectFieldSchema = z.object({
   implementation: trimmed.optional().default(""),
   result: trimmed.optional().default(""),
   tech: lineList,
-  imageUrl: optionalUrl,
+  imageUrl: assetRef,
   gallery: lineList,
+  videoUrl: assetRef,
+  videoPosterUrl: assetRef,
   liveUrl: optionalUrl,
   repoUrl: optionalUrl,
   year: trimmed.max(20, "Year is too long").optional().default(""),

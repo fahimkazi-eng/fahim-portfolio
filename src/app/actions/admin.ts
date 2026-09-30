@@ -161,6 +161,8 @@ export async function saveProjectAction(
     tech: formData.get("tech") ?? "",
     imageUrl: formData.get("imageUrl") ?? "",
     gallery: formData.get("gallery") ?? "",
+    videoUrl: formData.get("videoUrl") ?? "",
+    videoPosterUrl: formData.get("videoPosterUrl") ?? "",
     liveUrl: formData.get("liveUrl") ?? "",
     repoUrl: formData.get("repoUrl") ?? "",
     year: formData.get("year") ?? "",

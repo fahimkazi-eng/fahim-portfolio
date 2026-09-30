@@ -40,6 +40,22 @@ export const projects = pgTable("projects", {
   imageUrl: text("image_url"),
   /** Optional gallery of image paths/URLs, ordered. */
   gallery: text("gallery").array().notNull().default([]),
+  /**
+   * A real screen recording of the product, if one exists.
+   *
+   * When set, this is what the case study presents as its primary visual —
+   * a short demo says more than any screenshot, and it is the one asset that
+   * cannot be faked, because it is the product actually running. When null the
+   * case study falls back to the still image, and then to the generative
+   * signature, so the page never has an empty hole in it.
+   */
+  videoUrl: text("video_url"),
+  /**
+   * Poster frame shown before playback, and the box the browser reserves while
+   * `preload="none"` fetches nothing. Optional: without it the browser uses
+   * the first frame, which costs a full-file request to discover.
+   */
+  videoPosterUrl: text("video_poster_url"),
   liveUrl: text("live_url"),
   repoUrl: text("repo_url"),
   year: varchar("year", { length: 20 }),

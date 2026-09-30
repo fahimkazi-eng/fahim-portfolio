@@ -9,6 +9,7 @@ import { PageTransition } from "@/components/ui/marquee";
 import { Magnetic } from "@/components/ui/magnetic";
 import { ProjectFrame } from "./project-frame";
 import { ProjectStage } from "./project-stage";
+import { ProjectVideo } from "./project-video";
 
 /* ==========================================================================
    Full case study: the Problem → Solution → Features → Implementation →
@@ -127,30 +128,48 @@ export function CaseStudy({
         </div>
       </header>
 
-      {/* ---------------- Cover ---------------- */}
-      <div className="gutter shell">
-        <Reveal>
-          <div className="overflow-hidden rounded-card border border-line">
-            <ProjectFrame
-              src={project.imageUrl}
-              title={project.title}
-              slug={project.slug}
-              className="aspect-16/10 w-full border-b-0"
-              priority
-            />
-          </div>
-        </Reveal>
-      </div>
+      {/* ---------------- Media ----------------
+          One rule, no per-project branching.
 
-      {/* ---------------- Stage ----------------
-          The second visual presentation. When a real screenshot exists the
-          cover above carries it and this band is the immersive counterpart;
-          when none exists the cover already shows the generative signature,
-          and this band is where its metadata and technology live. Either way
-          it is a different composition, not a repeat of the same image. */}
-      <div className="mt-[clamp(2.5rem,6vw,5rem)]">
-        <ProjectStage project={project} />
-      </div>
+          A real demo recording outranks everything else: it is the product
+          actually running, and no still or generated panel can claim to be
+          that. So when `video_url` is set the video takes the cover slot.
+
+          The stage band existed to be the case study's *second* visual
+          presentation, back when the only candidates were a screenshot and an
+          abstract signature. With a recording present, the honest thing is to
+          drop it rather than show the same clip twice or pad the page with
+          filler — so the band renders only for projects without a video, and
+          it is there precisely because it is all that is left to show. */}
+      {project.videoUrl ? (
+        <Reveal>
+          <ProjectVideo
+            src={project.videoUrl}
+            poster={project.videoPosterUrl}
+            title={project.title}
+          />
+        </Reveal>
+      ) : (
+        <>
+          <div className="gutter shell">
+            <Reveal>
+              <div className="overflow-hidden rounded-card border border-line">
+                <ProjectFrame
+                  src={project.imageUrl}
+                  title={project.title}
+                  slug={project.slug}
+                  className="aspect-16/10 w-full border-b-0"
+                  priority
+                />
+              </div>
+            </Reveal>
+          </div>
+
+          <div className="mt-[clamp(2.5rem,6vw,5rem)]">
+            <ProjectStage project={project} />
+          </div>
+        </>
+      )}
 
       {/* ---------------- Narrative ---------------- */}
       <Section id="narrative">

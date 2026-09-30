@@ -150,7 +150,7 @@ export function ProjectEditor({ project }: { project?: Project }) {
                 name="imageUrl"
                 errors={errors}
                 defaultValue={project?.imageUrl ?? ""}
-                placeholder="/unimate/cover.webp"
+                placeholder="/projects/cover.jpg"
                 hint="Path or full URL"
               />
               <AField
@@ -170,6 +170,39 @@ export function ProjectEditor({ project }: { project?: Project }) {
                 placeholder="https://github.com/…"
               />
             </div>
+
+            <fieldset className="space-y-4 rounded-card border border-line p-5">
+              <legend className="type-mono px-2 text-fg-subtle">
+                Demo video
+              </legend>
+              <p className="max-w-[62ch] text-[0.8125rem] leading-relaxed text-fg-muted">
+                A real screen recording, stored under{" "}
+                <code className="type-mono text-fg-subtle">public/projects/</code>
+                . When a video path is set it becomes the case study&apos;s
+                primary visual — a short demo of the product running says more
+                than any screenshot, and it can&apos;t be faked. Leave both
+                fields empty and the page falls back to the still image, then to
+                the generative signature.
+              </p>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <AField
+                  label="Video path"
+                  name="videoUrl"
+                  errors={errors}
+                  defaultValue={project?.videoUrl ?? ""}
+                  placeholder="/projects/unimate-demo.mp4"
+                  hint="Path or full URL · .mp4 / .webm"
+                />
+                <AField
+                  label="Poster image"
+                  name="videoPosterUrl"
+                  errors={errors}
+                  defaultValue={project?.videoPosterUrl ?? ""}
+                  placeholder="/projects/unimate-demo-poster.jpg"
+                  hint="Shown before playback"
+                />
+              </div>
+            </fieldset>
 
             <div className="grid gap-5 sm:grid-cols-2">
               <AField

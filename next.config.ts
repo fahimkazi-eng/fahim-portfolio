@@ -41,6 +41,52 @@ const nextConfig: NextConfig = {
         source: "/admin/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
+      /*
+        Recordings are multi-megabyte and their filenames are stable
+        (`/projects/<slug>-demo.mp4`). Served with the default `max-age=0`
+        they are revalidated on every single visit, which for a video means a
+        pointless conditional request for megabytes the visitor already has.
+
+        A year, immutable. The trade is explicit: replacing a recording means
+        renaming the file (or changing its path in the admin), otherwise
+        returning visitors keep the old clip. That is the same rule GitHub and
+        every CDN apply to fingerprinted assets, and it is the only safe way to
+        get a long TTL on user-supplied media.
+
+        Range requests are unaffected — the `Accept-Ranges` header still comes
+        from the file server, so seeking works exactly as before.
+      */
+      {
+        source: "/projects/:file*.mp4",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/projects/:file*.webm",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      /*
+        Poster frames are extracted from those recordings, so they change
+        whenever the recording does and are served under the same rule.
+      */
+      {
+        source: "/projects/:file*-poster.jpg",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
     ];
   },
 };
