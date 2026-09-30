@@ -260,10 +260,29 @@ export default function AuroraField({
       attributeFilter: ["class"],
     });
 
-    const onResize = () => {
+    /* ---- sizing ----
+       OGL's Renderer constructor calls setSize() using the canvas element's
+       own default attribute size (300x150) and writes that to the element's
+       INLINE style. Inline style outranks the h-full/w-full classes, so
+       without an explicit setSize here the field renders as a 300x150 patch
+       in the top-left corner of the hero instead of filling it.
+
+       setSize() takes CSS pixels and multiplies by dpr internally for the
+       backing store, which is exactly what we want to pass. */
+    const resize = () => {
+      const parent = canvas.parentElement;
+      const width = parent?.clientWidth || window.innerWidth;
+      const height = parent?.clientHeight || window.innerHeight;
       renderer.dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      renderer.setSize(width, height);
     };
-    window.addEventListener("resize", onResize);
+    resize();
+
+    // A ResizeObserver also catches container resizes, not just window
+    // resizes, so the field tracks the hero rather than the viewport.
+    const resizeObserver = new ResizeObserver(resize);
+    if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
+    window.addEventListener("resize", resize);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -271,7 +290,8 @@ export default function AuroraField({
       window.removeEventListener("pointermove", markInteraction);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("scroll", markInteraction);
-      window.removeEventListener("resize", onResize);
+      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       themeObserver.disconnect();
       gl.getExtension("WEBGL_lose_context")?.loseContext();

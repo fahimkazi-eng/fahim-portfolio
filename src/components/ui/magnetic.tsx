@@ -254,10 +254,11 @@ export function Tilt({
   }, [max, reduced]);
 
   return (
-    <Tag
-      ref={ref as never}
-      className={`transition-[transform] duration-500 ease-out ${className}`}
-    >
+    /* No transition-* here on purpose. The rAF loop above already eases
+       (0.12 lerp) in both directions, so a CSS transform transition would be a
+       second owner fighting the loop on every frame and would make the pull
+       feel like it is dragging through syrup. MOTION.md rule 2. */
+    <Tag ref={ref as never} className={className}>
       {children}
     </Tag>
   );

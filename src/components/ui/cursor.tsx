@@ -49,7 +49,14 @@ export function CustomCursor() {
       targetScale = next === "hover" ? 1.7 : next === "text" ? 0.4 : next === "view" ? 2.7 : 1;
       const label = labelRef.current;
       // "default" has no label; every other mode has one.
-      if (label && next !== "default") label.textContent = LABELS[next];
+      if (label) {
+        const text = next === "default" ? "" : LABELS[next];
+        label.textContent = text;
+        // The label is opacity-0 by default and only lifts on
+        // data-visible=true. This is the only place that flag is set, so
+        // without it the label stays invisible forever.
+        label.dataset.visible = text ? "true" : "false";
+      }
       ring.dataset.mode = next;
       dot.dataset.mode = next;
     };

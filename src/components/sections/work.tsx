@@ -170,6 +170,7 @@ function ProjectPanel({
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href={`/work/${project.slug}`}
+              data-cursor="view"
               className="group inline-flex h-11 items-center gap-2.5 rounded-pill bg-fg px-6 text-[0.9rem] font-medium text-canvas transition-colors duration-300 hover:bg-accent hover:text-accent-fg"
             >
               Read case study
@@ -183,6 +184,7 @@ function ProjectPanel({
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-cursor="view"
                 className="inline-flex h-11 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
               >
                 Live demo
@@ -193,6 +195,7 @@ function ProjectPanel({
                 href={project.repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-cursor="view"
                 className="inline-flex h-11 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
               >
                 Source
