@@ -64,6 +64,9 @@
   --text-h2: clamp(2.25rem, 1.7rem + 2.75vw, 4.25rem);
   --text-h1: clamp(3rem, 1.9rem + 5.5vw, 7.5rem);
   --text-mega: clamp(3.5rem, 1.4rem + 10.5vw, 13rem);
+  /* The hero name. Sized off the name column rather than the viewport, so
+     "FAHIM" fills its track at 375px and at 1600px without ever wrapping. */
+  --text-name: clamp(4.25rem, 2.2rem + 13vw, 12rem);
 
   /* ---- Motion: one easing vocabulary ---------------------------------- */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -146,6 +149,34 @@
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
+}
+
+/* The portrait's own container query context. `Portrait` sizes its fallback
+   monogram in `cqw`, so the frame must establish the container. Without this
+   the monogram has no query container and collapses. */
+@utility portrait-frame {
+  container-type: inline-size;
+}
+
+/* --------------------------------------------------------------------------
+   Spotlight reachability.
+
+   The `Spotlight` glow is a child at `z-index:-10`. Its parent establishes a
+   stacking context, so that layer paints directly above the parent's own
+   background — but BELOW any positioned sibling with `z-index:auto`. Every
+   `Card` is `position:relative`, so a card inside a spotlight used to paint
+   its opaque fill straight over the glow, and the effect was invisible in
+   every section that used it.
+
+   The fix moves the fill, not the glow. A surface inside a spotlight is
+   authored with `surface={false}` (Card) or `data-spot-surface` (the contact
+   form), so it renders transparent and lets this wrapper's background show
+   through. Border, shadow and text are untouched, and the colour is
+   identical to `bg-surface` — the wash simply lives one level up, where the
+   negative-z glow can sit above it and below the content.
+   -------------------------------------------------------------------------- */
+[data-spot="on"] {
+  background-color: var(--surface);
 }
 
 /* ==========================================================================
@@ -356,6 +387,23 @@
 @keyframes caret-blink {
   0%, 45% { opacity: 1; }
   55%, 100% { opacity: 0; }
+}
+
+/* Slow orbital drift for the decorative hairline around the hero portrait.
+   Transform-only, so it stays on the compositor. Collapsed to a single frame
+   by the reduced-motion block below. */
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Slow drift for the ambient colour mesh behind a section. Transform-only and
+   deliberately slow enough to read as weather rather than as an animation. */
+@keyframes mesh-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  33%  { transform: translate3d(2.5%, -2%, 0) scale(1.06); }
+  66%  { transform: translate3d(-2%, 2.5%, 0) scale(0.97); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
 /* Route change: a short lift + fade. Cheap because it only touches

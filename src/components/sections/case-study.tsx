@@ -8,6 +8,7 @@ import { Reveal, Stagger } from "@/components/animations/motion-primitives";
 import { PageTransition } from "@/components/ui/marquee";
 import { Magnetic } from "@/components/ui/magnetic";
 import { ProjectFrame } from "./project-frame";
+import { ProjectStage } from "./project-stage";
 
 /* ==========================================================================
    Full case study: the Problem → Solution → Features → Implementation →
@@ -133,11 +134,22 @@ export function CaseStudy({
             <ProjectFrame
               src={project.imageUrl}
               title={project.title}
+              slug={project.slug}
               className="aspect-16/10 w-full border-b-0"
               priority
             />
           </div>
         </Reveal>
+      </div>
+
+      {/* ---------------- Stage ----------------
+          The second visual presentation. When a real screenshot exists the
+          cover above carries it and this band is the immersive counterpart;
+          when none exists the cover already shows the generative signature,
+          and this band is where its metadata and technology live. Either way
+          it is a different composition, not a repeat of the same image. */}
+      <div className="mt-[clamp(2.5rem,6vw,5rem)]">
+        <ProjectStage project={project} />
       </div>
 
       {/* ---------------- Narrative ---------------- */}

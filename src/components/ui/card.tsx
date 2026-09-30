@@ -9,17 +9,27 @@ export function Card({
   className,
   glass = false,
   sweep = false,
+  /**
+   * Own an opaque fill of its own.
+   *
+   * Pass `false` when the card is the surface of a `Spotlight`: the spotlight
+   * wrapper then supplies the background so the cursor glow is not painted
+   * over by this element. The visible colour is identical either way.
+   */
+  surface = true,
   as: Tag = "div",
   ...props
 }: React.HTMLAttributes<HTMLElement> & {
   glass?: boolean;
   sweep?: boolean;
+  surface?: boolean;
   as?: React.ElementType;
 }) {
   return (
     <Tag
       className={cn(
-        "relative isolate rounded-card border border-line bg-surface",
+        "relative isolate rounded-card border border-line",
+        surface && "bg-surface",
         "transition-[border-color,background-color,box-shadow] duration-500 ease-out",
         glass && "glass",
         sweep && "border-sweep",

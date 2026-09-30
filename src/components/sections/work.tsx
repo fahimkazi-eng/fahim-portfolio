@@ -37,10 +37,10 @@ export function WorkSection({ projects }: { projects: Project[] }) {
         <SectionHeading
           index="03"
           eyebrow="Selected work"
-          title={<SplitText text="Two platforms, built properly." duration={1} />}
+          title={<SplitText text="Selected work." duration={1} />}
           lede={
             list.length
-              ? "Case studies, structured the way I actually build: problem, solution, features, implementation, result."
+              ? `${list.length} case ${list.length === 1 ? "study" : "studies"}, structured the way I actually build: problem, solution, features, implementation, result.`
               : undefined
           }
         />
@@ -128,6 +128,7 @@ function ProjectPanel({
         <ProjectFrame
           src={project.imageUrl}
           title={project.title}
+          slug={project.slug}
           className="h-[clamp(15rem,42vw,28rem)] w-full lg:col-span-7"
         />
 

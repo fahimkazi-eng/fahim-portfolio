@@ -5,23 +5,36 @@ import Image from "next/image";
 import { gsap } from "gsap";
 import { usePrefersReducedMotion } from "@/components/animations/motion-primitives";
 import { cn } from "@/lib/utils";
+import { ProjectSignature } from "./project-signature";
 
 /* ==========================================================================
    ProjectFrame
 
    The media surface for a project. Three states, in priority order:
      1. a real image, scaled subtly on hover
-     2. a generated abstract placeholder (clearly labelled "pending")
-     3. nothing
+     2. a deterministic, project-specific abstract signature (art-directed,
+        never a product mock)
+     3. nothing — but state 2 almost always renders
 
-   The hover zoom animates `scale` on the <img> only. The frame itself stays
-   still, so this never competes with the tilt/spotlight transforms applied
-   to ancestors.
+   Screenshots are presented by FIT, not by crop. A phone screenshot is
+   portrait (these two are 738x1600 and 825x1600) and the frame is landscape,
+   so `object-cover` would discard roughly five sixths of the image and leave
+   a letterbox band containing maybe a toolbar. That is not a preview of
+   anything. So the sharp layer is `object-contain` and the leftover space is
+   filled by a heavily scaled, blurred copy of the same image — the standard
+   device-showcase treatment. Every pixel of the real interface stays visible,
+   the frame keeps its designed proportions, and if a future screenshot IS
+   landscape the backdrop simply hides behind it.
+
+   The hover zoom animates `scale` on the media wrapper only. The frame itself
+   stays still, so this never competes with the tilt/spotlight transforms
+   applied to ancestors.
    ========================================================================== */
 
 type ProjectFrameProps = {
   src: string | null | undefined;
   title: string;
+  slug?: string;
   className?: string;
   /** Aspect is handled by the caller's height/width classes. */
   priority?: boolean;
@@ -30,6 +43,7 @@ type ProjectFrameProps = {
 export function ProjectFrame({
   src,
   title,
+  slug,
   className,
   priority = false,
 }: ProjectFrameProps) {
@@ -43,8 +57,14 @@ export function ProjectFrame({
     if (!el || reduced) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
 
-    const quickTo = gsap.quickTo(el, "xPercent", { duration: 0.6, ease: "power3.out" });
-    const quickToY = gsap.quickTo(el, "yPercent", { duration: 0.6, ease: "power3.out" });
+    const quickTo = gsap.quickTo(el, "xPercent", {
+      duration: 0.6,
+      ease: "power3.out",
+    });
+    const quickToY = gsap.quickTo(el, "yPercent", {
+      duration: 0.6,
+      ease: "power3.out",
+    });
 
     const onMove = (event: PointerEvent) => {
       const rect = el.getBoundingClientRect();
@@ -66,6 +86,7 @@ export function ProjectFrame({
   }, [reduced]);
 
   const showImage = Boolean(src) && !failed;
+  const seed = slug || title;
 
   return (
     <div
@@ -77,7 +98,26 @@ export function ProjectFrame({
     >
       {showImage ? (
         <>
-          <div ref={mediaRef} className="absolute -inset-[4%] will-change-transform">
+          <div
+            ref={mediaRef}
+            className="absolute -inset-[4%] will-change-transform"
+          >
+            {/* Backdrop — fills the frame, heavily blurred, so a portrait
+                screenshot sits on colour derived from itself instead of on a
+                dead grey field. Small and low quality on purpose: it carries
+                no detail, only tone. */}
+            <Image
+              src={src as string}
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="320px"
+              quality={30}
+              preload={priority}
+              loading={priority ? undefined : "lazy"}
+              className="scale-125 object-cover opacity-45 blur-2xl saturate-[1.4]"
+            />
+            {/* Foreground — the actual interface, fitted whole. */}
             <Image
               src={src as string}
               alt={`${title} — interface screenshot`}
@@ -87,7 +127,7 @@ export function ProjectFrame({
               preload={priority}
               loading={priority ? undefined : "lazy"}
               onError={() => setFailed(true)}
-              className="object-cover [transition:transform_900ms_cubic-bezier(0.16,1,0.3,1)] group-hover/frame:scale-[1.035]"
+              className="object-contain [transition:transform_900ms_cubic-bezier(0.16,1,0.3,1)] group-hover/frame:scale-[1.035]"
             />
           </div>
           {/* Scrim so the label stays legible over any screenshot. */}
@@ -97,25 +137,8 @@ export function ProjectFrame({
           />
         </>
       ) : (
-        /* Honest placeholder: an abstract field, not a fake screenshot. */
-        <div className="absolute inset-0 grid place-items-center p-6">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 opacity-[0.5] [background-image:linear-gradient(to_right,var(--grid-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-line)_1px,transparent_1px)] [background-size:38px_38px]"
-          />
-          <div className="relative max-w-[22rem] text-center">
-            <span
-              aria-hidden="true"
-              className="mx-auto mb-4 block h-px w-12 bg-accent/60"
-            />
-            <p className="type-mono text-accent">Screenshot pending</p>
-            <p className="mt-2 text-[0.78rem] leading-relaxed text-fg-muted">
-              No image has been supplied for {title}. Add one in the admin
-              dashboard — until then this placeholder stands in rather than
-              implying work that has not been shown.
-            </p>
-          </div>
-        </div>
+        /* Abstract, deterministic signature: never a fake product UI. */
+        <ProjectSignature seed={seed} title={title} className="absolute inset-0" />
       )}
     </div>
   );

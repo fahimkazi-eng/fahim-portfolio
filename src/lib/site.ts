@@ -17,6 +17,19 @@ export const site = {
   degree: "BSc in Computer Science & Engineering",
   /** Placeholder until the owner's public handles are supplied. */
   email: "kazi.fahim@example.com",
+  /**
+   * Portrait. Drop the owner's photo at this exact path inside `public/` and
+   * both the hero and the header pick it up — there is nothing else to wire.
+   *
+   * While the file is absent the `Portrait` component keeps rendering its
+   * monogram layer underneath, so the frame never collapses, never shifts
+   * layout, and never shows a broken image. That is why this is a path and
+   * not an import: an import of a missing file would fail the build.
+   */
+  portrait: {
+    src: "/portrait.jpg",
+    alt: "Kazi Fahim",
+  },
   availability: "Open to internships, freelance and collaboration",
   languages: ["Bengali", "English", "Hindi"],
   bio: [

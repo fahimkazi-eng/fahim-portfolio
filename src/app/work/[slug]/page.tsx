@@ -6,6 +6,7 @@ import { Footer } from "@/components/sections/footer";
 import { FloatingNav } from "@/components/ui/nav";
 import { buildBreadcrumbs, buildProjectSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { portraitAssetExists } from "@/lib/portrait-asset";
 
 /* ==========================================================================
    /work/[slug] — the full case study.
@@ -91,7 +92,9 @@ export default async function WorkDetailPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <FloatingNav />
+      <FloatingNav
+        portraitSrc={portraitAssetExists() ? site.portrait.src : null}
+      />
       <main id="main">
         <CaseStudy project={project} next={isOnlyProject ? null : next} />
       </main>

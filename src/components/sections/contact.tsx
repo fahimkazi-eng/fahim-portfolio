@@ -97,11 +97,13 @@ function ContactForm() {
 
   return (
     <Spotlight radius={420} className="rounded-card">
+      {/* The wrapper carries the fill (see globals.css) so the cursor glow is
+          actually visible rather than hidden behind this form's background. */}
       <form
         ref={formRef}
         action={formAction}
         noValidate
-        className="relative rounded-card border border-line bg-surface p-[clamp(1.5rem,3vw,2.5rem)]"
+        className="relative rounded-card border border-line p-[clamp(1.5rem,3vw,2.5rem)]"
       >
         <ContactFormFields state={state} />
         <ContactFormSubmit />

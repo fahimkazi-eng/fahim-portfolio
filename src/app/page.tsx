@@ -16,6 +16,7 @@ import {
   getSkills,
 } from "@/lib/db/queries";
 import { site } from "@/lib/site";
+import { portraitAssetExists } from "@/lib/portrait-asset";
 import { buildPersonSchema, buildWebSiteSchema } from "@/lib/seo";
 
 /* --------------------------------------------------------------------------
@@ -43,6 +44,11 @@ export default async function HomePage() {
   });
   const siteSchema = buildWebSiteSchema();
 
+  /* Resolved here because only a Server Component can see `public/`. Passing
+     the answer down keeps the hero and the header from each asking for an
+     image that this deployment does not have. */
+  const portraitSrc = portraitAssetExists() ? site.portrait.src : null;
+
   return (
     <>
       <script
@@ -53,10 +59,10 @@ export default async function HomePage() {
         }}
       />
 
-      <FloatingNav />
+      <FloatingNav portraitSrc={portraitSrc} />
 
       <main id="main">
-        <Hero />
+        <Hero portraitSrc={portraitSrc} />
         <AboutSection />
         <StackSection skills={skills} />
         <WorkSection projects={projects} />

@@ -147,6 +147,7 @@ function CaseStudy({ project, index }: { project: Project; index: number }) {
             <ProjectFrame
               src={project.imageUrl}
               title={project.title}
+              slug={project.slug}
               className="aspect-4/3 w-full border-b-0 lg:aspect-16/10"
             />
           </div>

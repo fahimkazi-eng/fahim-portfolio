@@ -19,7 +19,9 @@ export function ServicesSection({ services }: { services: Service[] }) {
         {services.map((service, i) => (
           <Tilt key={service.id} max={3.5} className="h-full">
             <Spotlight radius={340} className="h-full rounded-card">
-              <Card sweep className="flex h-full flex-col p-7">
+              {/* surface={false}: the spotlight wrapper supplies the fill so
+                  the glow is not painted over by an opaque card. */}
+              <Card sweep surface={false} className="flex h-full flex-col p-7">
                 <div className="mb-6 flex items-center justify-between">
                   <span className="type-mono text-accent tabular-nums">
                     {String(i + 1).padStart(2, "0")}

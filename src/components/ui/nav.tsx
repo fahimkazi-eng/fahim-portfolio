@@ -7,6 +7,7 @@ import { navItems, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { useTheme, type ThemePreference } from "./theme-provider";
 import { Magnetic } from "./magnetic";
+import { Portrait } from "./portrait";
 
 /* ==========================================================================
    FloatingNav
@@ -21,7 +22,12 @@ import { Magnetic } from "./magnetic";
      dialog primitive underneath.
    ========================================================================== */
 
-export function FloatingNav() {
+/**
+ * `portraitSrc` is resolved on the server by whichever route renders this
+ * (see `portraitAssetExists`). `null` means this deployment has no photograph,
+ * and `Portrait` renders its monogram alone without issuing a request.
+ */
+export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeId, setActiveId] = useState<string>("about");
   const [open, setOpen] = useState(false);
@@ -128,20 +134,33 @@ export function FloatingNav() {
           {/* Wordmark.
 
               No aria-label here on purpose. The link is to #hero, but the
-              visible wordmark changes with the breakpoint ("KF" alone on
-              mobile, "KF Kazi Fahim" above it), so any hardcoded aria-label
-              would fail to contain the visible text on one of them. Letting
-              the name come from the content keeps the accessible name and the
-              visible label identical at every width. */}
+              visible wordmark changes with the breakpoint (portrait alone on
+              mobile, portrait + name above it), so any hardcoded aria-label
+              would fail to contain the visible text on one of them. Instead
+              the name lives in a visually-hidden element that is ALWAYS
+              rendered, and the visible name is aria-hidden. That guarantees
+              the accessible name contains the visible text at every width
+              without duplicating it. The portrait itself is decorative here
+              (alt=""), so it never announces the name a second time. */}
           <Link
             href="#hero"
             className="group mr-1 flex items-center gap-2.5 rounded-pill py-1 pr-2"
             title="Back to top"
           >
-            <span className="grid size-8 place-items-center rounded-full bg-fg text-[0.7rem] font-semibold tracking-tight text-canvas transition-colors duration-300 group-hover:bg-accent group-hover:text-accent-fg">
-              {site.initials}
-            </span>
-            <span className="hidden font-display text-[0.95rem] font-semibold tracking-tight text-fg sm:inline">
+            <Magnetic strength={4}>
+              <Portrait
+                src={portraitSrc}
+                alt=""
+                size={128}
+                sizes="36px"
+                className="size-8 shrink-0 transition-[box-shadow] duration-500 group-hover:ring-2 group-hover:ring-accent/45 group-hover:shadow-[0_0_20px_-6px_var(--accent)]"
+              />
+            </Magnetic>
+            <span className="sr-only">{site.name}</span>
+            <span
+              aria-hidden="true"
+              className="hidden font-display text-[0.95rem] font-semibold tracking-tight text-fg transition-colors duration-300 group-hover:text-accent sm:inline"
+            >
               {site.name}
             </span>
           </Link>

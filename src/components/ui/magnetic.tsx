@@ -149,8 +149,16 @@ export function Spotlight({
   }, [reduced]);
 
   return (
+    /* `data-spot="on"` is the hook that makes the glow reachable. See the
+       rule in globals.css: the direct child marked `data-spot-surface` gives
+       up its opaque background while it is inside a spotlight, so this
+       negative-z layer is no longer painted over by a solid card. The child
+       keeps its border, shadow and all of its text — only the fill moves
+       down here. Without that, the glow renders behind an opaque surface and
+       is invisible, which is exactly what it was doing before. */
     <Tag
       ref={ref as never}
+      data-spot="on"
       className={`group/spot relative isolate overflow-hidden ${className}`}
       style={{ "--spot-size": `${radius}px` } as React.CSSProperties}
     >
