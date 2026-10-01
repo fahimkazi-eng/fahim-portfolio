@@ -87,6 +87,24 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
           },
           0.14,
         )
+        /* The role line: word by word, one beat behind the name's last glyph,
+           with a little travel so it settles rather than merely appearing. */
+        .fromTo(
+          "[data-hero-role-word]",
+          { yPercent: 118, autoAlpha: 0 },
+          {
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: 0.95,
+            stagger: 0.07,
+            ease: "expo.out",
+            onComplete: () =>
+              gsap.set("[data-hero-role-word]", {
+                clearProps: "transform,opacity,visibility",
+              }),
+          },
+          0.52,
+        )
         .fromTo(
           "[data-hero-portrait-mask]",
           { clipPath: "circle(4% at 50% 50%)" },
@@ -296,6 +314,20 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
                 />
               </span>
             </h1>
+
+            {/* Job title, directly under the name. Its own masked line so it
+                rises out of a mask on the same timeline as the name, one
+                beat behind — the name lands, then the role settles in. */}
+            <p className="mt-[clamp(0.75rem,1.6vw,1.35rem)]">
+              <span className="sr-only">{site.roleTitle}. </span>
+              <span
+                aria-hidden="true"
+                className="type-mono inline-flex items-center gap-2.5 text-fg-muted"
+              >
+                <span className="h-px w-8 bg-accent/60" aria-hidden="true" />
+                <MaskedLineHook text={site.roleTitle} />
+              </span>
+            </p>
           </div>
 
           {/* Portrait */}
@@ -433,6 +465,40 @@ function MaskedLine({ text, className }: { text: string; className?: string }) {
         >
           <span data-hero-char className="inline-block whitespace-pre">
             {char}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/**
+ * The role line, hanging off the same one timeline via the
+ * `data-hero-role-word` hook rather than introducing a second animation
+ * system (MOTION.md: one owner per property).
+ *
+ * Grouped per word, not per glyph. The name staggers its characters at
+ * 0.028s; splitting a two-word title at the same rate and offset would finish
+ * later than the name does, which reads as lag instead of sequence. Per word
+ * it lands as one confident beat behind the name.
+ *
+ * Word spacing is a gap on the wrapper, not a literal space inside a mask.
+ * A space travelling up through an `overflow-hidden` box gets clipped on its
+ * way past, which makes the gap look like it pulses; the gap lives outside the
+ * mask and is therefore static.
+ */
+function MaskedLineHook({ text }: { text: string }) {
+  const words = text.split(" ");
+
+  return (
+    <span className="inline-flex gap-[0.32em]">
+      {words.map((word, i) => (
+        <span
+          key={`${word}-${i}`}
+          className="inline-block overflow-hidden align-bottom [clip-path:inset(-0.3em_-0.2em_-0.1em_-0.2em)]"
+        >
+          <span data-hero-role-word className="inline-block">
+            {word}
           </span>
         </span>
       ))}

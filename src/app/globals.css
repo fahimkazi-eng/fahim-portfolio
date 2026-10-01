@@ -419,6 +419,27 @@
   }
 }
 
+/* The floating header settling down into place on first paint.
+
+   Deliberately CSS rather than a GSAP tween. This bar is a fixed element
+   that React's prerender shell can hand over between the server shell and
+   the hydrated tree; a tween whose element is swapped out mid-flight is
+   orphaned with its "from" state still applied, which left the header at
+   opacity 0. A stylesheet animation cannot be orphaned that way — if the
+   node is replaced it simply replays, and if it is not, it runs to the end
+   and stops. `both` fill holds the final state. The reduced-motion block
+   below neutralises it for visitors who asked for none. */
+@keyframes nav-settle {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -18%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 /* Indeterminate loading hairline. Scale is a direct function of the
    animation phase, so it never triggers layout. */
 @keyframes load-bar {

@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { aboutPillars, site } from "@/lib/site";
-import { Card, PlaceholderNote, Section, SectionHeading } from "@/components/ui/card";
+import { Card, Section, SectionHeading } from "@/components/ui/card";
 import { Reveal, Stagger } from "@/components/animations/motion-primitives";
 import { SplitText } from "@/components/animations/split-text";
 import { CountUp } from "@/components/animations/scroll-motion";
@@ -70,7 +70,7 @@ export function AboutSection() {
       <div className="mt-[clamp(3rem,7vw,6rem)] grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line md:grid-cols-4">
         {[
           { value: 4, suffix: "", label: "Years in software & service work" },
-          { value: 2, suffix: "", label: "Platforms shipped end to end" },
+          { value: 10, suffix: "+", label: "Platforms built" },
           { value: 7, suffix: "", label: "Core professional strengths" },
           { value: 3, suffix: "", label: "Languages spoken" },
         ].map((stat, i) => (
@@ -100,14 +100,6 @@ export function AboutSection() {
         </Marquee>
       </div>
 
-      <Reveal className="mt-8 max-w-2xl">
-        <PlaceholderNote>
-          A headshot, short bio reel and client logos would strengthen this
-          section. None have been supplied, so nothing has been fabricated —
-          drop a photo into <code className="font-mono">/public</code> and edit
-          this block from the admin dashboard.
-        </PlaceholderNote>
-      </Reveal>
-    </Section>
+      </Section>
   );
 }

@@ -1,11 +1,6 @@
 import type { Education, Experience } from "@/lib/db/schema";
-import {
-  Card,
-  PlaceholderNote,
-  Section,
-  SectionHeading,
-} from "@/components/ui/card";
-import { Reveal, Stagger } from "@/components/animations/motion-primitives";
+import { Card, Section, SectionHeading } from "@/components/ui/card";
+import { Stagger } from "@/components/animations/motion-primitives";
 import { SplitText } from "@/components/animations/split-text";
 import { TimelineStrip } from "./timeline-strip";
 import { site } from "@/lib/site";
@@ -79,10 +74,6 @@ export function PathSection({
     ...experiences.map((e) => toMarker(e, "experience")),
   ];
 
-  const noHighlights = experiences.some(
-    (e) => !e.description && e.highlights.length === 0,
-  );
-
   return (
     <Section id="path">
       <SectionHeading
@@ -92,14 +83,7 @@ export function PathSection({
         lede="A degree in progress, and two years of being the person customers and volunteers actually talk to."
       />
 
-      {markers.length === 0 ? (
-        <PlaceholderNote>
-          No experience or education entries yet. Add them from the admin
-          dashboard.
-        </PlaceholderNote>
-      ) : (
-        <TimelineStrip markers={markers} />
-      )}
+      {markers.length > 0 ? <TimelineStrip markers={markers} /> : null}
 
       {/* Education + languages as a bento pair */}
       <div className="mt-[clamp(3rem,7vw,6rem)] grid grid-cols-1 gap-4 md:grid-cols-12">
@@ -135,16 +119,21 @@ export function PathSection({
 
           <Card sweep className="p-7 md:col-span-5">
             <p className="type-mono mb-4 text-accent">Languages</p>
+            {/* No levels, percentages or ordering. The owner speaks these three;
+                how fluently is not something to assert on their behalf. Each
+                gets the same treatment, so the list cannot be misread as a
+                ranking. */}
             <ul className="space-y-3">
-              {site.languages.map((lang, i) => (
+              {site.languages.map((lang) => (
                 <li
                   key={lang}
-                  className="flex items-center justify-between border-b border-line pb-3 last:border-0 last:pb-0"
+                  className="flex items-center gap-3 border-b border-line pb-3 last:border-0 last:pb-0"
                 >
+                  <span
+                    aria-hidden="true"
+                    className="size-1.5 shrink-0 rounded-full bg-accent"
+                  />
                   <span className="text-body text-fg">{lang}</span>
-                  <span className="type-mono text-fg-subtle">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
                 </li>
               ))}
             </ul>
@@ -152,15 +141,11 @@ export function PathSection({
         </Stagger>
       </div>
 
-      {noHighlights ? (
-        <Reveal className="mt-6 max-w-3xl">
-          <PlaceholderNote>
-            Job descriptions and responsibilities have not been supplied for
-            these roles. Add a description and highlight list per role in the
-            admin dashboard rather than having generic filler generated here.
-          </PlaceholderNote>
-        </Reveal>
-      ) : null}
+      {/* No filler is generated for a role the owner has not described. The
+          timeline above already carries the role, organisation and dates,
+          which is the whole verifiable claim — so when there is nothing more
+          to say, the section simply ends. Descriptions and highlights added
+          in the admin render themselves. */}
     </Section>
   );
 }

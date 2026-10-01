@@ -11,7 +11,15 @@ export const site = {
   shortName: "Fahim",
   initials: "KF",
   role: "CSE Student · Software & Web Developer",
-  roleLine: "Computer Science & Engineering student building digital products.",
+  /**
+   * The job title, set directly under the name in the hero. Kept separate from
+   * `role` because `role` also feeds the footer and the structured data, where
+   * the fuller "CSE Student · Software & Web Developer" reads correctly. The
+   * hero wants the short, confident version.
+   */
+  roleTitle: "Software Engineer",
+  roleLine:
+    "Computer Science & Engineering student building digital products end to end — schema, server, interface.",
   location: "Bangladesh",
   university: "Northern University Bangladesh",
   degree: "BSc in Computer Science & Engineering",

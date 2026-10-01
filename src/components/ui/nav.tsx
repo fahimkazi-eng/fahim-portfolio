@@ -35,6 +35,12 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
 
   const pillRef = useRef<HTMLSpanElement | null>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  /* The entrance is CSS (`nav-settle` in globals.css), not a tween. See the
+     note on that keyframe: a GSAP tween on this element can be orphaned
+     mid-flight when React's prerender shell hands the header over to the
+     hydrated tree, which left the bar stuck at opacity 0. A stylesheet
+     animation has no lifecycle to lose. Reduced motion collapses its
+     duration to ~0 and holds the end state, so the bar is simply there. */
 
   /* ---- scroll state (passive, rAF-throttled) ---- */
   useEffect(() => {
@@ -118,6 +124,8 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
     <>
       <header
         className={cn(
+          "[&]:animate-[nav-settle_1s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]",
+          "motion-reduce:[&]:animate-none",
           "fixed inset-x-0 top-0 z-50 flex justify-center transition-[padding] duration-500 ease-out",
           scrolled ? "pt-3" : "pt-[clamp(0.75rem,0.4rem+1.4vw,1.75rem)]",
         )}
@@ -125,7 +133,10 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
         <nav
           aria-label="Primary"
           className={cn(
-            "relative flex items-center gap-1 rounded-pill border border-line transition-all duration-500 ease-out",
+            /* Named properties rather than `transition-all` (MOTION.md): the
+               bar is animated by its own entrance tween, and a blanket
+               transition would race it on any property it happens to touch. */
+            "relative flex items-center gap-1 rounded-pill border border-line transition-[background-color,border-color,box-shadow,height,width,padding] duration-500 ease-out",
             scrolled
               ? "glass h-12 w-[min(100%-1.5rem,64rem)] shadow-[0_10px_40px_-24px_rgba(0,0,0,0.6)] pl-5 pr-1.5"
               : "h-14 w-[min(100%-2.5rem,68rem)] border-transparent bg-transparent pl-1 pr-1",

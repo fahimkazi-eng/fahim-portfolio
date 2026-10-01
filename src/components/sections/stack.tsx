@@ -1,5 +1,5 @@
 import type { Skill } from "@/lib/db/schema";
-import { Card, Section, SectionHeading, PlaceholderNote } from "@/components/ui/card";
+import { Card, Section, SectionHeading } from "@/components/ui/card";
 import { Reveal, Stagger } from "@/components/animations/motion-primitives";
 import { SplitText } from "@/components/animations/split-text";
 import { Spotlight, Tilt } from "@/components/ui/magnetic";
@@ -88,14 +88,7 @@ export function StackSection({ skills }: { skills: Skill[] }) {
               </div>
             ))}
 
-            <div className="mt-auto pt-6">
-              <PlaceholderNote>
-                Specific technologies, tools and libraries used in past
-                projects have not been provided. Add them per category from the
-                admin dashboard and they will appear here automatically.
-              </PlaceholderNote>
-            </div>
-          </Card>
+            </Card>
         </Reveal>
 
         {/* The lead technology, given room to breathe. */}
@@ -120,9 +113,8 @@ export function StackSection({ skills }: { skills: Skill[] }) {
 
       <Reveal>
         <p className="type-mono mt-8 max-w-[62ch] leading-relaxed text-fg-subtle">
-          Everything on the right is a verifiable property of this repository,
-          not a claim about client work. Tools used in specific projects are
-          listed on that project&apos;s own case study.
+          Every technology above is a verifiable property of this repository,
+          not a claim about client work.
         </p>
       </Reveal>
     </Section>

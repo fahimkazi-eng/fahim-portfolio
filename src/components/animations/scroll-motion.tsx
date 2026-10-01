@@ -233,11 +233,15 @@ export function CountUp({
   to,
   duration = 1.4,
   className,
+  prefix = "",
   suffix = "",
 }: {
   to: number;
   duration?: number;
   className?: string;
+  /** Rendered before the number. */
+  prefix?: string;
+  /** Rendered after the number, e.g. "+" for a floor rather than an exact count. */
   suffix?: string;
 }) {
   const ref = useRef<HTMLSpanElement | null>(null);
@@ -249,7 +253,7 @@ export function CountUp({
     gsap.registerPlugin(ScrollTrigger);
 
     if (reduced) {
-      el.textContent = `${to}${suffix}`;
+      el.textContent = `${prefix}${to}${suffix}`;
       return;
     }
 
@@ -261,7 +265,7 @@ export function CountUp({
       snap: { value: 1 },
       scrollTrigger: { trigger: el, start: "top 92%", once: true },
       onUpdate: () => {
-        el.textContent = `${Math.round(counter.value)}${suffix}`;
+        el.textContent = `${prefix}${Math.round(counter.value)}${suffix}`;
       },
     });
 
@@ -269,11 +273,11 @@ export function CountUp({
       tween.scrollTrigger?.kill();
       tween.kill();
     };
-  }, [to, duration, suffix, reduced]);
+  }, [to, duration, prefix, suffix, reduced]);
 
   return (
     <span ref={ref} className={className}>
-      {reduced ? `${to}${suffix}` : `0${suffix}`}
+      {reduced ? `${prefix}${to}${suffix}` : `${prefix}0${suffix}`}
     </span>
   );
 }
