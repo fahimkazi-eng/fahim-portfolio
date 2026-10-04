@@ -111,6 +111,19 @@
   --grain-blend: multiply;
   --aurora-opacity: 0.5;
   --color-scheme: light;
+
+  /* ---- Per-technology accent, as a constrained system -------------------
+     Each technology gets its own hue so the banners can be told apart at a
+     glance, but hue is the ONLY thing that varies. Lightness and saturation
+     are fixed globally and re-tuned per theme, so ten different hues still
+     read as one family instead of a rainbow. On paper the values sit dark and
+     restrained; on ink they lift, which is the same relationship the rest of
+     the palette uses. Components read `--tech-h` only — never a raw hue. */
+  --tech-l: 42%;
+  --tech-s: 52%;
+  /* How strongly a banner's own colour is allowed to glow. Kept low on paper
+     so a coloured field never fights the text sitting on it. */
+  --tech-glow: 14%;
 }
 
 .dark {
@@ -134,6 +147,13 @@
   --grain-blend: overlay;
   --aurora-opacity: 0.85;
   --color-scheme: dark;
+
+  /* Same system as the light values above, lifted for ink: brighter and a
+     little more saturated, because a dark canvas needs more of both before a
+     colour reads at all. */
+  --tech-l: 68%;
+  --tech-s: 66%;
+  --tech-glow: 30%;
 }
 
 @theme inline {
@@ -445,6 +465,1404 @@
 @keyframes load-bar {
   from { transform: scaleX(0.08); }
   to { transform: scaleX(0.92); }
+}
+
+/* ==========================================================================
+   Technology banner scenes
+
+   Every rule here animates only `transform`, `opacity`, or
+   `background-position`. Nothing animates width, height, top, left, margin
+   or padding, so no banner can trigger layout on the page. That constraint is
+   what keeps ten simultaneous scenes free.
+
+   Colour is never written literally. Each card sets `--tech-h`, and these
+   rules combine it with the global `--tech-s`/`--tech-l` so saturation and
+   contrast are decided once for the whole section rather than ten times.
+
+   Reduced motion, touch and off-screen all reduce cost rather than remove the
+   illustration: the stage keeps its final, readable state.
+   ========================================================================== */
+
+/* The colour a banner draws with, and the surfaces it sits on. One place, so
+   the fade at the foot of every banner matches the card behind it. */
+.tech-stage {
+  --tech: hsl(var(--tech-h) var(--tech-s) var(--tech-l));
+  --tech-soft: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.16);
+  --tech-mid: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.42);
+  --tech-line: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.5);
+  --tech-surface: var(--surface);
+  --tech-fg: var(--fg);
+
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: calc(var(--radius-card) - 0.45rem);
+  border: 1px solid hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.22);
+  background:
+    radial-gradient(
+      120% 100% at 50% 0%,
+      hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.14),
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.07),
+      transparent 62%
+    ),
+    var(--surface-strong);
+  color: var(--fg);
+  contain: layout paint;
+}
+
+.tech-stage-tall {
+  aspect-ratio: 16 / 9;
+}
+
+/* Local grain, so each banner has surface texture rather than reading as flat
+   vector art. One shared SVG, no extra request. */
+.tech-stage-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3Crect width='120' height='120' filter='url(%23b)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* A travelling highlight that crosses a banner on hover. The only property it
+   moves is background-position, so it costs no layout and no repaint of the
+   shapes beneath it. */
+.tech-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-out-expo);
+  background: linear-gradient(
+    105deg,
+    transparent 34%,
+    hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.16) 50%,
+    transparent 66%
+  );
+  background-size: 260% 100%;
+}
+
+.group\/cell:hover .tech-stage::after,
+.group\/lead:hover .tech-stage::after {
+  opacity: 1;
+  animation: tech-sheen 1.5s var(--ease-out-expo);
+}
+
+@keyframes tech-sheen {
+  from { background-position: 150% 0; }
+  to { background-position: -60% 0; }
+}
+
+/* The luminous edge along the top of a card, tinted by the technology. */
+.tech-lead-edge,
+.tech-cell-edge {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.75) 45%,
+    transparent
+  );
+  opacity: 0.5;
+  transition: opacity 0.6s var(--ease-out-expo);
+}
+
+.tech-lead-edge {
+  height: 2px;
+  opacity: 0.7;
+}
+
+.group\/cell:hover .tech-cell-edge,
+.group\/lead:hover .tech-lead-edge {
+  opacity: 1;
+}
+
+/* The mark chip, tinted by the technology instead of the site accent. */
+.tech-mark-chip {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.7rem;
+  color: var(--tech);
+  border: 1px solid hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.4);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.12);
+  box-shadow: 0 0 22px -8px hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.55);
+  transition:
+    box-shadow 0.5s var(--ease-out-expo),
+    background-color 0.5s var(--ease-out-expo);
+}
+
+.tech-mark-chip-sm {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.55rem;
+}
+
+.group\/cell:hover .tech-mark-chip,
+.group\/lead:hover .tech-mark-chip {
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.22);
+  box-shadow: 0 0 30px -6px hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.7);
+}
+
+/* Small mono labels inside a banner. */
+.tech-badge {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.1);
+  color: var(--tech);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---- shared: 1. Next.js ---------------------------------------------------- */
+
+.tech-page {
+  position: absolute;
+  border-radius: 0.45rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.05);
+}
+
+.tech-page-back {
+  left: 8%;
+  top: 16%;
+  width: 54%;
+  height: 52%;
+  opacity: 0.3;
+  transform: translate3d(-10%, -8%, 0);
+}
+
+.tech-page-mid {
+  left: 16%;
+  top: 22%;
+  width: 62%;
+  height: 58%;
+  opacity: 0.5;
+  transform: translate3d(-4%, -3%, 0);
+}
+
+.tech-page-front {
+  left: 25%;
+  top: 29%;
+  width: 64%;
+  height: 60%;
+  z-index: 1;
+  padding: 0.45rem;
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.1);
+  box-shadow: 0 18px 40px -22px hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.6);
+  animation: tech-page-swap 7s var(--ease-in-out-quart) infinite;
+}
+
+@keyframes tech-page-swap {
+  0%, 8% { transform: translate3d(6%, 2%, 0); }
+  26%, 52% { transform: translate3d(0, 0, 0); }
+  74%, 100% { transform: translate3d(6%, 2%, 0); }
+}
+
+.tech-page-bar {
+  display: flex;
+  gap: 0.2rem;
+  padding-bottom: 0.4rem;
+}
+
+.tech-dot {
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--tech-line);
+}
+
+.tech-page-rows {
+  display: grid;
+  gap: 0.28rem;
+  padding: 0.35rem 0.1rem;
+}
+
+.tech-skel {
+  height: 0.28rem;
+  border-radius: 999px;
+  background: var(--tech-soft);
+  transform-origin: left center;
+  animation: tech-skel 4.5s var(--ease-out-expo) infinite;
+}
+
+.tech-skel-wide { width: 78%; }
+.tech-skel-short { width: 46%; animation-delay: 0.18s; }
+
+@keyframes tech-skel {
+  0%, 10% { transform: scaleX(0.2); opacity: 0.4; }
+  40%, 70% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(0.2); opacity: 0.4; }
+}
+
+/* The client island: the only subtree that hydrates. */
+.tech-island {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+  padding: 0.22rem 0.35rem;
+  border-radius: 0.3rem;
+  border: 1px dashed var(--tech-line);
+}
+
+.tech-island-label {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  color: var(--tech);
+}
+
+.tech-island-pulse {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: var(--tech);
+  animation: pulse-ring 3.2s var(--ease-out-expo) infinite;
+}
+
+.tech-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tech-route-line {
+  fill: none;
+  stroke: var(--tech-mid);
+  stroke-width: 1;
+  stroke-dasharray: 6 5;
+  stroke-linecap: round;
+}
+
+.tech-route-dot {
+  fill: var(--tech);
+  filter: drop-shadow(0 0 4px var(--tech));
+}
+
+.tech-server-tag {
+  position: absolute;
+  right: 5%;
+  top: 10%;
+  z-index: 2;
+  padding: 0.18rem 0.4rem;
+  border-radius: 0.3rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.12);
+  color: var(--tech);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+}
+
+/* ---- shared: 2. TypeScript ------------------------------------------------ */
+
+.tech-editor {
+  position: absolute;
+  inset: 9% 7% 30% 7%;
+  z-index: 1;
+  display: flex;
+  gap: 0.45rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.45rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.06);
+}
+
+.tech-editor-gutter {
+  display: grid;
+  align-content: start;
+  gap: 0.16rem;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  line-height: 1.35;
+  color: hsl(var(--tech-h) 20% var(--fg-subtle));
+  opacity: 0.7;
+}
+
+.tech-code {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  line-height: 1.35;
+  color: var(--fg-muted);
+  white-space: pre;
+}
+
+/* Syntax colours stay inside the technology's own hue family: keywords take
+   the hue, types a lighter tint, punctuation a desaturated grey. That keeps
+   the scene from becoming a second rainbow inside an already-tinted card. */
+.tech-kw { color: var(--tech); }
+.tech-type { color: hsl(var(--tech-h) 55% calc(var(--tech-l) + 12%)); }
+.tech-prop { color: var(--fg); }
+.tech-punct { color: hsl(var(--tech-h) 12% var(--fg-subtle)); }
+
+.tech-caret {
+  display: inline-block;
+  width: 1px;
+  height: 0.7em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--tech);
+  animation: caret-blink 1.05s steps(1) infinite;
+}
+
+/* The type checker: a squiggle that resolves to a tick. */
+.tech-checker {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: 16%;
+  z-index: 2;
+  height: 1.4rem;
+}
+
+.tech-checker-bar {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 1px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--tech-mid), transparent);
+  animation: tech-check-scan 4.6s var(--ease-out-expo) infinite;
+}
+
+@keyframes tech-check-scan {
+  0%, 12% { transform: scaleX(0); }
+  46%, 88% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+.tech-checker-tick {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 0.85rem;
+  height: 0.85rem;
+  transform: translate3d(0, -50%, 0) scale(0.4);
+  opacity: 0;
+  border-radius: 999px;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.2);
+}
+
+.tech-checker-tick::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--tech);
+  /* A tick drawn with two bars and a clip, rather than a glyph, so it scales
+     cleanly and matches the stroke weight of everything else here. */
+  clip-path: polygon(
+    22% 52%, 34% 40%, 44% 52%, 68% 24%, 80% 36%, 44% 76%
+  );
+  transform: scale(0.5);
+}
+
+.tech-checker-tick {
+  animation: tech-check-tick 4.6s var(--ease-out-back) infinite;
+}
+
+@keyframes tech-check-tick {
+  0%, 40% { transform: translate3d(0, -50%, 0) scale(0.4); opacity: 0; }
+  52% { transform: translate3d(0, -50%, 0) scale(1.08); opacity: 1; }
+  62%, 88% { transform: translate3d(0, -50%, 0) scale(1); opacity: 1; }
+  100% { transform: translate3d(0, -50%, 0) scale(0.4); opacity: 0; }
+}
+
+.tech-badge-ok {
+  right: 7%;
+  bottom: 5%;
+  animation: tech-fade-inout 4.6s var(--ease-out-expo) infinite;
+}
+
+@keyframes tech-fade-inout {
+  0%, 44% { opacity: 0; transform: translate3d(0, 3px, 0); }
+  56%, 86% { opacity: 1; transform: translate3d(0, 0, 0); }
+  100% { opacity: 0; transform: translate3d(0, -3px, 0); }
+}
+
+/* ---- shared: 3. Tailwind --------------------------------------------------- */
+
+.tech-chip-cloud {
+  position: absolute;
+  left: 6%;
+  top: 10%;
+  z-index: 1;
+  display: grid;
+  gap: 0.22rem;
+  width: 34%;
+}
+
+.tech-chip {
+  padding: 0.14rem 0.3rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.08);
+  color: var(--tech);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  opacity: 0;
+  animation: tech-chip-in 5s var(--ease-out-expo) infinite;
+  animation-delay: calc(var(--i) * 0.16s);
+}
+
+@keyframes tech-chip-in {
+  0%, 6% { opacity: 0; transform: translate3d(-6px, 0, 0); }
+  18%, 82% { opacity: 1; transform: translate3d(0, 0, 0); }
+  100% { opacity: 0; transform: translate3d(4px, 0, 0); }
+}
+
+.tech-composed {
+  position: absolute;
+  right: 5%;
+  top: 14%;
+  z-index: 1;
+  width: 50%;
+  padding: 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.07);
+  animation: tech-reflow 5s var(--ease-in-out-quart) infinite;
+}
+
+/* The same component at two breakpoints: three columns collapsing to one. */
+@keyframes tech-reflow {
+  0%, 22% { transform: scale3d(1, 1, 1); }
+  40%, 62% { transform: scale3d(0.82, 1.06, 1); }
+  80%, 100% { transform: scale3d(1, 1, 1); }
+}
+
+.tech-composed-bar {
+  height: 0.26rem;
+  border-radius: 999px;
+  background: var(--tech-soft);
+  margin-bottom: 0.35rem;
+}
+
+.tech-composed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.22rem;
+}
+
+.tech-composed-cell {
+  aspect-ratio: 4 / 3;
+  border-radius: 0.22rem;
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.16);
+}
+
+.tech-composed-cell:nth-child(2) {
+  animation: tech-cell-pop 2.4s var(--ease-out-expo) infinite;
+}
+
+@keyframes tech-cell-pop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.72); }
+}
+
+.tech-composed-label {
+  display: block;
+  margin-top: 0.32rem;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  color: var(--tech);
+}
+
+.tech-wire {
+  fill: none;
+  stroke: var(--tech-mid);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  stroke-linecap: round;
+  stroke-dashoffset: 100;
+  animation: tech-wire-draw 5s var(--ease-out-expo) infinite;
+}
+
+@keyframes tech-wire-draw {
+  0%, 14% { stroke-dashoffset: 100; }
+  40%, 80% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -100; }
+}
+
+/* ---- shared: 4. Neon Postgres ---------------------------------------------- */
+
+.tech-db-link {
+  fill: none;
+  stroke: var(--tech-mid);
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+  stroke-linecap: round;
+}
+
+.tech-db-link-2 { animation-duration: 3.1s; }
+.tech-db-link-3 { animation-duration: 4.3s; }
+
+.tech-db-link {
+  animation: tech-dash 2.2s linear infinite;
+}
+
+@keyframes tech-dash {
+  to { stroke-dashoffset: -18; }
+}
+
+.tech-row {
+  position: absolute;
+  left: 6%;
+  z-index: 1;
+  width: 1.6rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: var(--tech-mid);
+  opacity: 0;
+  animation: tech-row-flow 3.6s var(--ease-out-expo) infinite;
+  animation-delay: calc(var(--i) * 0.5s);
+  top: calc(22% + var(--i) * 20%);
+}
+
+@keyframes tech-row-flow {
+  0% { opacity: 0; transform: translate3d(0, 0, 0); }
+  18% { opacity: 1; }
+  62% { opacity: 1; transform: translate3d(58px, 0, 0); }
+  100% { opacity: 0; transform: translate3d(88px, 0, 0); }
+}
+
+.tech-row-key {
+  position: absolute;
+  inset: 30% 22%;
+  border-radius: 999px;
+  background: var(--tech);
+}
+
+.tech-store {
+  position: absolute;
+  left: 42%;
+  top: 24%;
+  z-index: 1;
+  width: 34%;
+  height: 52%;
+}
+
+.tech-store-plane {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.4rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.05);
+}
+
+.tech-store-plane:nth-child(2) {
+  transform: translate3d(0, -9%, 0);
+  opacity: 0.4;
+}
+
+.tech-store-plane-top {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.18rem;
+  padding: 0.28rem;
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.1);
+  box-shadow: 0 0 24px -10px hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.7);
+}
+
+.tech-store-cell {
+  border-radius: 0.2rem;
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.24);
+}
+
+.tech-store-cell:nth-child(2) {
+  animation: tech-cell-flicker 2.8s var(--ease-out-expo) infinite;
+}
+
+@keyframes tech-cell-flicker {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+.tech-badge-query {
+  left: 38%;
+  bottom: 6%;
+  animation: tech-fade-inout 3.6s var(--ease-out-expo) infinite;
+}
+
+.tech-pulse-ring {
+  position: absolute;
+  right: 8%;
+  top: 50%;
+  z-index: 2;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--tech);
+  transform: translate3d(0, -50%, 0);
+  animation: pulse-ring 3.6s var(--ease-out-expo) infinite;
+}
+
+/* ---- shared: 5. Drizzle ORM ------------------------------------------------ */
+
+.tech-typed {
+  position: absolute;
+  left: 6%;
+  top: 7%;
+  z-index: 2;
+  padding: 0.16rem 0.36rem;
+  border-radius: 0.3rem;
+  border: 1px dashed var(--tech-line);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  white-space: nowrap;
+}
+
+.tech-typed-kw { color: var(--tech); }
+.tech-typed-name { color: var(--fg-muted); }
+.tech-typed-str { color: hsl(var(--tech-h) 40% var(--fg-subtle)); }
+
+.tech-table {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.32rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.07);
+}
+
+.tech-table-a {
+  left: 5%;
+  top: 38%;
+  width: 27%;
+}
+
+.tech-table-b {
+  right: 5%;
+  top: 38%;
+  width: 25%;
+}
+
+.tech-table-name {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  color: var(--tech);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tech-table-col {
+  height: 0.24rem;
+  border-radius: 999px;
+  background: var(--tech-soft);
+}
+
+.tech-table-col:nth-of-type(3) {
+  width: 62%;
+}
+
+.tech-rel-line {
+  fill: none;
+  stroke: var(--tech-mid);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-dasharray: 4 4;
+  animation: tech-dash 2.6s linear infinite;
+}
+
+.tech-rel-packet {
+  fill: var(--tech);
+  filter: drop-shadow(0 0 4px var(--tech));
+}
+
+.tech-badge.tech-badge:first-of-type {
+  left: 6%;
+  bottom: 6%;
+}
+
+/* ---- shared: 6. Zod -------------------------------------------------------- */
+
+.tech-payload {
+  position: absolute;
+  left: 5%;
+  top: 50%;
+  z-index: 2;
+  transform: translate3d(0, -50%, 0);
+  padding: 0.18rem 0.34rem;
+  border-radius: 0.3rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.1);
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+}
+
+.tech-pipeline {
+  position: absolute;
+  left: 22%;
+  right: 20%;
+  top: 50%;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  transform: translate3d(0, -50%, 0);
+}
+
+.tech-gate {
+  position: relative;
+  width: 1.5rem;
+  height: 1.9rem;
+  border-radius: 0.32rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.06);
+  overflow: hidden;
+  animation: tech-gate-open 3.8s var(--ease-out-expo) infinite;
+  animation-delay: calc(var(--i) * 0.22s);
+}
+
+@keyframes tech-gate-open {
+  0%, 14% { opacity: 0.45; }
+  34%, 80% { opacity: 1; }
+  100% { opacity: 0.45; }
+}
+
+.tech-gate-bar {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  background: var(--tech);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: tech-gate-bar 3.8s var(--ease-out-expo) infinite;
+  animation-delay: calc(var(--i) * 0.22s);
+}
+
+@keyframes tech-gate-bar {
+  0%, 12% { transform: scaleX(0); }
+  40%, 80% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+.tech-gate-tick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  transform: translate3d(-50%, -50%, 0) scale(0.3);
+  opacity: 0;
+  background: var(--tech);
+  clip-path: polygon(22% 52%, 34% 40%, 44% 52%, 68% 24%, 80% 36%, 44% 76%);
+  animation: tech-gate-tick 3.8s var(--ease-out-back) infinite;
+  animation-delay: calc(var(--i) * 0.22s);
+}
+
+@keyframes tech-gate-tick {
+  0%, 26% { transform: translate3d(-50%, -50%, 0) scale(0.3); opacity: 0; }
+  40% { transform: translate3d(-50%, -50%, 0) scale(1.15); opacity: 1; }
+  52%, 82% { transform: translate3d(-50%, -50%, 0) scale(1); opacity: 1; }
+  100% { transform: translate3d(-50%, -50%, 0) scale(0.3); opacity: 0; }
+}
+
+.tech-gate-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.15rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.4375rem;
+  letter-spacing: 0.02em;
+  color: var(--fg-subtle);
+}
+
+.tech-verdict {
+  position: absolute;
+  right: 4%;
+  top: 50%;
+  z-index: 2;
+  transform: translate3d(0, -50%, 0);
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--tech-line);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.tech-verdict-no {
+  grid-area: 1 / 1;
+  color: hsl(6 70% 62%);
+  animation: tech-verdict-no 3.8s var(--ease-out-expo) infinite;
+}
+
+.tech-verdict-yes {
+  grid-area: 1 / 1;
+  color: var(--tech);
+  opacity: 0;
+  animation: tech-verdict-yes 3.8s var(--ease-out-expo) infinite;
+}
+
+/* One check fails, then the value is accepted. A validator that has never
+   rejected anything is not communicating what validation does. */
+@keyframes tech-verdict-no {
+  0%, 18% { opacity: 1; }
+  30%, 100% { opacity: 0; }
+}
+
+@keyframes tech-verdict-yes {
+  0%, 24% { opacity: 0; transform: scale(0.4); }
+  36%, 86% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.4); }
+}
+
+.tech-pipe-line {
+  fill: none;
+  stroke: var(--tech-mid);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  stroke-linecap: round;
+  animation: tech-dash 1.8s linear infinite;
+}
+
+/* ---- shared: 7. GSAP ------------------------------------------------------- */
+
+.tech-tl {
+  position: absolute;
+  inset: 12% 7% 18% 7%;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  gap: 0.4rem;
+}
+
+.tech-tl-track {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tech-tl-label {
+  width: 2.9rem;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.4375rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-subtle);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tech-tl-lane {
+  position: relative;
+  flex: 1;
+  height: 0.7rem;
+  border-radius: 0.25rem;
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.07);
+}
+
+.tech-tl-key {
+  position: absolute;
+  top: 50%;
+  left: calc(4% + var(--d) * 26%);
+  width: 0.3rem;
+  height: 0.3rem;
+  transform: translate3d(-50%, -50%, 0) rotate(45deg);
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.25);
+  animation: tech-tl-key 6s var(--ease-out-expo) infinite;
+}
+
+@keyframes tech-tl-key {
+  0%, 10% { opacity: 0.3; }
+  30%, 70% { opacity: 1; background: var(--tech); }
+  100% { opacity: 0.3; }
+}
+
+/* The tween: a block travelling the lane and settling at the end. */
+.tech-tl-block {
+  position: absolute;
+  top: 50%;
+  left: 4%;
+  width: 1.5rem;
+  height: 0.5rem;
+  border-radius: 0.2rem;
+  transform: translate3d(0, -50%, 0);
+  background: linear-gradient(
+    90deg,
+    hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.35),
+    var(--tech)
+  );
+  box-shadow: 0 0 12px -3px var(--tech);
+  animation: tech-tl-run 6s var(--ease-in-out-quart) infinite;
+}
+
+@keyframes tech-tl-run {
+  0% { transform: translate3d(0, -50%, 0) scaleX(0.6); opacity: 0; }
+  14% { opacity: 1; }
+  70% { transform: translate3d(180%, -50%, 0) scaleX(1); opacity: 1; }
+  86%, 100% { transform: translate3d(180%, -50%, 0) scaleX(1); opacity: 0; }
+}
+
+.tech-tl-playhead {
+  position: absolute;
+  left: 6%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--tech);
+  box-shadow: 0 0 8px var(--tech);
+  animation: tech-playhead 6s linear infinite;
+}
+
+@keyframes tech-playhead {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  8% { opacity: 1; }
+  86% { opacity: 1; }
+  100% { transform: translate3d(320px, 0, 0); opacity: 0; }
+}
+
+.tech-tl-progress {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: 10%;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--tech-soft);
+  overflow: hidden;
+}
+
+.tech-tl-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--tech);
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: tech-progress 6s linear infinite;
+}
+
+@keyframes tech-progress {
+  0% { transform: scaleX(0); }
+  86% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+/* ---- shared: 8. Motion ----------------------------------------------------- */
+
+.tech-motion-grid {
+  position: absolute;
+  left: 10%;
+  top: 12%;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0.28rem;
+  width: 46%;
+  height: 62%;
+}
+
+.tech-motion-box {
+  border-radius: 0.28rem;
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.16);
+  border: 1px solid var(--tech-line);
+}
+
+/* Boxes swapping places — layout animation. */
+.tech-motion-a { grid-area: 1 / 1; animation: tech-swap-a 5s var(--ease-in-out-quart) infinite; }
+.tech-motion-b { grid-area: 1 / 2; animation: tech-swap-b 5s var(--ease-in-out-quart) infinite; }
+.tech-motion-c { grid-area: 2 / 1; animation: tech-swap-c 5s var(--ease-in-out-quart) infinite; }
+.tech-motion-d { grid-area: 2 / 3; background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.3); }
+
+@keyframes tech-swap-a {
+  0%, 20%, 100% { transform: translate3d(0, 0, 0); }
+  40%, 74% { transform: translate3d(0, 100%, 0); }
+}
+
+@keyframes tech-swap-b {
+  0%, 20%, 100% { transform: translate3d(0, 0, 0); }
+  40%, 74% { transform: translate3d(200%, 0, 0); }
+}
+
+@keyframes tech-swap-c {
+  0%, 20%, 100% { transform: translate3d(0, 0, 0); }
+  40%, 74% { transform: translate3d(100%, -100%, 0); }
+}
+
+.tech-spring-track {
+  position: absolute;
+  left: 62%;
+  right: 8%;
+  top: 30%;
+  z-index: 1;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--tech-soft);
+}
+
+.tech-spring-dot {
+  position: absolute;
+  top: 50%;
+  left: 0.15rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  transform: translate3d(0, -50%, 0);
+  background: var(--tech);
+  box-shadow: 0 0 12px -2px var(--tech);
+  /* Deliberately asymmetric: overshoots past the end, then settles back. */
+  animation: tech-spring 3.4s var(--ease-out-back) infinite;
+}
+
+@keyframes tech-spring {
+  0% { transform: translate3d(0, -50%, 0); }
+  70% { transform: translate3d(calc(100cqw - 1.1rem), -50%, 0); }
+  85% { transform: translate3x(calc(100cqw - 1.1rem)) translateY(-50%) translateX(-14%); }
+  100% { transform: translate3d(calc(100cqw - 1.1rem), -50%, 0); }
+}
+
+.tech-hover-bar {
+  position: absolute;
+  left: 62%;
+  right: 8%;
+  bottom: 18%;
+  z-index: 1;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--tech-soft);
+  overflow: hidden;
+}
+
+.tech-hover-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+  transform: scaleX(0.25);
+  background: var(--tech);
+  animation: tech-hover 3.4s var(--ease-out-expo) infinite;
+}
+
+@keyframes tech-hover {
+  0%, 12% { transform: scaleX(0.25); }
+  40% { transform: scaleX(1); }
+  62%, 100% { transform: scaleX(0.25); }
+}
+
+/* ---- shared: 9. Lenis ------------------------------------------------------ */
+
+.tech-inertia-input {
+  fill: none;
+  stroke: var(--fg-subtle);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.7;
+  stroke-dasharray: 14 200;
+  animation: tech-wheel 3.2s var(--ease-out-expo) infinite;
+}
+
+.tech-inertia-input-2 {
+  animation-delay: 0.28s;
+}
+
+@keyframes tech-wheel {
+  0%, 10% { stroke-dashoffset: 0; opacity: 0; }
+  16% { opacity: 0.8; }
+  40% { stroke-dashoffset: -214; opacity: 0.8; }
+  56%, 100% { stroke-dashoffset: -214; opacity: 0; }
+}
+
+.tech-inertia-curve {
+  fill: none;
+  stroke: var(--tech);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px var(--tech));
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: tech-curve-draw 3.2s var(--ease-out-expo) infinite;
+}
+
+@keyframes tech-curve-draw {
+  0% { stroke-dashoffset: 260; opacity: 0; }
+  12% { opacity: 1; }
+  62% { stroke-dashoffset: 0; }
+  88%, 100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+.tech-inertia-head {
+  fill: var(--tech);
+  filter: drop-shadow(0 0 5px var(--tech));
+}
+
+.tech-scroll-body {
+  position: absolute;
+  left: 7%;
+  top: 10%;
+  z-index: 1;
+  display: grid;
+  gap: 0.26rem;
+  width: 34%;
+  padding: 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--tech-line);
+  background: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.06);
+  animation: tech-body-drift 3.2s var(--ease-out-quart) infinite;
+}
+
+@keyframes tech-body-drift {
+  0%, 8% { transform: translate3d(0, 0, 0); opacity: 0.55; }
+  20% { opacity: 1; }
+  70% { transform: translate3d(0, -26%, 0); opacity: 1; }
+  100% { transform: translate3d(0, 0, 0); opacity: 0.55; }
+}
+
+.tech-scroll-line {
+  height: 0.24rem;
+  border-radius: 999px;
+  background: var(--tech-soft);
+}
+
+.tech-scroll-line-wide { width: 78%; }
+
+.tech-badge-vel {
+  right: 7%;
+  bottom: 6%;
+}
+
+/* ---- shared: 10. OGL ------------------------------------------------------- */
+
+.tech-stage-shader {
+  background:
+    radial-gradient(
+      120% 100% at 50% 10%,
+      hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.2),
+      transparent 68%
+    ),
+    var(--color-ink-950);
+}
+
+/* On ink the aurora can use the raw hue; on paper it is far too saturated, so
+   the light theme desaturates it back to the system value. */
+.tech-aurora {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(22px);
+  mix-blend-mode: screen;
+  opacity: 0.75;
+}
+
+:root .tech-aurora {
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+.tech-aurora-a {
+  left: -8%;
+  top: 2%;
+  width: 62%;
+  height: 82%;
+  background: radial-gradient(circle, hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.85), transparent 68%);
+  animation: tech-aurora-a 9s var(--ease-in-out-quart) infinite;
+}
+
+.tech-aurora-b {
+  right: -10%;
+  top: 12%;
+  width: 58%;
+  height: 76%;
+  background: radial-gradient(circle, hsl(calc(var(--tech-h) + 46) var(--tech-s) var(--tech-l) / 0.75), transparent 66%);
+  animation: tech-aurora-b 11s var(--ease-in-out-quart) infinite;
+}
+
+.tech-aurora-c {
+  left: 22%;
+  bottom: -14%;
+  width: 64%;
+  height: 68%;
+  background: radial-gradient(circle, hsl(calc(var(--tech-h) - 38) var(--tech-s) var(--tech-l) / 0.7), transparent 70%);
+  animation: tech-aurora-c 13s var(--ease-in-out-quart) infinite;
+}
+
+@keyframes tech-aurora-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(12%, 8%, 0) scale(1.15); }
+}
+
+@keyframes tech-aurora-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.1); }
+  50% { transform: translate3d(-14%, 10%, 0) scale(0.92); }
+}
+
+@keyframes tech-aurora-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(8%, -12%, 0) scale(1.18); }
+}
+
+.tech-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.tech-particle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: hsl(var(--tech-h) 80% 88%);
+  opacity: 0;
+  animation: tech-particle-float 6s linear infinite;
+}
+
+@keyframes tech-particle-float {
+  0% { opacity: 0; transform: translate3d(0, 0, 0); }
+  25% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate3d(10px, -34px, 0); }
+}
+
+.tech-tri-fill {
+  fill: hsl(var(--tech-h) var(--tech-s) var(--tech-l) / 0.12);
+  stroke: none;
+}
+
+.tech-tri-line {
+  fill: none;
+  stroke: hsl(var(--tech-h) 70% 82%);
+  stroke-width: 0.75;
+  stroke-linejoin: round;
+  opacity: 0.85;
+  animation: tech-tri-breathe 5s var(--ease-in-out-quart) infinite;
+}
+
+@keyframes tech-tri-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+.tech-badge-gl {
+  right: 6%;
+  bottom: 6%;
+}
+
+/* ---- cost control ---------------------------------------------------------- */
+
+/* Ten looping scenes is a lot of compositor work for something most visitors
+   scroll past in a couple of seconds. Above this width the section is the
+   point of attention, so everything runs; below it, the still states are
+   stronger than the motion anyway. */
+@media (max-width: 1023px) {
+  /* Drop the two most expensive scenes' continuous loops on small screens and
+     keep the rest. Halving the particle count matters more than anything. */
+  .tech-particle:nth-child(n + 8) {
+    display: none;
+  }
+
+  .tech-aurora {
+    filter: blur(16px);
+  }
+}
+
+@media (max-width: 639px) {
+  .tech-stage {
+    aspect-ratio: 16 / 11;
+  }
+
+  .tech-particle:nth-child(n + 5) {
+    display: none;
+  }
+
+  .tech-code,
+  .tech-editor-gutter,
+  .tech-typed,
+  .tech-table-name,
+  .tech-gate-label,
+  .tech-tl-label,
+  .tech-island-label,
+  .tech-badge,
+  .tech-server-tag,
+  .tech-composed-label {
+    font-size: 0.5rem;
+  }
+
+  .tech-code {
+    font-size: 0.59375rem;
+    line-height: 1.4;
+  }
+
+  .tech-gate {
+    width: 1.25rem;
+    height: 1.6rem;
+  }
+
+  .tech-motion-grid {
+    width: 52%;
+    height: 58%;
+  }
+}
+
+/* Touch devices get the finished diagram rather than a loop. The motion is
+   decorative, and on a phone it competes with the scrolling gesture that is
+   the reason the visitor is holding the device.
+
+   This is deliberately scoped to the aurora, the particles and the hover
+   sheen — the three things that cost the most to composite. It is NOT applied
+   to the diagram scenes, because those are what make each technology legible
+   without hovering, and a phone visitor has no hover to reveal them with. */
+@media (hover: none) {
+  .tech-stage::after,
+  .tech-particle {
+    animation: none;
+  }
+
+  .tech-particle {
+    opacity: 0.5;
+  }
+
+  .tech-aurora {
+    animation: none;
+  }
 }
 
 @layer base {

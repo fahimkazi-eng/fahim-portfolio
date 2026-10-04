@@ -97,7 +97,7 @@ export function Section({
       className={cn("relative scroll-mt-24 border-t border-line", className)}
       aria-labelledby={label ? `${id}-heading` : undefined}
     >
-      <div className="gutter shell py-[clamp(4rem,9vw,9rem)]">{children}</div>
+      <div className="gutter shell py-[clamp(2.5rem,6vw,5.5rem)]">{children}</div>
     </section>
   );
 }

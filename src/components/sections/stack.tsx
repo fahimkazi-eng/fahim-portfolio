@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Skill } from "@/lib/db/schema";
 import { Card, Section, SectionHeading } from "@/components/ui/card";
 import { Reveal, Stagger } from "@/components/animations/motion-primitives";
@@ -5,6 +6,7 @@ import { SplitText } from "@/components/animations/split-text";
 import { Spotlight, Tilt } from "@/components/ui/magnetic";
 import { TechMark } from "@/components/ui/tech-mark";
 import { SplitSkillRow } from "./skill-row";
+import { TechBanner } from "@/components/sections/tech-banners";
 import {
   gridTech,
   leadTech,
@@ -13,24 +15,32 @@ import {
 } from "@/components/sections/tech-stack-data";
 
 /* ==========================================================================
-   Stack — the capabilities section, as a bento.
+   Stack — the capabilities section.
 
-   Server Component. Every client boundary below (Tilt, Spotlight, Reveal,
-   Stagger, SplitText) is a leaf, so none of this content is shipped as JS.
+   Server Component. The only client boundaries are leaves (Tilt, Spotlight,
+   Reveal, Stagger, SplitText, SplitSkillRow), so the section's content is
+   shipped as HTML and the banners cost nothing in JS.
 
    Structure:
      A. an asymmetric opener — the professional strengths from the database
-        beside one large "lead" technology cell
+        beside one large "lead" technology, which carries a full-height banner
      B. a bento of the remaining technologies, on a cycling span pattern that
         closes every row at 12 columns and needs no change to scale
 
-   Motion ownership (MOTION.md):
+   Motion ownership (MOTION.md) — unchanged from before the banners, and the
+   banners deliberately stay out of it:
      - Stagger owns transform/opacity on the OUTER cell wrapper
      - Tilt owns transform on its OWN inner element
      - Spotlight owns two custom properties, no transform at all
      - Card's own transition is border/background/box-shadow only
-   They are deliberately four different elements deep so nothing overlaps.
+   The banner scenes are separate elements deeper still, animated by CSS
+   keyframes. Nothing in this file animates a property a banner also animates.
    ========================================================================== */
+
+/** The hue this card's banner and accents read from. */
+function hueVars(hue: number): CSSProperties {
+  return { ["--tech-h" as never]: String(hue) };
+}
 
 export function StackSection({ skills }: { skills: Skill[] }) {
   const grouped = skills.reduce<Record<string, Skill[]>>((acc, skill) => {
@@ -58,7 +68,7 @@ export function StackSection({ skills }: { skills: Skill[] }) {
         index="02"
         eyebrow="Capabilities"
         title={<SplitText text="What I work with." duration={1} />}
-        lede="A computer science foundation, a set of professional skills, and the tools I reach for when building."
+        lede="A computer science foundation, a set of professional skills, and the tools I reach for when building. Each one is drawn as what it actually does."
       />
 
       {/* ---------------- A. opener ---------------- */}
@@ -87,8 +97,7 @@ export function StackSection({ skills }: { skills: Skill[] }) {
                 </ul>
               </div>
             ))}
-
-            </Card>
+          </Card>
         </Reveal>
 
         {/* The lead technology, given room to breathe. */}
@@ -101,7 +110,7 @@ export function StackSection({ skills }: { skills: Skill[] }) {
 
       {/* ---------------- B. the bento ---------------- */}
       <Stagger
-        className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-6 lg:mt-5 lg:grid-cols-12 lg:gap-5"
+        className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-6 lg:mt-5 lg:grid-cols-12 lg:gap-5"
         step={0.07}
       >
         {grid.map((tech, i) => (
@@ -114,7 +123,8 @@ export function StackSection({ skills }: { skills: Skill[] }) {
       <Reveal>
         <p className="type-mono mt-8 max-w-[62ch] leading-relaxed text-fg-subtle">
           Every technology above is a verifiable property of this repository,
-          not a claim about client work.
+          not a claim about client work. Each banner animates with CSS only —
+          no JavaScript runs for them.
         </p>
       </Reveal>
     </Section>
@@ -122,40 +132,47 @@ export function StackSection({ skills }: { skills: Skill[] }) {
 }
 
 /* --------------------------------------------------------------------------
-   Lead cell — the oversized one.
-   -------------------------------------------------------------------------- */
+   Lead cell — the oversized one, with a full-height banner.
 
+   Composition differs from the standard cell on purpose: here the banner sits
+   ABOVE the text as a wide cinematic plate, rather than as an inset block. It
+   is the biggest technology on the site and gets the biggest gesture.
+   -------------------------------------------------------------------------- */
 function LeadCell({ tech }: { tech: TechEntry }) {
   return (
-    <Tilt max={2.2} className="h-full">
+    <Tilt max={2} className="h-full">
       <Spotlight radius={520} className="h-full rounded-card">
         <Card
           sweep
           /* Fill comes from the spotlight wrapper so the glow is not painted
              over. See the Spotlight rule in globals.css. */
           surface={false}
-          className="group/lead relative flex h-full flex-col justify-between gap-10 overflow-hidden p-[clamp(1.75rem,3.5vw,3rem)]"
+          style={hueVars(tech.hue)}
+          className="group/lead relative flex h-full flex-col overflow-hidden p-[clamp(1.5rem,2.6vw,2.25rem)]"
         >
-          {/* Gradient wash, stronger than the standard cell treatment. */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_100%_at_88%_0%,color-mix(in_oklab,var(--accent)_17%,transparent),transparent_62%)] transition-opacity duration-700 group-hover/lead:opacity-80"
-          />
+          <span aria-hidden="true" className="tech-lead-edge" />
 
-          <div className="flex items-start justify-between gap-6">
-            <span className="grid size-14 shrink-0 place-items-center rounded-card border border-line bg-surface-strong text-accent">
-              <TechMark mark={tech.mark} className="size-7" />
-            </span>
-            <span className="type-mono text-fg-subtle">01</span>
+          {/* The banner plate. */}
+          <div className="relative mb-[clamp(1.5rem,2.4vw,2.25rem)]">
+            {tech.banner ? <TechBanner banner={tech.banner} tall /> : null}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--tech-surface)] to-transparent" />
           </div>
 
-          <div>
-            <h3 className="type-display text-h2 leading-[0.9] text-fg">
-              {tech.name}
-            </h3>
-            <p className="mt-4 max-w-[42ch] text-body leading-relaxed text-fg-muted">
-              {tech.role}
-            </p>
+          <div className="mt-auto flex items-start justify-between gap-6">
+            <div>
+              <div className="mb-3 flex items-center gap-3">
+                <span className="tech-mark-chip">
+                  <TechMark mark={tech.mark} className="size-[1.35rem]" />
+                </span>
+                <span className="type-mono text-fg-subtle">01</span>
+              </div>
+              <h3 className="type-display text-h3 leading-[0.92] text-fg">
+                {tech.name}
+              </h3>
+              <p className="mt-3 max-w-[46ch] text-body leading-relaxed text-fg-muted">
+                {tech.role}
+              </p>
+            </div>
           </div>
         </Card>
       </Spotlight>
@@ -164,9 +181,12 @@ function LeadCell({ tech }: { tech: TechEntry }) {
 }
 
 /* --------------------------------------------------------------------------
-   Standard bento cell.
-   -------------------------------------------------------------------------- */
+   Standard bento cell — banner above, text below.
 
+   Every cell is the same structure but the banner inside differs, and the
+   cell's own padding/ordering comes from the span, so the grid keeps an
+   irregular rhythm while the internal anatomy stays consistent and legible.
+   -------------------------------------------------------------------------- */
 function TechCell({ tech }: { tech: TechEntry }) {
   return (
     <Tilt max={2.6} className="h-full">
@@ -174,24 +194,28 @@ function TechCell({ tech }: { tech: TechEntry }) {
         <Card
           sweep
           surface={false}
-          className="group/cell relative flex h-full flex-col justify-between gap-8 overflow-hidden p-6"
+          style={hueVars(tech.hue)}
+          className="group/cell relative flex h-full flex-col overflow-hidden p-5 sm:p-6"
         >
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(100%_80%_at_100%_0%,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_60%)] opacity-0 transition-opacity duration-700 group-hover/cell:opacity-100"
-          />
+          <span aria-hidden="true" className="tech-cell-edge" />
 
-          <div className="flex items-start justify-between gap-4">
-            <span className="grid size-11 shrink-0 place-items-center rounded-lg border border-line bg-surface-strong text-fg-muted transition-colors duration-500 group-hover/cell:border-accent/40 group-hover/cell:text-accent">
-              <TechMark mark={tech.mark} className="size-[1.4rem]" />
-            </span>
-          </div>
+          {tech.banner ? (
+            <div className="relative mb-5">
+              <TechBanner banner={tech.banner} />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[var(--tech-surface)] to-transparent" />
+            </div>
+          ) : null}
 
-          <div>
+          <div className="mt-auto">
+            <div className="mb-3.5 flex items-center gap-3">
+              <span className="tech-mark-chip tech-mark-chip-sm">
+                <TechMark mark={tech.mark} className="size-4" />
+              </span>
+            </div>
             <h3 className="font-display text-[1.15rem] font-semibold leading-tight tracking-tight text-fg">
               {tech.name}
             </h3>
-            <p className="mt-2.5 text-[0.8125rem] leading-snug text-fg-muted">
+            <p className="mt-2 text-[0.8125rem] leading-snug text-fg-muted">
               {tech.role}
             </p>
           </div>
