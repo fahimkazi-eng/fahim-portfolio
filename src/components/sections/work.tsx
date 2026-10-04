@@ -63,17 +63,19 @@ export function WorkSection({ projects }: { projects: Project[] }) {
       ) : (
         <HorizontalScroll
           className="mt-2"
-          trackClassName="items-stretch gap-4 px-[clamp(1.15rem,0.6rem+2.6vw,4.5rem)]"
+          trackClassName="flex-col md:flex-row items-stretch gap-6 md:gap-4 px-0 md:px-[clamp(1.15rem,0.6rem+2.6vw,4.5rem)]"
         >
-          {list.map((project, i) => (
-            <ProjectPanel key={project.id} project={project} index={i} />
-          ))}
+          <div className="flex flex-col gap-6 md:flex-row md:gap-4 w-full md:w-max">
+            {list.map((project, i) => (
+              <ProjectPanel key={project.id} project={project} index={i} />
+            ))}
 
-          {/* Trailing card so the track never ends on a hard edge. */}
-          <div className="flex w-[min(86vw,24rem)] shrink-0 items-center justify-center rounded-card border border-dashed border-line-strong p-8">
-            <p className="type-mono text-center text-fg-subtle">
-              More in progress
-            </p>
+            {/* Trailing card so the track never ends on a hard edge. */}
+            <div className="flex w-full md:w-[min(86vw,24rem)] shrink-0 items-center justify-center rounded-card border border-dashed border-line-strong p-8">
+              <p className="type-mono text-center text-fg-subtle">
+                More in progress
+              </p>
+            </div>
           </div>
         </HorizontalScroll>
       )}
