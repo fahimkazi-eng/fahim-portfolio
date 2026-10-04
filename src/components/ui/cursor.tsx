@@ -97,9 +97,9 @@ export function CustomCursor() {
       if (!mounted) return;
       raf = requestAnimationFrame(loop);
 
-      ringPos.x += (pointer.x - ringPos.x) * 0.12;
-      ringPos.y += (pointer.y - ringPos.y) * 0.12;
-      scale += (targetScale - scale) * 0.18;
+      ringPos.x += (pointer.x - ringPos.x) * 0.4;
+      ringPos.y += (pointer.y - ringPos.y) * 0.4;
+      scale += (targetScale - scale) * 0.24;
 
       ring.style.transform = `translate3d(${ringPos.x}px, ${ringPos.y}px, 0) translate(-50%, -50%) scale(${scale})`;
     };
@@ -126,11 +126,11 @@ export function CustomCursor() {
         ref={ringRef}
         data-mode="default"
         data-down="false"
-        className="absolute left-0 top-0 grid size-10 place-items-center rounded-full border border-fg/30 bg-canvas/60 opacity-0 backdrop-blur-[2px] transition-[background-color,border-color,transform] duration-200 data-[mode=view]:border-accent data-[mode=view]:bg-accent/20"
+        className="absolute left-0 top-0 grid size-10 place-items-center rounded-full border border-fg/30 bg-canvas/60 opacity-0 backdrop-blur-[2px] transition-[background-color,border-color] duration-150 data-[mode=view]:border-accent data-[mode=view]:bg-accent/20"
       >
         <span
           ref={labelRef}
-          className="type-mono text-[9px] text-accent opacity-0 transition-opacity duration-150 data-[visible=true]:opacity-100"
+          className="type-mono text-[9px] text-accent opacity-0 transition-opacity duration-100 data-[visible=true]:opacity-100"
         />
       </div>
     </div>
