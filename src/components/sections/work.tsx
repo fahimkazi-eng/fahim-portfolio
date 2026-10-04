@@ -131,7 +131,7 @@ function ProjectPanel({
   return (
     <article
       ref={ref}
-      className="flex w-[min(88vw,60rem)] shrink-0 flex-col overflow-hidden rounded-card border border-line bg-surface lg:w-[min(86vw,66rem)]"
+      className="flex w-full md:w-[min(88vw,60rem)] shrink-0 flex-col overflow-hidden rounded-card border border-line bg-surface lg:w-[min(86vw,66rem)]"
     >
       <div className="grid grid-cols-1 lg:grid-cols-12">
         <ProjectLoopVideo
