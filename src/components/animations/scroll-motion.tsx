@@ -188,7 +188,9 @@ export function HorizontalScroll({
     // Touch devices keep native vertical scrolling. Converting a vertical
     // gesture into horizontal movement is where these sections usually
     // become unusable, so we simply do not pin them.
-    if (reduced || window.matchMedia("(pointer: coarse)").matches) return;
+    const isCoarse = window.matchMedia("(pointer: coarse)").matches;
+    const isMobileWidth = window.innerWidth < 768;
+    if (reduced || isCoarse || isMobileWidth) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -216,8 +218,8 @@ export function HorizontalScroll({
   }, [reduced]);
 
   return (
-    <div ref={sectionRef} className={`relative overflow-hidden ${className}`}>
-      <div ref={trackRef} className={`flex w-max ${trackClassName}`}>
+    <div ref={sectionRef} className={`relative overflow-x-hidden md:overflow-hidden ${className}`}>
+      <div ref={trackRef} className={`flex flex-col md:flex-row md:w-max ${trackClassName}`}>
         {children}
       </div>
     </div>
