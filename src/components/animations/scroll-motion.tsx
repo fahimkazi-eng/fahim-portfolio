@@ -218,7 +218,7 @@ export function HorizontalScroll({
   }, [reduced]);
 
   return (
-    <div ref={sectionRef} className={`relative overflow-x-hidden md:overflow-hidden ${className}`}>
+    <div ref={sectionRef} className={`relative md:overflow-hidden ${className}`}>
       <div ref={trackRef} className={`flex flex-col md:flex-row md:w-max ${trackClassName}`}>
         {children}
       </div>
