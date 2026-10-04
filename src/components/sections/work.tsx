@@ -104,20 +104,23 @@ function ProjectPanel({
     // Plain transition rather than a ScrollTrigger: the element is already
     // inside a horizontally-scrubbed track, and adding a second trigger on
     // the same element would fight the pin.
+    const isMobile = window.innerWidth < 768;
     const tween = gsap.fromTo(
       el,
-      { autoAlpha: 0, y: 28 },
+      { autoAlpha: 0, y: isMobile ? 20 : 28 },
       {
         autoAlpha: 1,
         y: 0,
         duration: 0.8,
         ease: "expo.out",
-        scrollTrigger: {
-          trigger: el,
-          containerAnimation: undefined,
-          start: "left 92%",
-          once: true,
-        },
+        scrollTrigger: isMobile
+          ? { trigger: el, start: "top 90%", once: true }
+          : {
+              trigger: el,
+              containerAnimation: undefined,
+              start: "left 92%",
+              once: true,
+            },
         onComplete: () => gsap.set(el, { clearProps: "transform,opacity,visibility" }),
       },
     );
