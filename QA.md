@@ -94,8 +94,6 @@ Open `/work/unimate` and `/work/lumina-digital`:
 
 ## 6. Known open items (not QA blockers)
 
-- **LinkedIn URL** — footer "Elsewhere" still points at the platform root
-  until the owner supplies a profile link (`footerLinks` in `src/lib/site.ts`).
 - **Lumina demo video** — when a real recording exists, place it per the
   `/<slug>-demo.mp4` convention and set `video_url` in the admin; the panel
   and case study upgrade their labels automatically.

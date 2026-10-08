@@ -68,12 +68,8 @@ export function Footer() {
 
           <div>
             <p className="type-mono mb-4 text-fg-subtle">Elsewhere</p>
-            {/*
-              Social links are data in `site.ts` (footerLinks) — add or replace
-              a profile URL there and every page reflects it. Until the owner
-              supplies a LinkedIn handle it deliberately points at the platform
-              root: honestly unconfigured, never a stranger's profile.
-            */}
+            {/* Social links are data in `site.ts` (footerLinks) — add or replace
+                a profile URL there and every page reflects it. */}
             <ul className="space-y-2">
               {footerLinks.map((link) => (
                 <li key={link.label}>
