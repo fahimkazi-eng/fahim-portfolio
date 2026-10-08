@@ -1,13 +1,21 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { site, navItems } from "@/lib/site";
+import {
+  navItems,
+  site,
+  heroIdentity,
+  heroHeadline,
+  heroStatus,
+  heroMetrics,
+  heroCtaPrimary,
+  heroCtaSecondary,
+} from "@/lib/site";
 import { Magnetic } from "@/components/ui/magnetic";
-import { Portrait } from "@/components/ui/portrait";
 import { usePrefersReducedMotion } from "@/components/animations/motion-primitives";
 import { Preloader, Marquee } from "@/components/ui/marquee";
 import { Button } from "@/components/ui/button";
@@ -32,34 +40,24 @@ const TICKER = [
 const FIRST = "Kazi";
 const LAST = "Fahim";
 
-/**
- * `portraitSrc` is resolved by the server component that renders this one
- * (`page.tsx`) via `portraitAssetExists()`. It is `null` when this deployment
- * has no photograph in `public/`, in which case `Portrait` renders its monogram
- * alone and issues no request. The filesystem is not reachable from here.
- */
-export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
+/* --------------------------------------------------------------------------
+   Reference composition (01 — HERO):
+
+   LEFT column:  identity label → name → statement headline → CTAs → metrics.
+   RIGHT column: cinematic OGL with a SYSTEM STATUS panel overlaid
+                 (availability · location · live local time · currently · stack).
+
+   The identity sequence is one GSAP timeline owning transform/opacity/clip on
+   the data-hero-* hooks below; the field owns its own parallax/velocity. No
+   two tweens write the same element's transform (MOTION.md).
+   -------------------------------------------------------------------------- */
+
+export function Hero({ projectCount }: { projectCount: number }) {
   const rootRef = useRef<HTMLElement | null>(null);
   const mediaRef = useRef<HTMLDivElement | null>(null);
   const reduced = usePrefersReducedMotion();
 
-  /* -------------------------------------------------------------------------
-     One timeline for the whole identity sequence.
-
-     Everything the visitor sees on arrival is choreographed here — the
-     status strip, every character of the name, the portrait's iris wipe, the
-     glow behind it, then the actions. It is a single timeline rather than a
-     pile of independent tweens so the beats stay locked to each other no
-     matter how long the portrait image takes to decode.
-
-     Ownership, per MOTION.md:
-       - this timeline owns transform/opacity/clip-path on the ELEMENTS it
-         names, once, on load.
-       - the pointer glow below owns x/y on [data-hero-glow] only.
-       - the depth parallax owns yPercent on [data-hero-name] and
-         [data-hero-portrait] only.
-     No two of them ever write the same element's transform.
-     ------------------------------------------------------------------------- */
+  /* ---- entrance timeline ---- */
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (reduced || !root) return;
@@ -75,21 +73,6 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
         { autoAlpha: 1, y: 0, duration: 0.7 },
         0,
       )
-        /* The KF monogram opens the sequence as a full outlined plate, then
-           recedes to a watermark while the name rises through it. That is
-           the whole "mark → identity" arc: one element, one owner, two
-           non-overlapping beats so no two tweens ever write it at once. */
-        .fromTo(
-          "[data-hero-kf]",
-          { autoAlpha: 0, scale: 1.16 },
-          { autoAlpha: 1, scale: 1, duration: 0.85 },
-          0.07,
-        )
-        .to(
-          "[data-hero-kf]",
-          { autoAlpha: 0.1, scale: 0.92, duration: 1.5, ease: "sine.inOut" },
-          0.95,
-        )
         .fromTo(
           "[data-hero-char]",
           { yPercent: 112 },
@@ -100,10 +83,9 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
             onComplete: () =>
               gsap.set("[data-hero-char]", { clearProps: "transform" }),
           },
-          0.14,
+          0.1,
         )
-        /* The role line: word by word, one beat behind the name's last glyph,
-           with a little travel so it settles rather than merely appearing. */
+        /* The statement headline: word by word, one beat behind the name. */
         .fromTo(
           "[data-hero-role-word]",
           { yPercent: 118, autoAlpha: 0 },
@@ -118,37 +100,7 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
                 clearProps: "transform,opacity,visibility",
               }),
           },
-          0.52,
-        )
-        .fromTo(
-          "[data-hero-portrait-mask]",
-          { clipPath: "circle(4% at 50% 50%)" },
-          {
-            clipPath: "circle(78% at 50% 50%)",
-            duration: 1.25,
-            ease: "expo.out",
-            onComplete: () =>
-              gsap.set("[data-hero-portrait-mask]", { clearProps: "clipPath" }),
-          },
-          0.46,
-        )
-        .fromTo(
-          "[data-hero-portrait-media]",
-          { scale: 1.16 },
-          {
-            scale: 1,
-            duration: 1.6,
-            onComplete: () =>
-              gsap.set("[data-hero-portrait-media]", { clearProps: "transform" }),
-          },
-          0.46,
-        )
-        /* Opacity only. The glow's transform belongs to the pointer below. */
-        .fromTo(
-          "[data-hero-glow]",
-          { autoAlpha: 0 },
-          { autoAlpha: 1, duration: 1.5, ease: "sine.out" },
-          0.55,
+          0.5,
         )
         .fromTo(
           "[data-hero-actions]",
@@ -160,7 +112,25 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
             onComplete: () =>
               gsap.set("[data-hero-actions]", { clearProps: "transform" }),
           },
-          0.74,
+          0.66,
+        )
+        .fromTo(
+          "[data-hero-metrics]",
+          { autoAlpha: 0, y: 16 },
+          { autoAlpha: 1, y: 0, duration: 0.85 },
+          0.78,
+        )
+        .fromTo(
+          "[data-hero-status]",
+          { autoAlpha: 0, y: 26 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 1,
+            onComplete: () =>
+              gsap.set("[data-hero-status]", { clearProps: "transform" }),
+          },
+          0.72,
         )
         .fromTo(
           "[data-hero-rail]",
@@ -168,37 +138,12 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
           { autoAlpha: 1, duration: 0.8 },
           0.95,
         );
-
-      /* ---- depth parallax: the type lifts, the portrait sinks. Counter
-         motion on two elements that the timeline above no longer touches. */
-      gsap.to("[data-hero-name]", {
-        yPercent: -7,
-        ease: "none",
-        scrollTrigger: {
-          trigger: root,
-          start: "top top",
-          end: "bottom top",
-          scrub: 0.5,
-        },
-      });
-
-      gsap.to("[data-hero-portrait]", {
-        yPercent: 9,
-        ease: "none",
-        scrollTrigger: {
-          trigger: root,
-          start: "top top",
-          end: "bottom top",
-          scrub: 0.5,
-        },
-      });
     }, root);
 
     return () => ctx.revert();
   }, [reduced]);
 
-  /* Ambient field parallax. Separate from the timeline: it is scroll-linked
-     (GSAP's job) and it runs for the life of the page, not once on load. */
+  /* ---- ambient field parallax (scroll-linked, runs for the page's life) -- */
   useLayoutEffect(() => {
     const el = mediaRef.current;
     if (reduced || !el) return;
@@ -223,16 +168,8 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
   }, [reduced]);
 
   /* ---- scroll-velocity reaction ----------------------------------------
-     The field leans and pushes in with HOW FAST the visitor scrolls, not
-     just how far — a fast flick reads as a camera whip, a slow read sits
-     still. A dedicated wrapper owns skewY/scale only; the ambient tween
-     above owns yPercent/scale/opacity on the OUTER div, so the two never
-     write the same element's transform (MOTION.md).
-
-     Cost control: the rAF loop runs only while scroll events are arriving,
-     and an idle timer eases the field back to rest ~200ms after the last
-     one. Both axes are quickTo'd, so every frame is a cheap tween update,
-     and the burst is clamped to a subtle ±1 range. Reduced motion: off. */
+     Owns skewY/scale on [data-hero-velocity] only; the ambient tween above
+     owns yPercent/scale/opacity on the OUTER wrapper. Reduced motion: off. */
   useLayoutEffect(() => {
     const el = rootRef.current?.querySelector<HTMLElement>(
       "[data-hero-velocity]",
@@ -258,8 +195,6 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
       const nowY = window.scrollY;
       const dy = nowY - lastY;
       lastY = nowY;
-      /* dy is a per-frame delta (≈16ms). Normalise so a deliberate flick
-         lands near ±1 and a slow read sits near 0. */
       const k = Math.max(-1, Math.min(1, dy / 24));
       if (Math.abs(k) > 0.015) {
         skewTo(k * -2.75);
@@ -297,42 +232,6 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
     };
   }, [reduced]);
 
-  /* ---- pointer-reactive glow behind the portrait ------------------------
-     quickTo writes x/y on the glow element only, and the glow's opacity is
-     owned by the entrance timeline. No overlap. Fine pointers only. */
-  const glowRef = useRef<HTMLSpanElement | null>(null);
-  useLayoutEffect(() => {
-    const glow = glowRef.current;
-    const portrait = rootRef.current?.querySelector<HTMLElement>(
-      "[data-hero-portrait]",
-    );
-    if (reduced || !glow || !portrait) return;
-    if (!window.matchMedia("(pointer: fine)").matches) return;
-
-    const xTo = gsap.quickTo(glow, "x", { duration: 0.9, ease: "power3.out" });
-    const yTo = gsap.quickTo(glow, "y", { duration: 0.9, ease: "power3.out" });
-
-    const onMove = (event: PointerEvent) => {
-      const rect = portrait.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      xTo((event.clientX - cx) * 0.14);
-      yTo((event.clientY - cy) * 0.14);
-    };
-    const onLeave = () => {
-      xTo(0);
-      yTo(0);
-    };
-
-    window.addEventListener("pointermove", onMove, { passive: true });
-    document.addEventListener("pointerleave", onLeave);
-    return () => {
-      window.removeEventListener("pointermove", onMove);
-      document.removeEventListener("pointerleave", onLeave);
-      gsap.set(glow, { clearProps: "transform" });
-    };
-  }, [reduced]);
-
   return (
     <section
       id="hero"
@@ -347,11 +246,7 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
       >
         {/* CSS base gradient: always painted, so the hero still looks right
             with WebGL disabled, reduced motion on, or before hydration. */}
-        <div className="absolute inset-0 bg-[radial-gradient(60%_55%_at_72%_18%,color-mix(in_oklab,var(--accent)_18%,transparent),transparent_70%),radial-gradient(45%_40%_at_18%_72%,color-mix(in_oklab,var(--accent)_9%,transparent),transparent_72%)]" />
-        {/* Velocity-reactive field: skewY/scale are owned by the scroll-velocity
-            effect below and by nothing else — the ambient tween above animates
-            yPercent/scale/opacity on the OUTER div, so the two never write the
-            same transform on the same element. */}
+        <div className="absolute inset-0 bg-[radial-gradient(62%_55%_at_78%_14%,color-mix(in_oklab,var(--accent)_16%,transparent),transparent_72%),radial-gradient(46%_42%_at_6%_78%,color-mix(in_oklab,var(--violet)_12%,transparent),transparent_74%)]" />
         <div
           data-hero-velocity
           className="absolute inset-0 will-change-transform"
@@ -360,60 +255,32 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
             intensity={1.05}
             className="absolute inset-0 h-full w-full opacity-[var(--aurora-opacity)]"
           />
-          <div className="grid-lines absolute inset-0 [mask-image:radial-gradient(75%_60%_at_50%_40%,black,transparent)]" />
+          <div className="grid-lines absolute inset-0 [mask-image:radial-gradient(78%_62%_at_50%_40%,black,transparent)]" />
         </div>
       </div>
 
       {/* ---- content ---- */}
       <div className="gutter shell relative flex w-full flex-1 flex-col justify-center">
-        {/* Row 1 — status strip */}
-        <div
-          data-hero-meta
-          className="mb-[clamp(1.5rem,4vw,3rem)] flex flex-wrap items-center justify-between gap-4"
-        >
-          <div className="flex items-center gap-2.5">
-            <span className="relative grid size-2 place-items-center">
-              <span className="absolute size-2 rounded-full bg-accent" />
+        <div className="grid grid-cols-1 items-center gap-[clamp(2.5rem,5vw,4.5rem)] lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,4vw,3.5rem)]">
+          {/* ======== LEFT: identity ======== */}
+          <div className="lg:col-span-7">
+            {/* Identity label */}
+            <p
+              data-hero-meta
+              className="type-mono mb-[clamp(1.25rem,2.6vw,2rem)] flex items-center gap-3 text-fg-muted"
+            >
               <span
                 aria-hidden="true"
-                className="absolute size-2 rounded-full bg-accent [animation:pulse-ring_2.4s_ease-out_infinite]"
+                className="h-px w-10 bg-accent/70"
               />
-            </span>
-            <span className="type-mono text-fg-muted">
-              {site.availability}
-            </span>
-          </div>
-          <span className="type-mono text-fg-subtle">
-            {site.location} · {site.university}
-          </span>
-        </div>
+              {heroIdentity}
+            </p>
 
-        {/* Row 2 — the identity lockup.
-            Mobile: name full-bleed, portrait tucked right beneath it.
-            Desktop: name left, portrait right, baseline-aligned. Different
-            compositions rather than one layout squeezed twice. */}
-        <div className="grid grid-cols-4 items-end gap-x-[clamp(1rem,3vw,2.5rem)] gap-y-8 lg:grid-cols-12">
-          <div
-            data-hero-name
-            className="relative col-span-4 lg:col-span-7"
-          >
-            {/* KF monogram — the identity mark the full name grows out of.
-                An outlined plate that opens the sequence, then recedes to a
-                watermark while the name rises through it: mark → identity.
-                Purely decorative; the accessible name is the sr-only line
-                inside the h1 below, and every real string stays in site.ts. */}
-            <span
-              aria-hidden="true"
-              data-hero-kf
-              className="type-display pointer-events-none absolute -top-[0.14em] left-0 select-none text-name leading-[0.82] text-transparent opacity-[0.14] [-webkit-text-stroke:1px_color-mix(in_oklab,var(--fg)_24%,transparent)] will-change-transform"
+            {/* Name */}
+            <h1
+              data-hero-name
+              className="type-display text-name leading-[0.82]"
             >
-              {site.initials}
-            </span>
-            <h1 className="type-display text-name leading-[0.82]">
-              {/* The accessible name is one real string. The per-character
-                  spans below are visual only. Same pattern as SplitText —
-                  hidden text rather than aria-label, because a role-less
-                  span may not carry one. */}
               <span className="sr-only">
                 {site.name} — {site.role}
               </span>
@@ -421,88 +288,110 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
                 <MaskedLine text={FIRST} className="block text-fg" />
                 <MaskedLine
                   text={LAST}
-                  className="block pl-[8%] text-signal-gradient lg:pl-0"
+                  className="block pl-[7%] text-fg lg:pl-0"
                 />
               </span>
             </h1>
 
-            {/* Job title, directly under the name. Its own masked line so it
-                rises out of a mask on the same timeline as the name, one
-                beat behind — the name lands, then the role settles in. */}
-            <p className="mt-[clamp(0.75rem,1.6vw,1.35rem)]">
-              <span className="sr-only">{site.roleTitle}. </span>
+            {/* Statement headline */}
+            <p className="mt-[clamp(1.25rem,2.4vw,2rem)] max-w-[34ch]">
+              <span className="sr-only">{heroHeadline}</span>
               <span
                 aria-hidden="true"
-                className="type-mono inline-flex items-center gap-2.5 text-fg-muted"
+                className="font-display text-[clamp(1.4rem,1.15rem+1.6vw,2.5rem)] font-semibold leading-[1.02] tracking-[-0.02em] text-fg-muted"
               >
-                <span className="h-px w-8 bg-accent/60" aria-hidden="true" />
-                <MaskedLineHook text={site.roleTitle} />
+                <MaskedLineHook text={heroHeadline} />
               </span>
             </p>
-          </div>
 
-          {/* Portrait */}
-          <div
-            data-hero-portrait
-            className="col-span-4 flex justify-end lg:col-span-5"
-          >
-            <div className="relative">
-              {/* glow: opacity from the timeline, transform from the pointer */}
-              <span
-                ref={glowRef}
-                data-hero-glow
-                aria-hidden="true"
-                className="pointer-events-none absolute -inset-[18%] -z-10 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--accent)_55%,transparent),transparent_66%)] blur-2xl"
-              />
-              {/* orbital hairline, purely decorative */}
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -inset-[7%] rounded-full border border-dashed border-accent/25 [animation:orbit-spin_38s_linear_infinite]"
-              />
-              <span
-                data-hero-portrait-mask
-                className="relative block overflow-hidden rounded-full"
-              >
-                <span data-hero-portrait-media className="block will-change-transform">
-                  <Portrait
-                    src={portraitSrc}
-                    alt={site.portrait.alt}
-                    size={1024}
-                    sizes="(max-width: 640px) 62vw, (max-width: 1024px) 42vw, 24rem"
-                    priority
-                    className="size-[clamp(11rem,52vw,21rem)] ring-2 ring-accent/25"
-                  />
-                </span>
+            {/* CTAs */}
+            <div
+              data-hero-actions
+              className="mt-[clamp(1.75rem,3.6vw,2.75rem)] flex flex-wrap items-center gap-3"
+            >
+              <Magnetic strength={9}>
+                <Button asChild size="lg" variant="accent">
+                  <a href={heroCtaPrimary.href}>
+                    {heroCtaPrimary.label}
+                    <ArrowUpRight className="size-4" strokeWidth={2} />
+                  </a>
+                </Button>
+              </Magnetic>
+              <Magnetic strength={9}>
+                <Button asChild size="lg" variant="outline">
+                  <a href={heroCtaSecondary.href}>{heroCtaSecondary.label}</a>
+                </Button>
+              </Magnetic>
+            </div>
+
+            {/* Metrics — truthful numbers only */}
+            <div
+              data-hero-metrics
+              className="mt-[clamp(2.25rem,4.5vw,3.5rem)] flex flex-wrap items-center gap-x-8 gap-y-2"
+            >
+              <MetricStat value={`${projectCount}`} label="Products" />
+              <span aria-hidden="true" className="hidden h-4 w-px bg-line-strong sm:block" />
+              <MetricStat value={`${heroMetrics.builds}`} label="Builds" />
+              <span aria-hidden="true" className="hidden h-4 w-px bg-line-strong sm:block" />
+              <span className="type-mono flex items-center gap-2 text-fg-muted">
+                <span
+                  aria-hidden="true"
+                  className="size-1.5 rounded-full bg-pulse-400"
+                />
+                {heroMetrics.availability}
               </span>
             </div>
           </div>
-        </div>
 
-        {/* Row 3 — lede + actions, asymmetric */}
-        <div
-          data-hero-actions
-          className="mt-[clamp(2rem,4.5vw,3.5rem)] grid grid-cols-1 gap-8 md:grid-cols-12 md:items-end"
-        >
-          <p className="md:col-span-4 md:col-start-1 text-lead text-fg-muted [text-wrap:pretty]">
-            {site.roleLine}
-            <br />
-            <span className="text-fg-subtle">{site.degree}</span>
-          </p>
+          {/* ======== RIGHT: cinematic OGL + system status ======== */}
+          <div className="lg:col-span-5">
+            <div
+              data-hero-status
+              className="relative mx-auto w-full max-w-[30rem]"
+            >
+              {/* Grid wash behind the panel, keeps the technical feel */}
+              <div
+                aria-hidden="true"
+                className="grid-lines absolute -inset-x-8 -inset-y-10 -z-10 rounded-card opacity-60 [mask-image:radial-gradient(70%_70%_at_50%_40%,black,transparent)]"
+              />
+              <div className="rounded-card border border-line bg-surface-strong/70 backdrop-blur-md shadow-[0_24px_70px_-34px_rgba(4,6,11,0.9)]">
+                <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+                  <span className="type-mono text-fg-muted">
+                    System Status
+                  </span>
+                  <LiveDot />
+                </div>
 
-          <div className="flex flex-wrap items-center gap-3 md:col-span-4 md:col-start-7 md:justify-end">
-            <Magnetic strength={9}>
-              <Button asChild size="lg" variant="accent">
-                <a href="#work">
-                  View selected work
-                  <ArrowUpRight className="size-4" strokeWidth={2} />
-                </a>
-              </Button>
-            </Magnetic>
-            <Magnetic strength={9}>
-              <Button asChild size="lg" variant="outline">
-                <a href="#contact">Get in touch</a>
-              </Button>
-            </Magnetic>
+                {/* Status line */}
+                <p className="flex items-center gap-2.5 px-5 pt-4">
+                  <span
+                    aria-hidden="true"
+                    className="relative grid size-2 place-items-center"
+                  >
+                    <span className="absolute size-2 rounded-full bg-pulse-400" />
+                    <span
+                      aria-hidden="true"
+                      className="absolute size-2 rounded-full bg-pulse-400 [animation:pulse-ring_2.4s_ease-out_infinite]"
+                    />
+                  </span>
+                  <span className="type-mono text-pulse-300">
+                    {heroStatus.statusLine}
+                  </span>
+                </p>
+
+                <dl className="mt-2 divide-y divide-line border-t border-line px-5 pb-5 pt-1">
+                  <StatusRow label="Location" value={heroStatus.location} />
+                  <StatusRow label="Local Time">
+                    <LocalClock />
+                  </StatusRow>
+                  <StatusRow label="Currently" value={heroStatus.currently} />
+                  <StatusRow
+                    label="Stack"
+                    value={heroStatus.stack.join("  /  ")}
+                  />
+                </dl>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -514,7 +403,7 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
       >
         <div className="rule flex flex-col gap-4 pt-5 md:flex-row md:items-center md:justify-between">
           <a
-            href={`#${navItems[0].id}`}
+            href={`#work`}
             className="group inline-flex items-center gap-2.5 text-fg-muted transition-colors duration-300 hover:text-fg"
           >
             <span
@@ -559,11 +448,85 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   Local helpers
+   --------------------------------------------------------------------------- */
+
+/** A mono metric with the number set in the display weight. */
+function MetricStat({ value, label }: { value: string; label: string }) {
+  return (
+    <span className="type-mono flex items-baseline gap-2 text-fg-muted">
+      <span className="font-display text-[1.4rem] font-semibold leading-none tracking-[-0.02em] text-fg tabular-nums">
+        {value}
+      </span>
+      {label}
+    </span>
+  );
+}
+
+/** A mono label/value row for the system status panel. */
+function StatusRow({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value?: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-6 py-2.5">
+      <dt className="type-mono shrink-0 text-fg-subtle">{label}</dt>
+      <dd className="text-right text-[0.85rem] text-fg">
+        {children ?? value}
+      </dd>
+    </div>
+  );
+}
+
+/** Live local clock for the status panel. Time data, not motion. */
+function LocalClock() {
+  const [now, setNow] = useState<string>("");
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: heroStatus.timeZone,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+    const tick = () => setNow(fmt.format(new Date()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className="tabular-nums">{now || "—:—:—"}</span>
+      <span className="type-mono rounded border border-pulse-600/40 bg-pulse-500/10 px-1.5 py-0.5 text-[0.55rem] text-pulse-300">
+        LIVE
+      </span>
+    </span>
+  );
+}
+
+/** Live status dot used in the panel header. */
+function LiveDot() {
+  return (
+    <span
+      aria-hidden="true"
+      className="relative grid size-2 place-items-center"
+    >
+      <span className="absolute size-2 rounded-full bg-pulse-400" />
+      <span className="absolute size-2 rounded-full bg-pulse-400 [animation:pulse-ring_2.4s_ease-out_infinite]" />
+    </span>
+  );
+}
+
 /* --------------------------------------------------------------------------
    One line of the name. Each glyph sits in its own mask and rises out of it.
-
-   These spans carry `data-hero-char` purely as a hook — the hero timeline
-   targets them. No component owns them, so there is nothing to keep in sync.
+   These spans carry `data-hero-char` purely as a hook for the timeline.
    -------------------------------------------------------------------------- */
 
 function MaskedLine({ text, className }: { text: string; className?: string }) {
@@ -584,33 +547,27 @@ function MaskedLine({ text, className }: { text: string; className?: string }) {
 }
 
 /**
- * The role line, hanging off the same one timeline via the
- * `data-hero-role-word` hook rather than introducing a second animation
- * system (MOTION.md: one owner per property).
- *
- * Grouped per word, not per glyph. The name staggers its characters at
- * 0.028s; splitting a two-word title at the same rate and offset would finish
- * later than the name does, which reads as lag instead of sequence. Per word
- * it lands as one confident beat behind the name.
- *
- * Word spacing is a gap on the wrapper, not a literal space inside a mask.
- * A space travelling up through an `overflow-hidden` box gets clipped on its
- * way past, which makes the gap look like it pulses; the gap lives outside the
- * mask and is therefore static.
+ * The statement headline, hanging off the same timeline via `data-hero-role-word`.
+ * Word spacing lives in the gap so no literal space travels through an
+ * overflow-hidden mask (which would pulse the gap).
  */
 function MaskedLineHook({ text }: { text: string }) {
   const words = text.split(" ");
 
   return (
-    <span className="inline-flex gap-[0.32em]">
+    <span className="inline-block [text-wrap:balance]">
       {words.map((word, i) => (
-        <span
-          key={`${word}-${i}`}
-          className="inline-block overflow-hidden align-bottom [clip-path:inset(-0.3em_-0.2em_-0.1em_-0.2em)]"
-        >
-          <span data-hero-role-word className="inline-block">
-            {word}
+        <span className="inline-flex gap-[0.32em]" key={`${word}-${i}`}>
+          <span className="inline-block overflow-hidden align-bottom [clip-path:inset(-0.3em_-0.2em_-0.1em_-0.2em)]">
+            <span data-hero-role-word className="inline-block">
+              {word}
+            </span>
           </span>
+          {i < words.length - 1 ? (
+            <span aria-hidden="true" className="text-transparent">
+              &nbsp;
+            </span>
+          ) : null}
         </span>
       ))}
     </span>

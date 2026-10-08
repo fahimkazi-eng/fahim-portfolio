@@ -1,9 +1,9 @@
 import { FloatingNav } from "@/components/ui/nav";
 import { Hero } from "@/components/sections/hero";
 import { AboutSection } from "@/components/sections/about";
+import { JourneySection } from "@/components/sections/journey";
 import { StackSection } from "@/components/sections/stack";
 import { WorkSection } from "@/components/sections/work";
-import { PathSection } from "@/components/sections/path";
 import { CurrentlyExploringSection } from "@/components/sections/currently-exploring";
 import { PlaygroundSection } from "@/components/sections/playground";
 import { ServicesSection } from "@/components/sections/services";
@@ -63,11 +63,11 @@ export default async function HomePage() {
       <FloatingNav portraitSrc={portraitSrc} />
 
       <main id="main">
-        <Hero portraitSrc={portraitSrc} />
-        <AboutSection />
-        <StackSection skills={skills} />
+        <Hero projectCount={projects.length} />
+        <AboutSection portraitSrc={portraitSrc} projectCount={projects.length} />
+        <JourneySection experiences={experiences} educations={educations} />
         <WorkSection projects={projects} />
-        <PathSection experiences={experiences} educations={educations} />
+        <StackSection skills={skills} />
         <CurrentlyExploringSection />
         <PlaygroundSection />
         <ServicesSection services={services} />
@@ -80,9 +80,8 @@ export default async function HomePage() {
           who would rather not traverse the visual layout. */}
       <p className="sr-only">
         Portfolio of {site.name}, {site.roleLine} Based in {site.location},
-        studying at {site.university}. Sections on this page: about,
-        capabilities, selected work, experience and education, services, and
-        contact.
+        studying at {site.university}. Sections on this page: about, journey,
+        selected work, capabilities, now, playground, services, and contact.
       </p>
     </>
   );

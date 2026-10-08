@@ -20,7 +20,7 @@ export const site = {
   roleTitle: "Software Engineer",
   roleLine:
     "Computer Science & Engineering student building digital products end to end — schema, server, interface.",
-  location: "Bangladesh",
+  location: "Dhaka, Bangladesh",
   university: "Northern University Bangladesh",
   degree: "BSc in Computer Science & Engineering",
   email: "fahimirfan867@gmail.com",
@@ -140,6 +140,66 @@ export const heroHeadline = "Building digital products that solve real problems.
 
 export const heroCtaPrimary = { label: "View Work", href: "#work" };
 export const heroCtaSecondary = { label: "Let's Talk", href: "#contact" };
+
+/**
+ * SYSTEM STATUS panel (hero, right column). Every string here is either an
+ * identity constant or an honest, configurable status — editable in one
+ * place. "Available for selected work" and the live local clock make the
+ * panel read as live.
+ */
+export const heroStatus = {
+  statusLine: "Available for selected work",
+  location: "Dhaka, Bangladesh",
+  timeZone: "Asia/Dhaka",
+  currently: "Building digital products",
+  stack: ["Next.js", "TypeScript", "PostgreSQL", "GSAP"],
+} as const;
+
+/** Metrics row under the hero CTAs. Truthful numbers only. */
+export const heroMetrics = {
+  /** Published products in the DB (server passes the live count). */
+  builds: 8, // public repos verified via GitHub API, 2026-10-09
+  availability: "Open to opportunities",
+} as const;
+
+/* --------------------------------------------------------------------------
+   Journey (03) — the identity arc. Six phases of how the work got here.
+   Every line is an honest phase label or a verifiable fact (education,
+   shipped products); nothing here invents achievements. Editable in one
+   place for the owner.
+   -------------------------------------------------------------------------- */
+export const journeyStages = [
+  {
+    index: "01",
+    title: "Early Experience",
+    body: "Service, coordination and people work — the ground floor of shipping for real users.",
+  },
+  {
+    index: "02",
+    title: "Customer / People",
+    body: "Customer-facing roles first: listening, explaining and delivering under real deadlines.",
+  },
+  {
+    index: "03",
+    title: "CSE",
+    body: "BSc in Computer Science & Engineering at Northern University Bangladesh, 2023–2027.",
+  },
+  {
+    index: "04",
+    title: "Web Development",
+    body: "Next.js, TypeScript and PostgreSQL — building products end to end, schema to interface.",
+  },
+  {
+    index: "05",
+    title: "Product Building",
+    body: "Three shipped products: UniMate, FixBondhu and Lumina Digital.",
+  },
+  {
+    index: "06",
+    title: "AI / Systems / Future",
+    body: "Where the arc heads next — automation, agentic systems and larger full-stack surfaces.",
+  },
+] as const;
 
 export type Pillar = {
   /** Key into the ICON_MAP registry in components/ui/icon.tsx */

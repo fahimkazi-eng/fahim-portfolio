@@ -241,7 +241,17 @@ export default function AuroraField({
       program.uniforms.uScroll.value +=
         (scroll.value - program.uniforms.uScroll.value) * 0.06;
 
-      renderer.render({ scene: mesh });
+      try {
+        renderer.render({ scene: mesh });
+      } catch {
+        /* A draw can fail mid-session even when construction succeeded
+           (context lost, or a software GL that only reports the problem at
+           draw time — as in headless browsers). That is a signal to stop
+           drawing, not to throw every frame: the CSS gradient beneath is
+           the designed fallback either way. */
+        cancelAnimationFrame(raf);
+        return;
+      }
     };
     raf = requestAnimationFrame(loop);
 
