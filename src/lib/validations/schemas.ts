@@ -61,6 +61,9 @@ export const contactFieldSchema = z.object({
     .max(255, "Email is too long"),
   subject: trimmed.max(200, "Subject is too long").optional().default(""),
   message: requiredText(10, 4000, "Message"),
+  projectType: trimmed.max(120, "Too long").optional().default(""),
+  stage: trimmed.max(120, "Too long").optional().default(""),
+  budget: trimmed.max(120, "Too long").optional().default(""),
   /** Honeypot. Must stay empty. */
   website: z.literal("").optional().default(""),
 });

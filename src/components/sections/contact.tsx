@@ -149,16 +149,45 @@ function ContactFormFields({ state }: { state: ActionState }) {
         </Field>
       </div>
 
-      <Field label="Subject" htmlFor="subject" error={errors?.subject} hint="Optional">
-        <Input
-          id="subject"
-          name="subject"
-          placeholder="What is this about?"
-          invalid={Boolean(errors?.subject)}
-          aria-describedby="subject-error"
-          maxLength={200}
-        />
-      </Field>
+      <div className="grid gap-x-5 sm:grid-cols-2">
+        <Field label="Subject" htmlFor="subject" error={errors?.subject} hint="Optional">
+          <Input
+            id="subject"
+            name="subject"
+            placeholder="What is this about?"
+            invalid={Boolean(errors?.subject)}
+            aria-describedby="subject-error"
+            maxLength={200}
+          />
+        </Field>
+        <Field label="Project type" htmlFor="projectType" hint="Optional">
+          <Input
+            id="projectType"
+            name="projectType"
+            placeholder="Website / Web App / E-commerce / Dashboard / AI Agent / Other"
+            maxLength={120}
+          />
+        </Field>
+      </div>
+
+      <div className="grid gap-x-5 sm:grid-cols-2">
+        <Field label="Stage" htmlFor="stage" hint="Optional">
+          <Input
+            id="stage"
+            name="stage"
+            placeholder="Idea / Design / Development / Redesign"
+            maxLength={120}
+          />
+        </Field>
+        <Field label="Budget" htmlFor="budget" hint="Optional">
+          <Input
+            id="budget"
+            name="budget"
+            placeholder="e.g. $2k–$5k / Range or 'TBD'"
+            maxLength={120}
+          />
+        </Field>
+      </div>
 
       <Field
         label="Message"

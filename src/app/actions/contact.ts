@@ -34,6 +34,9 @@ export async function submitContactMessage(
     email: formData.get("email"),
     subject: formData.get("subject") ?? "",
     message: formData.get("message"),
+    projectType: formData.get("projectType") ?? "",
+    stage: formData.get("stage") ?? "",
+    budget: formData.get("budget") ?? "",
     website: formData.get("website") ?? "",
   });
 
