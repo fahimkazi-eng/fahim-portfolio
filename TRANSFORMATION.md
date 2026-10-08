@@ -72,7 +72,7 @@ Drizzle / Zod / GSAP / Motion / Lenis / OGL / admin / DB-driven content).
 | C | 04 Work (filters + categories + admin field) + 05 Stack (`/ 05`, SYS·05) + 06 Lab (6 working experiments) | DONE — `caa5406` |
 | D | 07 Now (`#now`, 5 cards) + 08 How I Build (6-step process, scroll-activated) + 09 Archive (horizontal track, 4 real GitHub repos seeded) | DONE — `6c568f7` |
 | E | 10 Notes (posts table, admin, `/notes/[slug]`) + 11 Uses (uses_items + admin, 10 verified items seeded) + 12 Contact (`/ 12`, “Let’s build something.”) + 13 Resume (DB-driven, honest mailto fallback) | DONE — `df0f263` |
-| F | 14 404 + command palette + cursor language + SEO/JSON-LD/sitemap + QA | |
+| F | 14 custom 404 (verified existing) + Ctrl/Cmd+K command palette + cursor language + SEO/JSON-LD/sitemap/robots/security headers (verified existing) + lint/typecheck/build + QA | DONE — `a57da4f` |
 
 ## Verification after each phase
 
