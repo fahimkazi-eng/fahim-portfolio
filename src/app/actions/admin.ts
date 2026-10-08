@@ -167,6 +167,7 @@ export async function saveProjectAction(
     repoUrl: formData.get("repoUrl") ?? "",
     year: formData.get("year") ?? "",
     role: formData.get("role") ?? "",
+    category: formData.get("category") ?? "web-app",
     featured: formData.get("featured") ?? false,
     published: formData.get("published") ?? false,
     sortOrder: formData.get("sortOrder") ?? 0,

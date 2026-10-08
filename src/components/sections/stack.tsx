@@ -66,8 +66,8 @@ export function StackSection({ skills }: { skills: Skill[] }) {
       </div>
 
       <SectionHeading
-        index="02"
-        eyebrow="Capabilities"
+        index="/ 05"
+        eyebrow="Tech stack"
         title={<SplitText text="What I work with." duration={1} />}
         lede="A computer science foundation, a set of professional skills, and the tools I reach for when building. Each one is drawn as what it actually does."
       />

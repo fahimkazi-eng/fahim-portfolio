@@ -7,6 +7,7 @@ import {
   Field,
   FormStatus,
   Input,
+  Select,
   SubmitButton,
   Textarea,
 } from "@/components/ui/field";
@@ -132,6 +133,53 @@ export function AField({
         aria-describedby={`${id}-error`}
         className={inputClassName}
       />
+    </Field>
+  );
+}
+
+export function ASelect({
+  label,
+  name,
+  errors,
+  required,
+  hint,
+  defaultValue,
+  options,
+  className,
+}: {
+  label: string;
+  name: string;
+  errors?: Record<string, string[]>;
+  required?: boolean;
+  hint?: string;
+  defaultValue?: string;
+  options: readonly { value: string; label: string }[];
+  className?: string;
+}) {
+  const id = `f-${name}`;
+  return (
+    <Field
+      label={label}
+      htmlFor={id}
+      required={required}
+      hint={hint}
+      error={errors?.[name]}
+      className={className}
+    >
+      <Select
+        id={id}
+        name={name}
+        defaultValue={defaultValue}
+        required={required}
+        invalid={Boolean(errors?.[name])}
+        aria-describedby={`${id}-error`}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </Select>
     </Field>
   );
 }

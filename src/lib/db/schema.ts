@@ -60,6 +60,11 @@ export const projects = pgTable("projects", {
   repoUrl: text("repo_url"),
   year: varchar("year", { length: 20 }),
   role: varchar("role", { length: 160 }),
+  /**
+   * Filter bucket for the featured grid: web-app | saas | e-commerce |
+   * experiment. Defaults to web-app so existing rows sort into a real pill.
+   */
+  category: varchar("category", { length: 40 }).notNull().default("web-app"),
   featured: boolean("featured").notNull().default(false),
   published: boolean("published").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),

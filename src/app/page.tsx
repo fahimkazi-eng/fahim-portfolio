@@ -5,7 +5,7 @@ import { JourneySection } from "@/components/sections/journey";
 import { StackSection } from "@/components/sections/stack";
 import { WorkSection } from "@/components/sections/work";
 import { CurrentlyExploringSection } from "@/components/sections/currently-exploring";
-import { PlaygroundSection } from "@/components/sections/playground";
+import { LabSection } from "@/components/sections/lab";
 import { ServicesSection } from "@/components/sections/services";
 import { ContactSection } from "@/components/sections/contact";
 import { Footer } from "@/components/sections/footer";
@@ -69,7 +69,7 @@ export default async function HomePage() {
         <WorkSection projects={projects} />
         <StackSection skills={skills} />
         <CurrentlyExploringSection />
-        <PlaygroundSection />
+        <LabSection />
         <ServicesSection services={services} />
         <ContactSection />
       </main>
@@ -81,7 +81,7 @@ export default async function HomePage() {
       <p className="sr-only">
         Portfolio of {site.name}, {site.roleLine} Based in {site.location},
         studying at {site.university}. Sections on this page: about, journey,
-        selected work, capabilities, now, playground, services, and contact.
+        selected work, capabilities, now, lab, services, and contact.
       </p>
     </>
   );

@@ -120,7 +120,7 @@ export function StackArchitecture() {
           </p>
         </div>
         <span aria-hidden="true" className="type-mono text-accent tabular-nums">
-          02·SYS
+          SYS·05
         </span>
       </div>
 

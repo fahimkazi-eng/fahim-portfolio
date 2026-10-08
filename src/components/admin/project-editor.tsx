@@ -7,10 +7,12 @@ import {
   ACheckbox,
   AField,
   ALineList,
+  ASelect,
   ATextarea,
   AdminForm,
   CheckboxRow,
 } from "@/components/admin/form-primitives";
+import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 
 /**
  * The one and only project form. Used for create (no `project`) and for edit
@@ -212,6 +214,17 @@ export function ProjectEditor({ project }: { project?: Project }) {
                 defaultValue={project?.role ?? ""}
                 placeholder="Full-stack developer"
               />
+              <ASelect
+                label="Category"
+                name="category"
+                errors={errors}
+                defaultValue={project?.category ?? "web-app"}
+                hint="Drives the featured-grid filter pills"
+                options={PROJECT_CATEGORIES}
+              />
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2">
               <AField
                 label="Sort order"
                 name="sortOrder"

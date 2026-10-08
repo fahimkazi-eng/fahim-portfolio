@@ -15,6 +15,13 @@
       "when": 1790790048605,
       "tag": "0001_steady_molecule_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791487311283,
+      "tag": "0002_petite_miss_america",
+      "breakpoints": true
     }
   ]
 }

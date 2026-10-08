@@ -1996,3 +1996,40 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ==========================================================================
+   Lab demos (06)
+   ========================================================================== */
+
+/* Text Distortion — per-glyph CSS variables make every character follow a
+   slightly different path, so the "distortion" is data, not a hardcoded
+   keyframe per letter. The `.distort-run` parent toggles one animation. */
+.distort-run .d-glyph {
+  animation: distort-glyph 0.55s cubic-bezier(0.22, 1, 0.36, 1) 2;
+  animation-delay: calc(var(--ch-i, 0) * 34ms);
+}
+
+@keyframes distort-glyph {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) skewY(0deg) scale(1);
+  }
+  30% {
+    transform: translate3d(
+        calc(sin(var(--ch-i, 0) * 40deg) * 7px),
+        calc(cos(var(--ch-i, 0) * 55deg) * -11px),
+        0
+      )
+      skewY(calc(var(--ch-i, 0) * 4deg - 10deg))
+      scale(1.14, 0.86);
+  }
+  62% {
+    transform: translate3d(
+        calc(cos(var(--ch-i, 0) * 70deg) * 5px),
+        calc(sin(var(--ch-i, 0) * 30deg) * 8px),
+        0
+      )
+      skewY(calc(var(--ch-i, 0) * -3deg + 8deg))
+      scale(0.92, 1.12);
+  }
+}

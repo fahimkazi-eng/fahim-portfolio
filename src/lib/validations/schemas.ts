@@ -92,6 +92,9 @@ export const projectFieldSchema = z.object({
   repoUrl: optionalUrl,
   year: trimmed.max(20, "Year is too long").optional().default(""),
   role: trimmed.max(160, "Role is too long").optional().default(""),
+  category: z
+    .enum(["web-app", "saas", "e-commerce", "experiment"])
+    .default("web-app"),
   featured: boolField,
   published: boolField,
   sortOrder: z.coerce.number().int().min(-999).max(999).optional().default(0),
