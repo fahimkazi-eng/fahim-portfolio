@@ -5,6 +5,7 @@ import { StackSection } from "@/components/sections/stack";
 import { WorkSection } from "@/components/sections/work";
 import { PathSection } from "@/components/sections/path";
 import { CurrentlyExploringSection } from "@/components/sections/currently-exploring";
+import { PlaygroundSection } from "@/components/sections/playground";
 import { ServicesSection } from "@/components/sections/services";
 import { ContactSection } from "@/components/sections/contact";
 import { Footer } from "@/components/sections/footer";
@@ -68,6 +69,7 @@ export default async function HomePage() {
         <WorkSection projects={projects} />
         <PathSection experiences={experiences} educations={educations} />
         <CurrentlyExploringSection />
+        <PlaygroundSection />
         <ServicesSection services={services} />
         <ContactSection />
       </main>
