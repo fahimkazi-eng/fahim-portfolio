@@ -36,13 +36,18 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
   /* ---- availability: only advertise anchors that exist ------------------ */
   const [available, setAvailable] = useState<ReadonlySet<string>>(new Set());
   useEffect(() => {
-    setAvailable(
-      new Set(
-        navItems
-          .filter((item) => document.getElementById(item.id))
-          .map((item) => item.id),
-      ),
-    );
+    /* Deferred past the synchronous mount effect so the nav never triggers a
+       cascading render pass. Availability only changes at hydration time. */
+    const frame = requestAnimationFrame(() => {
+      setAvailable(
+        new Set(
+          navItems
+            .filter((item) => document.getElementById(item.id))
+            .map((item) => item.id),
+        ),
+      );
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const items = navItems.filter((item) => available.has(item.id));
@@ -229,6 +234,23 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
                 className="grid size-9 place-items-center rounded-full text-fg-muted transition-colors duration-300 hover:bg-fg/[0.06] hover:text-fg"
               >
                 <ThemeIcon className="size-[1.05rem]" strokeWidth={1.75} />
+              </button>
+            </Magnetic>
+
+            <Magnetic strength={5}>
+              <button
+                type="button"
+                onClick={() =>
+                  window.dispatchEvent(new CustomEvent("command-palette:open"))
+                }
+                aria-label="Open command palette"
+                title="Command palette (Ctrl/⌘ + K)"
+                className="hidden h-9 items-center gap-2 rounded-pill border border-line-strong px-3 text-[0.75rem] text-fg-muted transition-colors duration-300 hover:border-accent hover:text-accent md:inline-flex"
+              >
+                <span className="tracking-[-0.01em]">Search</span>
+                <kbd className="type-mono text-[0.625rem] text-fg-subtle">
+                  ⌘K
+                </kbd>
               </button>
             </Magnetic>
 

@@ -150,8 +150,8 @@ function usePanelVisible<T extends HTMLElement>() {
     const el = ref.current;
     if (!el) return;
     if (typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      return;
+      const frame = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(frame);
     }
     const ob = new IntersectionObserver(
       (entries) => setVisible(entries[0]?.isIntersecting ?? false),

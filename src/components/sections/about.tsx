@@ -177,7 +177,7 @@ export function AboutSection({
           { value: 8, suffix: "", label: "Public builds" },
           { value: site.languages.length, suffix: "", label: "Languages spoken" },
           { value: CAPABILITIES.length, suffix: "", label: "Capabilities" },
-        ].map((stat, i) => (
+        ].map((stat) => (
           <div key={stat.label} className="bg-canvas p-6">
             <p className="type-display text-h1 leading-none text-fg">
               <CountUp to={stat.value} suffix={stat.suffix} />

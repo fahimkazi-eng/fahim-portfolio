@@ -5,6 +5,7 @@ import { site, siteOrigin } from "@/lib/site";
 import { ThemeProvider, themeInitScript } from "@/components/ui/theme-provider";
 import { MotionProvider } from "@/components/animations/motion-primitives";
 import { CustomCursor } from "@/components/ui/cursor";
+import { CommandPalette } from "@/components/ui/command-palette";
 import { ScrollProgress } from "@/components/animations/scroll-motion";
 
 /* --------------------------------------------------------------------------
@@ -122,6 +123,7 @@ export default function RootLayout({
           <MotionProvider>
             <ScrollProgress />
             <CustomCursor />
+            <CommandPalette />
             {children}
           </MotionProvider>
         </ThemeProvider>
