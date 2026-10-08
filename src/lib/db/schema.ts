@@ -144,6 +144,36 @@ export const services = pgTable("services", {
     .notNull(),
 });
 
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 160 }).notNull().unique(),
+  title: varchar("title", { length: 200 }).notNull(),
+  excerpt: text("excerpt"),
+  body: text("body").notNull(),
+  published: boolean("published").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const usesItems = pgTable("uses_items", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 160 }).notNull(),
+  category: varchar("category", { length: 120 }).notNull(),
+  /** Optional one-line "why" — left empty when there is nothing honest to say. */
+  note: varchar("note", { length: 240 }),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
   key: varchar("key", { length: 120 }).notNull().unique(),
@@ -179,6 +209,10 @@ export type Education = typeof educations.$inferSelect;
 export type NewEducation = typeof educations.$inferInsert;
 export type Service = typeof services.$inferSelect;
 export type NewService = typeof services.$inferInsert;
+export type Post = typeof posts.$inferSelect;
+export type NewPost = typeof posts.$inferInsert;
+export type UsesItem = typeof usesItems.$inferSelect;
+export type NewUsesItem = typeof usesItems.$inferInsert;
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type NewContactMessage = typeof contactMessages.$inferInsert;
 export type AdminUser = typeof adminUsers.$inferSelect;

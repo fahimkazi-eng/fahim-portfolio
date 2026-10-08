@@ -79,6 +79,8 @@ const ADMIN_LINKS = [
   { href: "/admin/education", label: "Education" },
   { href: "/admin/skills", label: "Skills" },
   { href: "/admin/services", label: "Services" },
+  { href: "/admin/posts", label: "Notes" },
+  { href: "/admin/uses", label: "Uses" },
 ] as const;
 
 function AdminSidebar() {

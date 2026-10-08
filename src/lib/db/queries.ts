@@ -5,10 +5,12 @@ import {
   contactMessages,
   educations,
   experiences,
+  posts,
   projects,
   services,
   siteSettings,
   skills,
+  usesItems,
 } from "./schema";
 
 /* -------------------------------------------------------------------------
@@ -86,6 +88,51 @@ export async function getServices() {
     .select()
     .from(services)
     .orderBy(asc(services.sortOrder), asc(services.id));
+}
+
+/* -------------------------------------------------------------------------
+   Notes / posts
+   ------------------------------------------------------------------------- */
+
+export async function getPublishedPosts() {
+  return db
+    .select({
+      id: posts.id,
+      slug: posts.slug,
+      title: posts.title,
+      excerpt: posts.excerpt,
+      createdAt: posts.createdAt,
+    })
+    .from(posts)
+    .where(eq(posts.published, true))
+    .orderBy(desc(posts.createdAt));
+}
+
+export async function getPostBySlug(slug: string) {
+  const rows = await db
+    .select()
+    .from(posts)
+    .where(and(eq(posts.slug, slug), eq(posts.published, true)))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function getAllPosts() {
+  return db
+    .select()
+    .from(posts)
+    .orderBy(desc(posts.createdAt));
+}
+
+/* -------------------------------------------------------------------------
+   Uses
+   ------------------------------------------------------------------------- */
+
+export async function getUsesItems() {
+  return db
+    .select()
+    .from(usesItems)
+    .orderBy(asc(usesItems.category), asc(usesItems.sortOrder), asc(usesItems.id));
 }
 
 /* -------------------------------------------------------------------------

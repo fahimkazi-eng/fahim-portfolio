@@ -1,15 +1,26 @@
 "use client";
 
-import type { Education, Experience, Service, Skill } from "@/lib/db/schema";
+import type {
+  Education,
+  Experience,
+  Post,
+  Service,
+  Skill,
+  UsesItem,
+} from "@/lib/db/schema";
 import {
   deleteEducationAction,
   deleteExperienceAction,
+  deletePostAction,
   deleteServiceAction,
   deleteSkillAction,
+  deleteUsesItemAction,
   saveEducationAction,
   saveExperienceAction,
+  savePostAction,
   saveServiceAction,
   saveSkillAction,
+  saveUsesItemAction,
 } from "@/app/actions/admin";
 import { Card } from "@/components/ui/card";
 import { InlineAction } from "@/components/admin/form-primitives";
@@ -423,6 +434,195 @@ export function ServiceCard({ item }: { item: Service }) {
         </summary>
         <div className="mt-4">
           <ServiceEditor item={item} />
+        </div>
+      </details>
+    </Card>
+  );
+}
+
+/* ---------------------------------- Posts ------------------------------ */
+
+export function PostEditor({ item }: { item?: Post }) {
+  return (
+    <AdminForm
+      action={savePostAction}
+      hidden={{ id: item?.id }}
+      submitLabel={item ? "Save note" : "Add note"}
+    >
+      {(state) => {
+        const errors = state.status === "error" ? state.fieldErrors : undefined;
+        return (
+          <>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <AField
+                label="Title"
+                name="title"
+                required
+                errors={errors}
+                defaultValue={item?.title}
+              />
+              <AField
+                label="Slug"
+                name="slug"
+                required
+                errors={errors}
+                defaultValue={item?.slug}
+                hint="Lowercase, hyphens: first field-post"
+              />
+            </div>
+            <ATextarea
+              label="Excerpt"
+              name="excerpt"
+              errors={errors}
+              defaultValue={item?.excerpt ?? ""}
+              rows={2}
+              hint="Shown on the notes section. Optional."
+            />
+            <ATextarea
+              label="Body"
+              name="body"
+              required
+              errors={errors}
+              defaultValue={item?.body}
+              rows={10}
+              hint="Plain text or markdown — rendered as paragraphs."
+            />
+            <CheckboxRow>
+              <ACheckbox
+                label="Published"
+                name="published"
+                defaultChecked={item?.published ?? false}
+              />
+              {item ? (
+                <span className="type-mono text-fg-subtle">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </span>
+              ) : null}
+            </CheckboxRow>
+            {item ? <DeleteButton id={item.id} label={item.title} action={deletePostAction} /> : null}
+          </>
+        );
+      }}
+    </AdminForm>
+  );
+}
+
+export function PostCard({ item }: { item: Post }) {
+  return (
+    <Card className="p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-display text-[1.05rem] font-semibold tracking-tight text-fg">
+            {item.title}
+          </p>
+          <p className="type-mono mt-1 text-fg-muted">/{item.slug}</p>
+          <p className="type-mono mt-1 text-fg-subtle">
+            {new Date(item.createdAt).toLocaleDateString()}
+            {item.published ? "" : " · draft"}
+          </p>
+        </div>
+      </div>
+
+      {item.excerpt ? (
+        <p className="mt-3 text-[0.875rem] leading-relaxed text-fg-muted">
+          {item.excerpt}
+        </p>
+      ) : null}
+
+      <details className="mt-4 border-t border-line pt-3">
+        <summary className="type-mono cursor-pointer text-fg-subtle transition-colors duration-200 hover:text-accent">
+          Edit this note
+        </summary>
+        <div className="mt-4">
+          <PostEditor item={item} />
+        </div>
+      </details>
+    </Card>
+  );
+}
+
+/* ---------------------------------- Uses ------------------------------- */
+
+export function UsesItemEditor({ item }: { item?: UsesItem }) {
+  return (
+    <AdminForm
+      action={saveUsesItemAction}
+      hidden={{ id: item?.id }}
+      submitLabel={item ? "Save item" : "Add item"}
+    >
+      {(state) => {
+        const errors = state.status === "error" ? state.fieldErrors : undefined;
+        return (
+          <>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <AField
+                label="Name"
+                name="name"
+                required
+                errors={errors}
+                defaultValue={item?.name}
+                placeholder="Next.js"
+              />
+              <AField
+                label="Category"
+                name="category"
+                required
+                errors={errors}
+                defaultValue={item?.category}
+                placeholder="Frontend"
+              />
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <AField
+                label="Note"
+                name="note"
+                errors={errors}
+                defaultValue={item?.note ?? ""}
+                hint="Optional one-liner. Leave empty if there is nothing honest to say."
+              />
+              <AField
+                label="Sort order"
+                name="sortOrder"
+                type="number"
+                errors={errors}
+                defaultValue={item?.sortOrder ?? 0}
+              />
+            </div>
+            {item ? <DeleteButton id={item.id} label={item.name} action={deleteUsesItemAction} /> : null}
+          </>
+        );
+      }}
+    </AdminForm>
+  );
+}
+
+export function UsesItemCard({ item }: { item: UsesItem }) {
+  return (
+    <Card className="p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-body text-fg">{item.name}</p>
+          <p className="type-mono mt-0.5 text-fg-subtle">{item.category}</p>
+        </div>
+        <InlineAction
+          action={deleteUsesItemAction}
+          hidden={{ id: item.id }}
+          confirm={`Remove "${item.name}"?`}
+        >
+          Remove
+        </InlineAction>
+      </div>
+      {item.note ? (
+        <p className="mt-2 text-[0.875rem] leading-relaxed text-fg-muted">
+          {item.note}
+        </p>
+      ) : null}
+      <details className="mt-3 border-t border-line pt-3">
+        <summary className="type-mono cursor-pointer text-fg-subtle transition-colors duration-200 hover:text-accent">
+          Edit
+        </summary>
+        <div className="mt-3">
+          <UsesItemEditor item={item} />
         </div>
       </details>
     </Card>

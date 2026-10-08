@@ -8,14 +8,20 @@ import { CurrentlyExploringSection } from "@/components/sections/currently-explo
 import { LabSection } from "@/components/sections/lab";
 import { ArchiveSection } from "@/components/sections/archive";
 import { ServicesSection } from "@/components/sections/services";
+import { NotesSection } from "@/components/sections/notes";
+import { UsesSection } from "@/components/sections/uses";
+import { ResumeSection } from "@/components/sections/resume";
 import { ContactSection } from "@/components/sections/contact";
 import { Footer } from "@/components/sections/footer";
 import {
   getEducations,
   getExperiences,
+  getPublishedPosts,
   getPublishedProjects,
   getServices,
+  getSetting,
   getSkills,
+  getUsesItems,
 } from "@/lib/db/queries";
 import { site } from "@/lib/site";
 import { portraitAssetExists } from "@/lib/portrait-asset";
@@ -30,14 +36,25 @@ import { buildPersonSchema, buildWebSiteSchema } from "@/lib/seo";
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [projects, skills, experiences, educations, services] =
-    await Promise.all([
-      getPublishedProjects(),
-      getSkills(),
-      getExperiences(),
-      getEducations(),
-      getServices(),
-    ]);
+  const [
+    projects,
+    skills,
+    experiences,
+    educations,
+    services,
+    posts,
+    usesItems,
+    resumeUrl,
+  ] = await Promise.all([
+    getPublishedProjects(),
+    getSkills(),
+    getExperiences(),
+    getEducations(),
+    getServices(),
+    getPublishedPosts(),
+    getUsesItems(),
+    getSetting("resume_url"),
+  ]);
 
   const personSchema = buildPersonSchema({
     projects,
@@ -73,7 +90,10 @@ export default async function HomePage() {
         <CurrentlyExploringSection />
         <ServicesSection services={services} />
         <ArchiveSection projects={projects} />
+        <NotesSection posts={posts} />
+        <UsesSection items={usesItems} />
         <ContactSection />
+        <ResumeSection resumeUrl={resumeUrl} />
       </main>
 
       <Footer />
@@ -83,8 +103,8 @@ export default async function HomePage() {
       <p className="sr-only">
         Portfolio of {site.name}, {site.roleLine} Based in {site.location},
         studying at {site.university}. Sections on this page: about, journey,
-        selected work, capabilities, lab, now, how I build, more builds, and
-        contact.
+        selected work, capabilities, lab, now, how I build, more builds,
+        notes, uses, contact, and resume.
       </p>
     </>
   );

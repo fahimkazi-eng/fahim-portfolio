@@ -154,6 +154,28 @@ export const serviceFieldSchema = z.object({
   sortOrder: z.coerce.number().int().min(-999).max(999).optional().default(0),
 });
 
+export const postFieldSchema = z.object({
+  slug: requiredText(2, 160, "Slug").regex(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    "Lowercase letters, numbers and hyphens only.",
+  ),
+  title: requiredText(2, 200, "Title"),
+  excerpt: trimmed.max(400, "Excerpt is too long").optional().default(""),
+  body: requiredText(1, 20000, "Body"),
+  published: boolField,
+});
+
+export type PostInput = z.infer<typeof postFieldSchema>;
+
+export const usesItemFieldSchema = z.object({
+  name: requiredText(2, 160, "Name"),
+  category: requiredText(2, 120, "Category"),
+  note: trimmed.max(240, "Note is too long").optional().default(""),
+  sortOrder: z.coerce.number().int().min(-999).max(999).optional().default(0),
+});
+
+export type UsesItemInput = z.infer<typeof usesItemFieldSchema>;
+
 export type ServiceInput = z.infer<typeof serviceFieldSchema>;
 
 export const loginFieldSchema = z.object({

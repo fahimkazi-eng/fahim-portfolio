@@ -9,9 +9,11 @@ import {
   contactMessages,
   educations,
   experiences,
+  posts,
   projects,
   services,
   skills,
+  usesItems,
 } from "@/lib/db/schema";
 import {
   authenticate,
@@ -25,9 +27,11 @@ import {
   experienceFieldSchema,
   fieldErrorsFrom,
   loginFieldSchema,
+  postFieldSchema,
   projectFieldSchema,
   serviceFieldSchema,
   skillFieldSchema,
+  usesItemFieldSchema,
   type ActionState,
 } from "@/lib/validations/schemas";
 import { slugify } from "@/lib/utils";
@@ -533,6 +537,133 @@ export async function deleteServiceAction(formData: FormData) {
   await db.delete(services).where(eq(services.id, id));
   revalidatePublic();
   revalidatePath("/admin/services");
+}
+
+/* -------------------------------------------------------------------------
+   Notes / posts
+   -------------------------------------------------------------------------- */
+
+export async function savePostAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    await requireUser();
+  } catch {
+    return UNAUTHORISED;
+  }
+
+  const id = Number(formData.get("id")) || null;
+
+  const parsed = postFieldSchema.safeParse({
+    slug: formData.get("slug"),
+    title: formData.get("title"),
+    excerpt: formData.get("excerpt") ?? "",
+    body: formData.get("body") ?? "",
+    published: formData.get("published") === "on",
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "Some fields need attention.",
+      fieldErrors: fieldErrorsFrom(parsed.error),
+    };
+  }
+
+  try {
+    if (id) {
+      await db
+        .update(posts)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(posts.id, id));
+    } else {
+      await db.insert(posts).values(parsed.data);
+    }
+  } catch {
+    return { status: "error", message: "The post could not be saved." };
+  }
+
+  revalidatePublic();
+  revalidatePath("/admin/posts");
+  return { status: "success", message: id ? "Updated." : "Added." };
+}
+
+export async function deletePostAction(formData: FormData) {
+  try {
+    await requireUser();
+  } catch {
+    return;
+  }
+  const id = Number(formData.get("id"));
+  if (!Number.isInteger(id)) return;
+
+  await db.delete(posts).where(eq(posts.id, id));
+  revalidatePublic();
+  revalidatePath("/admin/posts");
+}
+
+/* -------------------------------------------------------------------------
+   Uses
+   -------------------------------------------------------------------------- */
+
+export async function saveUsesItemAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    await requireUser();
+  } catch {
+    return UNAUTHORISED;
+  }
+
+  const id = Number(formData.get("id")) || null;
+
+  const parsed = usesItemFieldSchema.safeParse({
+    name: formData.get("name"),
+    category: formData.get("category"),
+    note: formData.get("note") ?? "",
+    sortOrder: formData.get("sortOrder") ?? 0,
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "Some fields need attention.",
+      fieldErrors: fieldErrorsFrom(parsed.error),
+    };
+  }
+
+  try {
+    if (id) {
+      await db
+        .update(usesItems)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(usesItems.id, id));
+    } else {
+      await db.insert(usesItems).values(parsed.data);
+    }
+  } catch {
+    return { status: "error", message: "The item could not be saved." };
+  }
+
+  revalidatePublic();
+  revalidatePath("/admin/uses");
+  return { status: "success", message: id ? "Updated." : "Added." };
+}
+
+export async function deleteUsesItemAction(formData: FormData) {
+  try {
+    await requireUser();
+  } catch {
+    return;
+  }
+  const id = Number(formData.get("id"));
+  if (!Number.isInteger(id)) return;
+
+  await db.delete(usesItems).where(eq(usesItems.id, id));
+  revalidatePublic();
+  revalidatePath("/admin/uses");
 }
 
 /* -------------------------------------------------------------------------

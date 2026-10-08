@@ -32,9 +32,9 @@ export function ContactSection() {
       <div className="grid grid-cols-1 gap-[clamp(2.5rem,6vw,6rem)] lg:grid-cols-12">
         <div className="lg:col-span-5">
           <SectionHeading
-            index="08"
+            index="/ 12"
             eyebrow="Contact"
-            title={<SplitText text="Tell me what you're building." duration={1} />}
+            title={<SplitText text="Let's build something." duration={1} />}
             lede={
               "A project in mind, a role to fill, or a question about how something works — all three are fine reasons to write."
             }
