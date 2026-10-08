@@ -179,11 +179,11 @@ function ContactFormFields({ state }: { state: ActionState }) {
             maxLength={120}
           />
         </Field>
-        <Field label="Budget" htmlFor="budget" hint="Optional">
+        <Field label="Budget / Timeline" htmlFor="budget" hint="Optional">
           <Input
             id="budget"
             name="budget"
-            placeholder="e.g. $2k–$5k / Range or 'TBD'"
+            placeholder="Budget range or timeline (e.g. $2k–$5k, 2–4 weeks)"
             maxLength={120}
           />
         </Field>
