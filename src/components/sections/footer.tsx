@@ -1,4 +1,4 @@
-import { navItems, site } from "@/lib/site";
+import { footerLinks, navItems, site } from "@/lib/site";
 import { Marquee } from "@/components/ui/marquee";
 import { SplitText } from "@/components/animations/split-text";
 import { Magnetic } from "@/components/ui/magnetic";
@@ -68,32 +68,26 @@ export function Footer() {
 
           <div>
             <p className="type-mono mb-4 text-fg-subtle">Elsewhere</p>
+            {/*
+              Social links are data in `site.ts` (footerLinks) — add or replace
+              a profile URL there and every page reflects it. Until the owner
+              supplies a LinkedIn handle it deliberately points at the platform
+              root: honestly unconfigured, never a stranger's profile.
+            */}
             <ul className="space-y-2">
-              {/*
-                Social handles were not supplied with the brief. These point at
-                the platform roots so the links are honest about being
-                unconfigured rather than pointing at a stranger's profile.
-              */}
-              <li>
-                <a
-                  href="https://github.com/"
-                  target="_blank"
-                  rel="noopener noreferrer me"
-                  className="text-[0.875rem] text-fg-muted transition-colors duration-300 hover:text-accent"
-                >
-                  GitHub ↗
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.linkedin.com/"
-                  target="_blank"
-                  rel="noopener noreferrer me"
-                  className="text-[0.875rem] text-fg-muted transition-colors duration-300 hover:text-accent"
-                >
-                  LinkedIn ↗
-                </a>
-              </li>
+              {footerLinks.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    target={link.external ? "_blank" : undefined}
+                    rel={link.external ? "noopener noreferrer me" : undefined}
+                    className="text-[0.875rem] text-fg-muted transition-colors duration-300 hover:text-accent"
+                  >
+                    {link.label}
+                    {link.external ? " ↗" : ""}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 

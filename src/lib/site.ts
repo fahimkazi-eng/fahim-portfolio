@@ -186,9 +186,13 @@ export const defaultServices: ServiceCopy[] = [
   },
 ];
 
-export const footerLinks: { label: string; href: string; external?: boolean }[] =
-  [
-    { label: "GitHub", href: "https://github.com/", external: true },
-    { label: "LinkedIn", href: "https://www.linkedin.com/", external: true },
-    { label: "Email", href: `mailto:${site.email}` },
-  ];
+export const footerLinks: { label: string; href: string; external?: boolean }[] = [
+  { label: "GitHub", href: "https://github.com/fahimkazi-eng", external: true },
+  /*
+    The owner's LinkedIn profile URL was not supplied with the brief. Keep the
+    honest platform root until the handle is added to this list — pointing at
+    an empty page is worse than clearly being unconfigured.
+  */
+  { label: "LinkedIn", href: "https://www.linkedin.com/", external: true },
+  { label: "Email", href: `mailto:${site.email}` },
+];
