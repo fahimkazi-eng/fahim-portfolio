@@ -186,7 +186,14 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
             />
             <ul className="relative flex items-center gap-1">
               {navItems.map((item) => (
-                <li key={item.id}>
+                <li
+                  key={item.id}
+                  className={cn(
+                    item.id === "exploring" || item.id === "playground"
+                      ? "hidden lg:block"
+                      : undefined,
+                  )}
+                >
                   <a
                     ref={(el) => {
                       linkRefs.current[item.id] = el;

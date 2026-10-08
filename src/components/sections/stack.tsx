@@ -7,6 +7,7 @@ import { Spotlight, Tilt } from "@/components/ui/magnetic";
 import { TechMark } from "@/components/ui/tech-mark";
 import { SplitSkillRow } from "./skill-row";
 import { TechBanner } from "@/components/sections/tech-banners";
+import { StackArchitecture } from "@/components/sections/stack-architecture";
 import {
   gridTech,
   leadTech,
@@ -119,6 +120,8 @@ export function StackSection({ skills }: { skills: Skill[] }) {
           </div>
         ))}
       </Stagger>
+
+      <StackArchitecture />
 
       <Reveal>
         <p className="type-mono mt-8 max-w-[62ch] leading-relaxed text-fg-subtle">
