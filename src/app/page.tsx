@@ -4,6 +4,7 @@ import { AboutSection } from "@/components/sections/about";
 import { StackSection } from "@/components/sections/stack";
 import { WorkSection } from "@/components/sections/work";
 import { PathSection } from "@/components/sections/path";
+import { CurrentlyExploringSection } from "@/components/sections/currently-exploring";
 import { ServicesSection } from "@/components/sections/services";
 import { ContactSection } from "@/components/sections/contact";
 import { Footer } from "@/components/sections/footer";
