@@ -104,19 +104,42 @@ export const isPlaceholder = (v: unknown): v is Placeholder =>
 export type NavItem = {
   id: string;
   label: string;
-  index: string;
 };
 
+/**
+ * Reference top bar: HOME WORK LAB BLOG ABOUT NOW USES SERVICES + CONTACT.
+ *
+ * Every item is a homepage section target at `#<id>`. Items whose section has
+ * not landed in a phase yet are hidden by FloatingNav until the section exists
+ * (existence check at mount), so the bar never advertises an anchor with no
+ * destination. Sections live on the homepage; dedicated routes (case studies,
+ * 404) are reached from the content itself.
+ */
 export const navItems: NavItem[] = [
-  { id: "about", label: "About", index: "01" },
-  { id: "stack", label: "Stack", index: "02" },
-  { id: "work", label: "Work", index: "03" },
-  { id: "path", label: "Path", index: "04" },
-  { id: "exploring", label: "Explore", index: "05" },
-  { id: "playground", label: "Playground", index: "06" },
-  { id: "build", label: "Build", index: "07" },
-  { id: "contact", label: "Contact", index: "08" },
+  { id: "hero", label: "Home" },
+  { id: "work", label: "Work" },
+  { id: "lab", label: "Lab" },
+  { id: "notes", label: "Notes" },
+  { id: "about", label: "About" },
+  { id: "now", label: "Now" },
+  { id: "uses", label: "Uses" },
+  { id: "build", label: "Services" },
 ];
+
+/* --------------------------------------------------------------------------
+   Hero copy. The sections below are rendered from `site` so the copy lives
+   next to the code that consumes it and is trivially editable.
+   -------------------------------------------------------------------------- */
+
+/** Small identity kicker above the name, mono, uppercase. */
+export const heroIdentity =
+  "CSE Student · Product Builder · Software Developer";
+
+/** The em-dash-free headline under the name. */
+export const heroHeadline = "Building digital products that solve real problems.";
+
+export const heroCtaPrimary = { label: "View Work", href: "#work" };
+export const heroCtaSecondary = { label: "Let's Talk", href: "#contact" };
 
 export type Pillar = {
   /** Key into the ICON_MAP registry in components/ui/icon.tsx */

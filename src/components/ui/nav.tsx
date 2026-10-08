@@ -29,9 +29,23 @@ import { Portrait } from "./portrait";
  */
 export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
   const [scrolled, setScrolled] = useState(false);
-  const [activeId, setActiveId] = useState<string>("about");
+  const [activeId, setActiveId] = useState<string>("hero");
   const [open, setOpen] = useState(false);
   const { preference, resolved, setPreference } = useTheme();
+
+  /* ---- availability: only advertise anchors that exist ------------------ */
+  const [available, setAvailable] = useState<ReadonlySet<string>>(new Set());
+  useEffect(() => {
+    setAvailable(
+      new Set(
+        navItems
+          .filter((item) => document.getElementById(item.id))
+          .map((item) => item.id),
+      ),
+    );
+  }, []);
+
+  const items = navItems.filter((item) => available.has(item.id));
 
   const pillRef = useRef<HTMLSpanElement | null>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
@@ -60,7 +74,7 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
 
   /* ---- active section ---- */
   useEffect(() => {
-    const sections = navItems
+    const sections = items
       .map((item) => document.getElementById(item.id))
       .filter((el): el is HTMLElement => Boolean(el));
 
@@ -81,7 +95,7 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
 
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
-  }, []);
+  }, [items]);
 
   /* ---- move the active pill to the right link ---- */
   useEffect(() => {
@@ -184,16 +198,9 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
               className="absolute left-0 top-1/2 h-9 -translate-y-1/2 rounded-pill bg-fg/[0.07] transition-[width,transform] duration-500 ease-out"
               style={{ width: "var(--pill-w, 0px)", transform: "translate(var(--pill-x, 0), -50%)" }}
             />
-            <ul className="relative flex items-center gap-1">
-              {navItems.map((item) => (
-                <li
-                  key={item.id}
-                  className={cn(
-                    item.id === "exploring" || item.id === "playground"
-                      ? "hidden lg:block"
-                      : undefined,
-                  )}
-                >
+            <ul className="relative flex items-center gap-0.5">
+              {items.map((item) => (
+                <li key={item.id}>
                   <a
                     ref={(el) => {
                       linkRefs.current[item.id] = el;
@@ -201,15 +208,10 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
                     href={`#${item.id}`}
                     aria-current={activeId === item.id ? "true" : undefined}
                     className={cn(
-                      "relative flex h-9 items-center gap-1.5 rounded-pill px-3.5 text-[0.8125rem] transition-colors duration-300",
+                      "relative flex h-9 items-center rounded-pill px-3 text-[0.8125rem] tracking-[-0.01em] transition-colors duration-300",
                       activeId === item.id ? "text-fg" : "text-fg-muted hover:text-fg",
                     )}
                   >
-                    {/* Full accent, not /80: at 9px the dimmed version measured
-                        4.48:1 against the canvas, a hair under WCAG AA. */}
-                    <span className="type-mono text-[0.55rem] text-accent tabular-nums">
-                      {item.index}
-                    </span>
                     {item.label}
                   </a>
                 </li>
@@ -232,7 +234,7 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
 
             <Magnetic strength={5}>
               <a
-                href={`#${navItems.at(-1)?.id ?? "contact"}`}
+                href="#contact"
                 className="hidden h-9 items-center rounded-full bg-fg px-4 text-[0.8125rem] font-medium text-canvas transition-colors duration-300 hover:bg-accent hover:text-accent-fg sm:inline-flex"
               >
                 Let&apos;s talk
@@ -272,7 +274,7 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
         />
         <div className="absolute inset-x-0 top-0 glass rounded-b-[2rem] px-[clamp(1.15rem,0.6rem+2.6vw,4.5rem)] pb-10 pt-24">
           <ul className="space-y-1">
-            {navItems.map((item, i) => (
+            {items.map((item, i) => (
               <li key={item.id}>
                 <a
                   href={`#${item.id}`}
@@ -280,9 +282,6 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
                   style={{ animationDelay: `${i * 45}ms` }}
                   className="flex items-baseline gap-4 border-b border-line py-3.5 font-display text-[1.75rem] font-semibold tracking-tight text-fg [animation:rule-in_0.5s_cubic-bezier(0.16,1,0.3,1)_both]"
                 >
-                  <span className="type-mono text-accent tabular-nums">
-                    {item.index}
-                  </span>
                   {item.label}
                 </a>
               </li>

@@ -3,12 +3,13 @@
 
 /* ==========================================================================
    KAZI FAHIM — DESIGN SYSTEM
-   Concept: "Signal & Paper". An editorial/technical portfolio.
+   Concept: "Midnight System". A dark cinematic editorial/technical portfolio.
 
    Rules that keep it one system rather than a bag of effects:
-   1. One accent hue (vermillion). Everything else is neutral ink/paper.
-      Colour in the aurora shader is a derivative of the same hue family,
-      so glow never fights the UI.
+   1. One primary accent (electric blue). Cyan, violet and magenta are locked
+      roles, never free colour: cyan for secondary/live states, violet for
+      tertiary/motion, magenta only for atmospheric highlights. Everything
+      else is neutral blue-tinted ink.
    2. One type scale, built with clamp() so it is fluid at every breakpoint.
       Display + mono carry the identity; body stays quiet.
    3. Motion has three owners and they never share a DOM property
@@ -18,34 +19,70 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* ---- Neutral ramp: ink (dark canvas) → paper (light canvas) ---------- */
-  --color-ink-950: #060607;
-  --color-ink-900: #0b0b0c;
-  --color-ink-850: #101012;
-  --color-ink-800: #161618;
-  --color-ink-700: #1f1f22;
-  --color-ink-600: #2b2b2f;
-  --color-ink-500: #3d3d43;
-  --color-ink-450: #4a4a52;
-  --color-ink-400: #5c5c65;
-  --color-ink-350: #9c9ca6;
-  --color-ink-300: #8b8b95;
-  --color-ink-200: #b6b6bd;
-  --color-ink-100: #d9d8d4;
-  --color-ink-50: #efede7;
-  --color-paper: #f4f1ea;
+  /* ---- Neutral ramp: ink = midnight blue near-black canvas; paper = cool
+         mist. Even the greys carry a blue cast so every surface lives in the
+         same atmosphere. ------------------------------------------------ */
+  --color-ink-950: #04060b;
+  --color-ink-900: #090c14;
+  --color-ink-850: #0e1220;
+  --color-ink-800: #141927;
+  --color-ink-700: #1d2333;
+  --color-ink-600: #2a3145;
+  --color-ink-500: #3c455d;
+  --color-ink-450: #4d5872;
+  --color-ink-400: #5e6a86;
+  --color-ink-350: #98a2b8;
+  --color-ink-300: #8b95ad;
+  --color-ink-200: #b3bccd;
+  --color-ink-100: #d6dbe6;
+  --color-ink-50: #eceff6;
+  --color-paper: #eef1f6;
 
-  /* ---- Single accent: signal vermillion -------------------------------- */
-  --color-signal-50: #fff1ed;
-  --color-signal-100: #ffddd4;
-  --color-signal-200: #ffb8a6;
-  --color-signal-300: #ff8a6e;
-  --color-signal-400: #ff5c39;
-  --color-signal-500: #f5410f;
-  --color-signal-600: #d63308;
-  --color-signal-700: #a92609;
-  --color-signal-800: #7d1d0b;
-  --color-signal-900: #52150c;
+  /* ---- Primary accent: electric blue -----------------------------------
+       Same ramp structure as the old vermillion "signal" ramp, new hue
+       family. The name is kept so every existing consumer of `signal`
+       inherits the retheme without a rename sweep. */
+  --color-signal-50: #edf3ff;
+  --color-signal-100: #d9e5ff;
+  --color-signal-200: #b4c9ff;
+  --color-signal-300: #8ba8ff;
+  --color-signal-400: #5f86fb;
+  --color-signal-500: #3d6cf2;
+  --color-signal-600: #2a54d1;
+  --color-signal-700: #2345ad;
+  --color-signal-800: #1e3a8c;
+  --color-signal-900: #162a63;
+
+  /* ---- Locked secondary roles ------------------------------------------- */
+  /* Cyan: live/secondary status, technical highlights. */
+  --color-pulse-50: #ecfeff;
+  --color-pulse-100: #cef9ff;
+  --color-pulse-200: #9ff2fb;
+  --color-pulse-300: #63e2f3;
+  --color-pulse-400: #2cc8e4;
+  --color-pulse-500: #12abcc;
+  --color-pulse-600: #0d87a6;
+  --color-pulse-700: #116d87;
+  --color-pulse-800: #135a6e;
+  --color-pulse-900: #124b5c;
+
+  /* Violet: tertiary accent, motion/mist. */
+  --color-violet-50: #f3f1ff;
+  --color-violet-100: #e9e5ff;
+  --color-violet-200: #d4ccff;
+  --color-violet-300: #b6a7ff;
+  --color-violet-400: #967eff;
+  --color-violet-500: #7a5af5;
+  --color-violet-600: #673edb;
+  --color-violet-700: #5631b5;
+  --color-violet-800: #472b92;
+  --color-violet-900: #3b2676;
+
+  /* Magenta: atmospheric highlights ONLY. Never a UI state colour. */
+  --color-atmo-300: #f6b8ee;
+  --color-atmo-400: #f0a6e8;
+  --color-atmo-500: #e879d9;
+  --color-atmo-600: #d94cc2;
 
   /* ---- Type ----------------------------------------------------------- */
   --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif,
@@ -102,9 +139,9 @@
   --fg-subtle: var(--color-ink-400);
   --line: color-mix(in oklab, var(--color-ink-900) 12%, transparent);
   --line-strong: color-mix(in oklab, var(--color-ink-900) 24%, transparent);
-  /* signal-600 is only 4.29:1 on paper; signal-700 clears 6.2:1. */
+  /* signal-600 is only ~4.3:1 on paper; signal-700 clears 6:1. */
   --accent: var(--color-signal-700);
-  --accent-fg: #fffaf7;
+  --accent-fg: #ffffff;
   --accent-soft: color-mix(in oklab, var(--color-signal-500) 12%, transparent);
   --grain-opacity: 0.28;
   --grid-line: color-mix(in oklab, var(--color-ink-900) 6%, transparent);
@@ -142,10 +179,10 @@
   --accent: var(--color-signal-400);
   --accent-fg: var(--color-ink-950);
   --accent-soft: color-mix(in oklab, var(--color-signal-500) 16%, transparent);
-  --grain-opacity: 0.16;
+  --grain-opacity: 0.14;
   --grid-line: color-mix(in oklab, var(--color-ink-50) 7%, transparent);
   --grain-blend: overlay;
-  --aurora-opacity: 0.85;
+  --aurora-opacity: 0.9;
   --color-scheme: dark;
 
   /* Same system as the light values above, lifted for ink: brighter and a

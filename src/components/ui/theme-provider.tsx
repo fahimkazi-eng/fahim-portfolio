@@ -32,10 +32,10 @@ function isPreference(value: unknown): value is ThemePreference {
 function readPreference(): ThemePreference {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return isPreference(stored) ? stored : "system";
+    return isPreference(stored) ? stored : "dark";
   } catch {
-    // Private mode, or storage blocked. "system" still works.
-    return "system";
+    // Private mode, or storage blocked. Dark is the identity default.
+    return "dark";
   }
 }
 
@@ -58,7 +58,7 @@ export const themeInitScript = `
 (function () {
   try {
     var stored = localStorage.getItem('${STORAGE_KEY}');
-    var pref = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+    var pref = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'dark';
     var dark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     var root = document.documentElement;
     root.classList.toggle('dark', dark);
@@ -84,7 +84,7 @@ function applyToRoot(pref: ThemePreference): "light" | "dark" {
  */
 type Snapshot = { preference: ThemePreference; resolved: "light" | "dark" };
 
-const SERVER_SNAPSHOT: Snapshot = { preference: "system", resolved: "light" };
+const SERVER_SNAPSHOT: Snapshot = { preference: "dark", resolved: "dark" };
 
 let cached: Snapshot | null = null;
 const listeners = new Set<() => void>();
