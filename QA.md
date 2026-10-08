@@ -8,6 +8,11 @@ browser is anything driven by `requestAnimationFrame` (the GSAP ticker, the
 scroll-velocity effect, CSS transform keyframes), so the animated behaviour
 below needs one human pass on a real device and a real browser.
 
+**Automated audit (2026-10-09, live site):** Lighthouse — Accessibility 100,
+SEO 100, Best Practices 100, zero failures. Case-study routes (`/work/unimate`,
+`/work/lumina-digital`) verified rendering all five narrative steps with zero
+console errors. Passed as-is; no fixes were required.
+
 ## 0. Environment
 
 | Target | What to open |
