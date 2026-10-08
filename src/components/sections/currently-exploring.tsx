@@ -34,10 +34,10 @@ const items = [
 
 export function CurrentlyExploringSection() {
   return (
-    <Section id="exploring">
+    <Section id="now">
       <SectionHeading
-        index="05"
-        eyebrow="Currently exploring"
+        index="/ 07"
+        eyebrow="Now / Currently exploring"
         title={<SplitText text="Currently exploring." duration={1} />}
         lede="Areas I'm actively exploring and building toward as I grow as a product builder."
       />

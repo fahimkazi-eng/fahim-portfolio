@@ -70,7 +70,7 @@ Drizzle / Zod / GSAP / Motion / Lenis / OGL / admin / DB-driven content).
 | A | Design foundation: palette retheme, dark default, nav structure, copy, layout metadata | DONE — `bbd0141` |
 | B | 01 Hero + 02 About + 03 Journey | DONE — `d6eb504` |
 | C | 04 Work (filters + categories + admin field) + 05 Stack (`/ 05`, SYS·05) + 06 Lab (6 working experiments) | DONE — `caa5406` |
-| D | 07 Now + 08 Build + 09 Archive | |
+| D | 07 Now (`#now`, 5 cards) + 08 How I Build (6-step process, scroll-activated) + 09 Archive (horizontal track, 4 real GitHub repos seeded) | DONE — this commit |
 | E | 10 Notes (posts+admin) + 11 Uses (table+admin) + 12 Contact rework + 13 Resume | |
 | F | 14 404 + command palette + cursor language + SEO/JSON-LD/sitemap + QA | |
 

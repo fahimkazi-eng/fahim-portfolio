@@ -201,6 +201,47 @@ export const journeyStages = [
   },
 ] as const;
 
+export type BuildStage = {
+  index: string;
+  label: string;
+  body: string;
+};
+
+/** How I build (08) — the six-step process, rendered as a scroll-activated
+    editorial strip. The steps are a process, not a claim about counts. */
+export const buildStages: BuildStage[] = [
+  {
+    index: "01",
+    label: "Idea",
+    body: "Find the problem worth solving. Write it down until it is sharp enough to test.",
+  },
+  {
+    index: "02",
+    label: "Research",
+    body: "Users, constraints, what already exists. The cheapest mistakes live here.",
+  },
+  {
+    index: "03",
+    label: "Design",
+    body: "Interfaces and flows on paper before pixels — structure first, polish later.",
+  },
+  {
+    index: "04",
+    label: "Engineering",
+    body: "Schema, authentication, APIs, then the interface sitting on top of them.",
+  },
+  {
+    index: "05",
+    label: "Test",
+    body: "Real devices, real network speeds, real users — before it is called done.",
+  },
+  {
+    index: "06",
+    label: "Ship",
+    body: "Deploy, measure, iterate. Shipping is the start of the next loop.",
+  },
+];
+
 export type Pillar = {
   /** Key into the ICON_MAP registry in components/ui/icon.tsx */
   icon: "code" | "layers" | "users";
