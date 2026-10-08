@@ -75,6 +75,21 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
         { autoAlpha: 1, y: 0, duration: 0.7 },
         0,
       )
+        /* The KF monogram opens the sequence as a full outlined plate, then
+           recedes to a watermark while the name rises through it. That is
+           the whole "mark → identity" arc: one element, one owner, two
+           non-overlapping beats so no two tweens ever write it at once. */
+        .fromTo(
+          "[data-hero-kf]",
+          { autoAlpha: 0, scale: 1.16 },
+          { autoAlpha: 1, scale: 1, duration: 0.85 },
+          0.07,
+        )
+        .to(
+          "[data-hero-kf]",
+          { autoAlpha: 0.1, scale: 0.92, duration: 1.5, ease: "sine.inOut" },
+          0.95,
+        )
         .fromTo(
           "[data-hero-char]",
           { yPercent: 112 },
@@ -207,6 +222,81 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
     };
   }, [reduced]);
 
+  /* ---- scroll-velocity reaction ----------------------------------------
+     The field leans and pushes in with HOW FAST the visitor scrolls, not
+     just how far — a fast flick reads as a camera whip, a slow read sits
+     still. A dedicated wrapper owns skewY/scale only; the ambient tween
+     above owns yPercent/scale/opacity on the OUTER div, so the two never
+     write the same element's transform (MOTION.md).
+
+     Cost control: the rAF loop runs only while scroll events are arriving,
+     and an idle timer eases the field back to rest ~200ms after the last
+     one. Both axes are quickTo'd, so every frame is a cheap tween update,
+     and the burst is clamped to a subtle ±1 range. Reduced motion: off. */
+  useLayoutEffect(() => {
+    const el = rootRef.current?.querySelector<HTMLElement>(
+      "[data-hero-velocity]",
+    );
+    if (reduced || !el) return;
+
+    const skewTo = gsap.quickTo(el, "skewY", {
+      duration: 0.85,
+      ease: "power3.out",
+    });
+    const scaleTo = gsap.quickTo(el, "scale", {
+      duration: 0.85,
+      ease: "power3.out",
+    });
+
+    let lastY = window.scrollY;
+    let active = false;
+    let raf = 0;
+    let idleTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const tick = () => {
+      raf = 0;
+      const nowY = window.scrollY;
+      const dy = nowY - lastY;
+      lastY = nowY;
+      /* dy is a per-frame delta (≈16ms). Normalise so a deliberate flick
+         lands near ±1 and a slow read sits near 0. */
+      const k = Math.max(-1, Math.min(1, dy / 24));
+      if (Math.abs(k) > 0.015) {
+        skewTo(k * -2.75);
+        scaleTo(1 + Math.abs(k) * 0.035);
+      }
+    };
+
+    const settle = () => {
+      active = false;
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      gsap.to(el, {
+        skewY: 0,
+        scale: 1,
+        duration: 0.9,
+        ease: "power3.out",
+      });
+    };
+
+    const onScroll = () => {
+      if (!active) {
+        active = true;
+        raf = requestAnimationFrame(tick);
+      }
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(settle, 200);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      clearTimeout(idleTimer);
+      gsap.set(el, { clearProps: "skewY,scale" });
+    };
+  }, [reduced]);
+
   /* ---- pointer-reactive glow behind the portrait ------------------------
      quickTo writes x/y on the glow element only, and the glow's opacity is
      owned by the entrance timeline. No overlap. Fine pointers only. */
@@ -258,11 +348,20 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
         {/* CSS base gradient: always painted, so the hero still looks right
             with WebGL disabled, reduced motion on, or before hydration. */}
         <div className="absolute inset-0 bg-[radial-gradient(60%_55%_at_72%_18%,color-mix(in_oklab,var(--accent)_18%,transparent),transparent_70%),radial-gradient(45%_40%_at_18%_72%,color-mix(in_oklab,var(--accent)_9%,transparent),transparent_72%)]" />
-        <AuroraField
-          intensity={1.05}
-          className="absolute inset-0 h-full w-full opacity-[var(--aurora-opacity)]"
-        />
-        <div className="grid-lines absolute inset-0 [mask-image:radial-gradient(75%_60%_at_50%_40%,black,transparent)]" />
+        {/* Velocity-reactive field: skewY/scale are owned by the scroll-velocity
+            effect below and by nothing else — the ambient tween above animates
+            yPercent/scale/opacity on the OUTER div, so the two never write the
+            same transform on the same element. */}
+        <div
+          data-hero-velocity
+          className="absolute inset-0 will-change-transform"
+        >
+          <AuroraField
+            intensity={1.05}
+            className="absolute inset-0 h-full w-full opacity-[var(--aurora-opacity)]"
+          />
+          <div className="grid-lines absolute inset-0 [mask-image:radial-gradient(75%_60%_at_50%_40%,black,transparent)]" />
+        </div>
       </div>
 
       {/* ---- content ---- */}
@@ -296,8 +395,20 @@ export function Hero({ portraitSrc }: { portraitSrc: string | null }) {
         <div className="grid grid-cols-4 items-end gap-x-[clamp(1rem,3vw,2.5rem)] gap-y-8 lg:grid-cols-12">
           <div
             data-hero-name
-            className="col-span-4 lg:col-span-7"
+            className="relative col-span-4 lg:col-span-7"
           >
+            {/* KF monogram — the identity mark the full name grows out of.
+                An outlined plate that opens the sequence, then recedes to a
+                watermark while the name rises through it: mark → identity.
+                Purely decorative; the accessible name is the sr-only line
+                inside the h1 below, and every real string stays in site.ts. */}
+            <span
+              aria-hidden="true"
+              data-hero-kf
+              className="type-display pointer-events-none absolute -top-[0.14em] left-0 select-none text-name leading-[0.82] text-transparent opacity-[0.14] [-webkit-text-stroke:1px_color-mix(in_oklab,var(--fg)_24%,transparent)] will-change-transform"
+            >
+              {site.initials}
+            </span>
             <h1 className="type-display text-name leading-[0.82]">
               {/* The accessible name is one real string. The per-character
                   spans below are visual only. Same pattern as SplitText —
