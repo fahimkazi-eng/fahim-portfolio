@@ -183,32 +183,37 @@ function ProjectPanel({
           {/* The only outbound links on the panel. Each renders solely when
               the project has a real URL behind it, so "Live" is never a claim
               the project cannot back up. */}
-          {project.liveUrl || project.repoUrl ? (
-            <div className="flex flex-wrap items-center gap-3">
-              {project.liveUrl ? (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-cursor="view"
-                  className="inline-flex h-11 items-center rounded-pill bg-fg px-6 text-[0.9rem] font-medium text-canvas transition-colors duration-300 hover:bg-accent hover:text-accent-fg"
-                >
-                  Live
-                </a>
-              ) : null}
-              {project.repoUrl ? (
-                <a
-                  href={project.repoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-cursor="view"
-                  className="inline-flex h-11 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
-                >
-                  Source
-                </a>
-              ) : null}
-            </div>
-          ) : null}
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href={`/work/${project.slug}`}
+              data-cursor="view"
+              className="inline-flex h-11 items-center rounded-pill bg-fg px-6 text-[0.9rem] font-medium text-canvas transition-colors duration-300 hover:bg-accent hover:text-accent-fg"
+            >
+              Case study
+            </a>
+            {project.liveUrl ? (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-cursor="view"
+                className="inline-flex h-11 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
+              >
+                Live
+              </a>
+            ) : null}
+            {project.repoUrl ? (
+              <a
+                href={project.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-cursor="view"
+                className="inline-flex h-11 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
+              >
+                Source
+              </a>
+            ) : null}
+          </div>
         </div>
       </div>
     </article>
