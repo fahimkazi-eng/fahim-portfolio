@@ -22,9 +22,9 @@ import { ProjectLoopVideo } from "./project-loop-video";
    falls back to its still and then to its signature, so anything added from
    the admin appears here correctly with no code change.
 
-   Nothing here links to a separate case-study page. "Live" and "Source" are
-   the only outbound links, and each renders only when the project has a real
-   URL behind it.
+   Every panel links to its full case study at `/work/[slug]`. "Live" and
+   "Source" are the only off-site links, and each renders only when the
+   project has a real URL behind it.
 
    Desktop: a pinned horizontal track. Each project gets a full panel, so the
               presentation stays readable instead of being crammed into a
