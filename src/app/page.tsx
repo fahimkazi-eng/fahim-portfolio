@@ -66,6 +66,7 @@ export default async function HomePage() {
         <StackSection skills={skills} />
         <WorkSection projects={projects} />
         <PathSection experiences={experiences} educations={educations} />
+        <CurrentlyExploringSection />
         <ServicesSection services={services} />
         <ContactSection />
       </main>
