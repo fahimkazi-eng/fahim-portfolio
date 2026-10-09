@@ -1,0 +1,16 @@
+# Binary assets — never text-normalise, diff or merge these.
+# Keeps the generated resume PDF and every image/recording byte-exact across
+# checkouts (the repo has core.autocrlf=true on Windows).
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.mp4   binary
+*.webm  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary

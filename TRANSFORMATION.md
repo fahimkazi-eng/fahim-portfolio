@@ -77,8 +77,9 @@ fixes that: colours are present with or without motion.
 
 ## Truthfulness rules (unchanged)
 
-- No fabricated achievements, counts or specs. Metrics must be verifiable real
-  numbers (3 products, real build count, real availability).
+- No fabricated achievements, counts or specs. Where a number is the owner's
+  own career claim it is presented as exactly that; nothing here is dressed up
+  as independently verified.
 - Missing facts render as editable placeholders, never fake content.
 - Notes/Blog infrastructure ships with real, useful posts only — no fake
   "published" dates.
@@ -95,6 +96,41 @@ fixes that: colours are present with or without motion.
 | F | 14 custom 404 (verified existing) + Ctrl/Cmd+K command palette + cursor language + SEO/JSON-LD/sitemap/robots/security headers (verified existing) + lint/typecheck/build + QA | DONE — `a57da4f` |
 | G | Site-level Motion control (kf-motion auto/on/off → `<html data-motion>`, `motion-off` variant, nav toggle + palette commands) + visual fidelity pass from the measured reference (navy canvas `#050a16`, static indigo atmosphere on `.dark body`, whiter text, aurora `uAura` = reference violet `#8f3eac`) | DONE — `27e0abc` |
 | H | Cinematic portraits: Hero 01 gets the generated 16:9 space portrait as a full-bleed layered visual (desktop: bleeds off the right column into the page edge, edge melts into the canvas, glass System Status overlay; mobile: framed block stacked below the copy; scroll-linked yPercent parallax, reduced-motion aware). About 02 replaces the circular badge with a large 2:3 editorial still (edge-to-edge in the identity sheet, accent hairline, bottom melt); left column stretched (`lg:flex`, CTAs pinned to the foot) to balance the tall portrait. Assets `public/portraits/hero-portrait.jpg` + `about-portrait.jpg` | DONE — `55afb7a` |
+| I | Final master pass: hero metrics 10+/15+ + journey 2022–2026 + `buildStages`/`bio` per spec; nav Notes→Blog; Contact heading/copy + type/stage selects (fields reduced to Name/Email/Project description); Uses → accessible tab set (Software / Tools / Motion & WebGL / Hardware); Lab typo; Canvas2D starfield hero layer + spec-nudged tokens + restrained green `ok` ramp; Featured Work gains a real featured Experiment (SentinelTrack) so all five filters work and a pill can never read 00, plus “See more on GitHub”; three real notes authored + seeded with a Markdown-subset renderer; real generated `public/resume.pdf` (+ resolver) with honest view/download; `ASSET_SOURCES.md` | DONE — `7414f3e` |
+
+## Metrics provenance (Phase I)
+
+The hero's two figures — **10+ Products Shipped** and **15+ Public Builds** —
+are the owner's own stated career numbers, used as instructed by the brief. The
+publicly verifiable subset is smaller: **nine** public repositories on
+`github.com/fahimkazi-eng` at the time of this pass. The site therefore claims
+only what the owner states and never derives a supporting breakdown it cannot
+back up. Availability ("Open for Opportunities" / "Available for selected
+work") is an owner-set status string, editable in `src/lib/site.ts`.
+
+## Final master pass — notes
+
+- **Notes are real posts.** Three articles live in `scripts/content/*.md`, are
+  seeded idempotently by `scripts/seed-notes.mjs` (`npm run db:seed-notes`), and
+  render through `src/components/notes/article-body.tsx` — a small Markdown
+  subset (`##`/`###`, `-`/`*`, `1.`, `>`, fenced code, `**bold**`, `` `code` ``)
+  built from React nodes, never `dangerouslySetInnerHTML`.
+- **Resume is a real file.** `scripts/make-resume.mjs` (`npm run resume:build`)
+  emits a one-page A4 PDF from the same database the site reads (education,
+  experience, featured projects) plus the identity constants, with no PDF
+  dependency. `src/lib/resume-asset.ts` resolves the admin `resume_url` setting
+  or the committed `public/resume.pdf`; the section views/downloads it and only
+  falls back to an honest `mailto:` when neither exists.
+- **Uses Hardware tab is honest.** No device is claimed; the tab says so and
+  points at the admin dashboard. Every other row is a real tool in the build.
+- **Featured Work Experiment.** SentinelTrack (a real, public repo —
+  "Security operations dashboard — frontend MVP") is the featured Experiment so
+  the required filter row (All · Web App · SaaS · E-commerce · Experiment) is
+  fully functional. Pills derive from the displayed grid, so a `00` count can
+  never appear.
+- **Assets.** Every visual is owner-supplied or drawn in code; provenance is in
+  `ASSET_SOURCES.md`. No licensed internet imagery was adopted because the
+  code-drawn field was lighter and constraint-free.
 
 ## Verification after each phase
 
