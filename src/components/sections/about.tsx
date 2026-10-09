@@ -1,17 +1,17 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import { aboutPillars, site } from "@/lib/site";
 import { Section, SectionHeading } from "@/components/ui/card";
 import { Reveal, Stagger } from "@/components/animations/motion-primitives";
 import { SplitText } from "@/components/animations/split-text";
 import { CountUp } from "@/components/animations/scroll-motion";
-import { Portrait } from "@/components/ui/portrait";
 import { Magnetic } from "@/components/ui/magnetic";
 import { Button } from "@/components/ui/button";
 
 /* ==========================================================================
    About (02) — reference composition: large editorial statement, identity
-   sheet with portrait + real facts, design statement, capabilities,
-   truthful metrics strip.
+   sheet with a cinematic editorial portrait + real facts, design statement,
+   capabilities, truthful metrics strip.
    ========================================================================== */
 
 const CAPABILITIES = [
@@ -22,13 +22,11 @@ const CAPABILITIES = [
   "Interactive experiences",
 ];
 
-export function AboutSection({
-  portraitSrc,
-  projectCount,
-}: {
-  portraitSrc: string | null;
-  projectCount: number;
-}) {
+/* The editorial portrait: 2:3, generated dark navy with restrained blue-violet
+   light. Committed to `public/`; the path is stable. */
+const ABOUT_PORTRAIT = "/portraits/about-portrait.jpg";
+
+export function AboutSection({ projectCount }: { projectCount: number }) {
   return (
     <Section id="about">
       <SectionHeading
@@ -39,7 +37,7 @@ export function AboutSection({
 
       <div className="grid grid-cols-1 gap-[clamp(2.5rem,6vw,5rem)] lg:grid-cols-12">
         {/* ---- Left: statement ---- */}
-        <div className="lg:col-span-7">
+        <div className="lg:col-span-7 lg:flex lg:flex-col">
           <Reveal>
             <p className="font-display text-[clamp(1.75rem,1.35rem+2vw,3.1rem)] font-semibold leading-[1.04] tracking-[-0.02em] text-fg">
               A CSE student turned product builder, focused on creating
@@ -71,8 +69,12 @@ export function AboutSection({
             </div>
           </Reveal>
 
-          {/* CTAs */}
-          <Reveal delay={0.18} className="mt-[clamp(1.75rem,3.5vw,2.5rem)]">
+          {/* CTAs — pinned to the column foot on desktop so the tall right
+              portrait doesn't leave a dead zone under the text */}
+          <Reveal
+            delay={0.18}
+            className="mt-[clamp(1.75rem,3.5vw,2.5rem)] lg:mt-auto lg:pt-[clamp(2rem,4vw,3rem)]"
+          >
             <div className="flex flex-wrap items-center gap-3">
               <Magnetic strength={8}>
                 <Button asChild size="lg" variant="accent">
@@ -98,19 +100,31 @@ export function AboutSection({
         <div className="lg:col-span-5">
           <Reveal delay={0.1}>
             <div className="overflow-hidden rounded-card border border-line bg-surface-strong/60">
-              {/* Portrait (monogram fallback until a real photo is added) */}
-              <div className="relative border-b border-line p-6">
+              {/* Editorial portrait — the full 2:3 frame, presented large
+                  and framed like a still rather than a circular badge. */}
+              <div className="relative border-b border-line">
                 <div
                   aria-hidden="true"
                   className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent"
                 />
-                <div className="mx-auto max-w-[15rem]">
-                  <Portrait
-                    src={portraitSrc}
+                <div className="relative aspect-[3/4] overflow-hidden sm:aspect-[4/5] lg:aspect-[3/4]">
+                  <Image
+                    src={ABOUT_PORTRAIT}
                     alt={site.portrait.alt}
-                    size={1024}
-                    sizes="(max-width: 640px) 70vw, 15rem"
-                    className="w-full rounded-card ring-1 ring-accent/25"
+                    fill
+                    sizes="(max-width: 1023px) 92vw, 38vw"
+                    quality={80}
+                    className="object-cover object-[center_32%]"
+                  />
+                  {/* Bottom melt into the card, so the portrait sits in the
+                      page rather than floating as a window. */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-[26%] bg-gradient-to-t from-canvas/85 to-transparent"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10"
                   />
                 </div>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { gsap } from "gsap";
@@ -40,6 +41,11 @@ const TICKER = [
 const FIRST = "Kazi";
 const LAST = "Fahim";
 
+/* The cinematic space portrait: 16:9, generated to sit behind the hero copy
+   with the figure centre-right and the planet glow filling the frame. It is
+   committed to `public/`; the path is stable. */
+const HERO_PORTRAIT = "/portraits/hero-portrait.jpg";
+
 /* --------------------------------------------------------------------------
    Reference composition (01 — HERO):
 
@@ -55,6 +61,7 @@ const LAST = "Fahim";
 export function Hero({ projectCount }: { projectCount: number }) {
   const rootRef = useRef<HTMLElement | null>(null);
   const mediaRef = useRef<HTMLDivElement | null>(null);
+  const portraitRef = useRef<HTMLDivElement | null>(null);
   const reduced = usePrefersReducedMotion();
 
   /* ---- entrance timeline ---- */
@@ -132,6 +139,19 @@ export function Hero({ projectCount }: { projectCount: number }) {
           },
           0.72,
         )
+        /* The portrait fades in on opacity only: the parallax tween owns its
+           transform, so this timeline must not touch it (MOTION.md). */
+        .fromTo(
+          "[data-hero-photo]",
+          { autoAlpha: 0 },
+          {
+            autoAlpha: 1,
+            duration: 1.15,
+            onComplete: () =>
+              gsap.set("[data-hero-photo]", { clearProps: "opacity,visibility" }),
+          },
+          0.6,
+        )
         .fromTo(
           "[data-hero-rail]",
           { autoAlpha: 0 },
@@ -160,6 +180,37 @@ export function Hero({ projectCount }: { projectCount: number }) {
         scrub: 0.5,
       },
     });
+
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+    };
+  }, [reduced]);
+
+  /* ---- portrait parallax (scroll-linked, desktop only) ------------------
+     The layered portrait drifts a few percent in the opposite direction to
+     the aurora wrapper beneath it, which is what sells the depth between the
+     atmosphere and the figure. Owns yPercent on `[data-hero-photo]` only.
+     Reduced motion: off. */
+  useLayoutEffect(() => {
+    const el = portraitRef.current;
+    if (reduced || !el) return;
+    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+
+    const tween = gsap.fromTo(
+      el,
+      { yPercent: 3.5 },
+      {
+        yPercent: -3.5,
+        ease: "none",
+        scrollTrigger: {
+          trigger: rootRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.6,
+        },
+      },
+    );
 
     return () => {
       tween.scrollTrigger?.kill();
@@ -343,53 +394,97 @@ export function Hero({ projectCount }: { projectCount: number }) {
             </div>
           </div>
 
-          {/* ======== RIGHT: cinematic OGL + system status ======== */}
-          <div className="lg:col-span-5">
-            <div
-              data-hero-status
-              className="relative mx-auto w-full max-w-[30rem]"
-            >
-              {/* Grid wash behind the panel, keeps the technical feel */}
+          {/* ======== RIGHT: cinematic space portrait + system status ========
+              Desktop: the portrait bleeds off the column (into the page edge
+              and under the text column's fading edge) so the planet reads
+              full-bleed cinema; the System Status panel floats over its lower
+              edge as the glass overlay. Mobile: the portrait is its own framed
+              block below the text, with the panel beneath it. */}
+          <div className="relative lg:col-span-5 lg:self-stretch">
+            <div className="flex flex-col gap-[clamp(1.75rem,3.5vw,2.5rem)] lg:block">
               <div
-                aria-hidden="true"
-                className="grid-lines absolute -inset-x-8 -inset-y-10 -z-10 rounded-card opacity-60 [mask-image:radial-gradient(70%_70%_at_50%_40%,black,transparent)]"
-              />
-              <div className="rounded-card border border-line bg-surface-strong/70 backdrop-blur-md shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)]">
-                <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
-                  <span className="type-mono text-fg-muted">
-                    System Status
-                  </span>
-                  <LiveDot />
-                </div>
+                ref={portraitRef}
+                data-hero-photo
+                className="relative aspect-[16/10] overflow-hidden rounded-card border border-line bg-surface-strong/50 shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)] sm:aspect-[16/9] lg:absolute lg:inset-y-[-6%] lg:-left-[4%] lg:-right-[20%] lg:aspect-auto lg:border-transparent lg:shadow-none will-change-transform"
+              >
+                <Image
+                  src={HERO_PORTRAIT}
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                  priority
+                  sizes="(max-width: 1023px) 100vw, 55vw"
+                  quality={80}
+                  className="object-cover object-[center_32%]"
+                />
+                {/* Edge melts: the portrait ends in the navy canvas, not in a
+                    rectangle — into the text side, into the nav above, into
+                    the rail below. */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 left-0 w-[22%] bg-gradient-to-r from-canvas to-transparent"
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-canvas/75 to-transparent"
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-t from-canvas/85 to-transparent"
+                />
+                {/* Hairline inset ring, same voice as the status panel. */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 rounded-card ring-1 ring-inset ring-white/10"
+                />
+              </div>
 
-                {/* Status line */}
-                <p className="flex items-center gap-2.5 px-5 pt-4">
-                  <span
-                    aria-hidden="true"
-                    className="relative grid size-2 place-items-center"
-                  >
-                    <span className="absolute size-2 rounded-full bg-pulse-400" />
+              <div
+                data-hero-status
+                className="relative z-10 mx-auto w-full max-w-[30rem] lg:absolute lg:inset-x-0 lg:bottom-[5%]"
+              >
+                {/* Grid wash behind the panel, keeps the technical feel */}
+                <div
+                  aria-hidden="true"
+                  className="grid-lines absolute -inset-x-8 -inset-y-10 -z-10 rounded-card opacity-60 [mask-image:radial-gradient(70%_70%_at_50%_40%,black,transparent)]"
+                />
+                <div className="rounded-card border border-line bg-surface-strong/70 backdrop-blur-md shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)]">
+                  <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+                    <span className="type-mono text-fg-muted">
+                      System Status
+                    </span>
+                    <LiveDot />
+                  </div>
+
+                  {/* Status line */}
+                  <p className="flex items-center gap-2.5 px-5 pt-4">
                     <span
                       aria-hidden="true"
-                      className="absolute size-2 rounded-full bg-pulse-400 [animation:pulse-ring_2.4s_ease-out_infinite]"
-                    />
-                  </span>
-                  <span className="type-mono text-pulse-300">
-                    {heroStatus.statusLine}
-                  </span>
-                </p>
+                      className="relative grid size-2 place-items-center"
+                    >
+                      <span className="absolute size-2 rounded-full bg-pulse-400" />
+                      <span
+                        aria-hidden="true"
+                        className="absolute size-2 rounded-full bg-pulse-400 [animation:pulse-ring_2.4s_ease-out_infinite]"
+                      />
+                    </span>
+                    <span className="type-mono text-pulse-300">
+                      {heroStatus.statusLine}
+                    </span>
+                  </p>
 
-                <dl className="mt-2 divide-y divide-line border-t border-line px-5 pb-5 pt-1">
-                  <StatusRow label="Location" value={heroStatus.location} />
-                  <StatusRow label="Local Time">
-                    <LocalClock />
-                  </StatusRow>
-                  <StatusRow label="Currently" value={heroStatus.currently} />
-                  <StatusRow
-                    label="Stack"
-                    value={heroStatus.stack.join("  /  ")}
-                  />
-                </dl>
+                  <dl className="mt-2 divide-y divide-line border-t border-line px-5 pb-5 pt-1">
+                    <StatusRow label="Location" value={heroStatus.location} />
+                    <StatusRow label="Local Time">
+                      <LocalClock />
+                    </StatusRow>
+                    <StatusRow label="Currently" value={heroStatus.currently} />
+                    <StatusRow
+                      label="Stack"
+                      value={heroStatus.stack.join("  /  ")}
+                    />
+                  </dl>
+                </div>
               </div>
             </div>
           </div>

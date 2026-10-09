@@ -82,7 +82,7 @@ export default async function HomePage() {
 
       <main id="main">
         <Hero projectCount={projects.length} />
-        <AboutSection portraitSrc={portraitSrc} projectCount={projects.length} />
+        <AboutSection projectCount={projects.length} />
         <JourneySection experiences={experiences} educations={educations} />
         <WorkSection projects={projects} />
         <StackSection skills={skills} />
