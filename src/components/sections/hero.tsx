@@ -364,8 +364,8 @@ export function Hero() {
       {/* ---- content ---- */}
       <div className="gutter shell relative flex w-full flex-1 flex-col justify-center">
         <div className="grid grid-cols-1 items-center gap-[clamp(2.5rem,5vw,4.5rem)] lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,4vw,3.5rem)]">
-          {/* ======== LEFT: identity ======== */}
-          <div className="lg:col-span-7">
+          {/* ======== LEFT: identity (floats above the portrait blend) ======== */}
+          <div className="relative z-10 lg:col-span-7">
             {/* Identity label */}
             <p
               data-hero-meta
@@ -394,7 +394,7 @@ export function Hero() {
             {/* Name */}
             <h1
               data-hero-name
-              className="type-display text-name leading-[0.82]"
+              className="type-display text-name leading-[0.82] drop-shadow-[0_2px_28px_rgba(5,7,13,0.85)]"
             >
               <span className="sr-only">
                 {site.name} — {site.role}
@@ -474,23 +474,23 @@ export function Hero() {
               <div
                 ref={portraitRef}
                 data-hero-photo
-                className="beam-ring relative aspect-[16/10] overflow-hidden rounded-card border border-line bg-surface-strong/50 shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)] sm:aspect-[16/9] lg:absolute lg:inset-y-[-6%] lg:-left-[4%] lg:-right-[20%] lg:aspect-auto lg:border-transparent lg:shadow-none will-change-transform"
+                className="beam-ring relative aspect-[16/10] overflow-hidden rounded-card border border-line bg-surface-strong/50 shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)] sm:aspect-[16/9] lg:absolute lg:-bottom-[6%] lg:-left-[72%] lg:-right-[20%] lg:top-[5%] lg:aspect-auto lg:border-transparent lg:shadow-none lg:[&::before]:opacity-0 will-change-transform"
               >
                 <Image
                   src={HERO_PORTRAIT}
                   alt="Portrait of Kazi Fahim"
                   fill
                   priority
-                  sizes="(max-width: 1023px) 100vw, 55vw"
+                  sizes="(max-width: 1023px) 100vw, 65vw"
                   quality={82}
-                  className="object-cover object-[center_28%]"
+                  className="object-cover object-[center_28%] lg:object-[70%_32%] lg:[mask-image:linear-gradient(to_right,transparent_0%,black_60%)]"
                 />
-                {/* Edge melts: the portrait ends in the navy canvas, not in a
-                    rectangle — into the text side, into the nav above, into
-                    the rail below. */}
+                {/* Long edge melt: the portrait dissolves into the canvas
+                    beneath the name column, so photo and type read as one
+                    composition instead of two boxes. */}
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 left-0 w-[22%] bg-gradient-to-r from-canvas to-transparent"
+                  className="pointer-events-none absolute inset-y-0 left-0 w-[22%] bg-gradient-to-r from-canvas to-transparent lg:w-[58%] lg:bg-gradient-to-r lg:from-canvas lg:via-canvas/55 lg:to-transparent"
                 />
                 <div
                   aria-hidden="true"
@@ -500,10 +500,11 @@ export function Hero() {
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-t from-canvas/85 to-transparent"
                 />
-                {/* Hairline inset ring, same voice as the status panel. */}
+                {/* Hairline inset ring on the framed mobile composition only —
+                    desktop is borderless so no edge may cut the blend. */}
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 rounded-card ring-1 ring-inset ring-white/10"
+                  className="pointer-events-none absolute inset-0 rounded-card ring-1 ring-inset ring-white/10 lg:hidden"
                 />
                 {/* Floating live chips over the portrait */}
                 <div className="float-slow absolute left-4 top-4 flex items-center gap-2 rounded-pill border border-line-strong/70 bg-canvas/70 px-3 py-1.5 backdrop-blur-md">
