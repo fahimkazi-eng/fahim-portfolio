@@ -2,10 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, Moon, Sun, X, Monitor } from "lucide-react";
+import { Menu, Moon, Sun, X, Monitor, Zap, ZapOff } from "lucide-react";
 import { navItems, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { useTheme, type ThemePreference } from "./theme-provider";
+import {
+  setMotionPreference,
+  useMotionPreference,
+  type MotionPreference,
+} from "@/components/animations/motion-primitives";
 import { Magnetic } from "./magnetic";
 import { Portrait } from "./portrait";
 
@@ -32,6 +37,7 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
   const [activeId, setActiveId] = useState<string>("hero");
   const [open, setOpen] = useState(false);
   const { preference, resolved, setPreference } = useTheme();
+  const motion = useMotionPreference();
 
   /* ---- availability: only advertise anchors that exist ------------------ */
   const [available, setAvailable] = useState<ReadonlySet<string>>(new Set());
@@ -136,15 +142,24 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
     dark: "system",
     system: "light",
   };
+  const nextMotion: Record<MotionPreference, MotionPreference> = {
+    auto: "on",
+    on: "off",
+    off: "auto",
+  };
   const ThemeIcon =
     preference === "system" ? Monitor : resolved === "dark" ? Moon : Sun;
+  /* A forced "on" overrides the OS preference and a forced "off" disables
+     every animation even when the OS allows it — both resolved from the
+     kf-motion preference into <html data-motion> by the motion provider. */
+  const MotionIcon = motion.reduced ? ZapOff : Zap;
 
   return (
     <>
       <header
         className={cn(
           "[&]:animate-[nav-settle_1s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]",
-          "motion-reduce:[&]:animate-none",
+          "motion-off:[&]:animate-none",
           "fixed inset-x-0 top-0 z-50 flex justify-center transition-[padding] duration-500 ease-out",
           scrolled ? "pt-3" : "pt-[clamp(0.75rem,0.4rem+1.4vw,1.75rem)]",
         )}
@@ -234,6 +249,28 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
                 className="grid size-9 place-items-center rounded-full text-fg-muted transition-colors duration-300 hover:bg-fg/[0.06] hover:text-fg"
               >
                 <ThemeIcon className="size-[1.05rem]" strokeWidth={1.75} />
+              </button>
+            </Magnetic>
+
+            <Magnetic strength={5}>
+              <button
+                type="button"
+                onClick={() =>
+                  setMotionPreference(nextMotion[motion.preference])
+                }
+                aria-label={`Motion: ${
+                  motion.preference === "auto"
+                    ? "auto — follows system"
+                    : motion.preference
+                }. Switch to ${nextMotion[motion.preference]}.`}
+                title={`Motion: ${
+                  motion.preference === "auto"
+                    ? "auto (follows system)"
+                    : motion.preference
+                }`}
+                className="grid size-9 place-items-center rounded-full text-fg-muted transition-colors duration-300 hover:bg-fg/[0.06] hover:text-fg"
+              >
+                <MotionIcon className="size-[1.05rem]" strokeWidth={1.75} />
               </button>
             </Magnetic>
 

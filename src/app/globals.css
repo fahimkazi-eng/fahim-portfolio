@@ -18,15 +18,34 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* `motion-off:` is the site-wide "disable motion" variant. It fires when
+   <html data-motion="off"> is present (resolved from the kf-motion
+   preference by the inline script before first paint) OR, as a fallback
+   for no-JS/SSR HTML, when the OS prefers reduced motion and the visitor
+   has not forced motion on. */
+@custom-variant motion-off {
+  &:where([data-motion="off"], [data-motion="off"] *) {
+    @slot;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html:not([data-motion="on"]) & {
+      @slot;
+    }
+  }
+}
+
 @theme {
   /* ---- Neutral ramp: ink = midnight blue near-black canvas; paper = cool
          mist. Even the greys carry a blue cast so every surface lives in the
          same atmosphere. ------------------------------------------------ */
-  --color-ink-950: #04060b;
-  --color-ink-900: #090c14;
-  --color-ink-850: #0e1220;
-  --color-ink-800: #141927;
-  --color-ink-700: #1d2333;
+  /* Measured against the reference build: the canvas reads as a visible
+     navy (≈ #050a16), not a pure near-black, and the deepest card surfaces
+     carry the same blue. Bright text sits closer to white. */
+  --color-ink-950: #050a16;
+  --color-ink-900: #0a1120;
+  --color-ink-850: #101a30;
+  --color-ink-800: #141f36;
+  --color-ink-700: #1d2a44;
   --color-ink-600: #2a3145;
   --color-ink-500: #3c455d;
   --color-ink-450: #4d5872;
@@ -35,7 +54,7 @@
   --color-ink-300: #8b95ad;
   --color-ink-200: #b3bccd;
   --color-ink-100: #d6dbe6;
-  --color-ink-50: #eceff6;
+  --color-ink-50: #eef1f9;
   --color-paper: #eef1f6;
 
   /* ---- Primary accent: electric blue -----------------------------------
@@ -1908,6 +1927,31 @@
 }
 
 @layer base {
+  /* Static atmosphere — the reference's indigo→violet cast, strongest at
+     the bottom edge, drawn as CSS layered on the body's own background so
+     it is visible even with motion disabled (when the aurora shader is off
+     the page is not a void). Fixed attachment keeps it viewport-anchored;
+     every section above it is transparent, so the wash shows through. */
+  .dark body {
+    background-image:
+      radial-gradient(
+        115% 95% at 50% 122%,
+        color-mix(in oklab, var(--color-signal-900) 62%, transparent),
+        transparent 66%
+      ),
+      radial-gradient(
+        80% 62% at 92% -10%,
+        color-mix(in oklab, var(--color-violet-900) 30%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        70% 55% at 2% 38%,
+        color-mix(in oklab, var(--color-pulse-900) 26%, transparent),
+        transparent 64%
+      );
+    background-attachment: fixed;
+  }
+
   /* Film grain. A single fixed pseudo-element, no repaint on scroll. */
   body::after {
     content: "";
@@ -1958,46 +2002,89 @@
 }
 
 /* ==========================================================================
-   Reduced motion: kill ambient loops, keep content visible
+   Reduced motion: kill ambient loops, keep content visible.
    ========================================================================== */
 
+/* Motion is governed by <html data-motion="on|off">, resolved before first
+   paint from the kf-motion preference: an explicit "on" overrides the OS
+   preference, "off" disables motion even when the OS allows it, and "auto"
+   follows the system. The @media branch below is the no-JS / SSR fallback —
+   it applies to the OS preference unless the visitor has forced motion on. */
+
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not([data-motion="on"]) *,
+  html:not([data-motion="on"]) *::before,
+  html:not([data-motion="on"]) *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
 
-  body::after {
+html[data-motion="off"] body::after {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="on"]) body::after {
     animation: none !important;
   }
+}
 
-  /* Anything JS would have revealed must be legible with JS disabled or
-     reduced motion active. `visibility` is included deliberately: GSAP's
-     autoAlpha sets an INLINE visibility:hidden, and an inline style only
-     loses to a stylesheet rule that is itself !important. Without this an
-     element caught mid-reveal would stay invisible even though its opacity
-     was forced back to 1. */
-  [data-reveal],
-  [data-split] {
+/* Anything JS would have revealed must be legible with reduced motion
+   active. `visibility` is included deliberately: GSAP's autoAlpha sets an
+   INLINE visibility:hidden, and an inline style only loses to a stylesheet
+   rule that is itself !important. Without this an element caught
+   mid-reveal would stay invisible even though its opacity was forced back
+   to 1. */
+html[data-motion="off"] [data-reveal],
+html[data-motion="off"] [data-split] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="on"]) [data-reveal],
+  html:not([data-motion="on"]) [data-split] {
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
     clip-path: none !important;
   }
+}
 
-  /* The intro is theatre, not content. Removing it in CSS means a
-     reduced-motion visitor never sees a frame of it, regardless of how
-     late hydration lands. */
-  [data-preloader] {
+/* The intro is theatre, not content. Removing it in CSS means a
+   reduced-motion visitor never sees a frame of it, regardless of how
+   late hydration lands. */
+html[data-motion="off"] [data-preloader] {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="on"]) [data-preloader] {
     display: none !important;
   }
+}
 
-  /* Focus rings must stay instant, not 0.001ms-faded. */
-  :focus-visible {
+/* Focus rings must stay instant, not 0.001ms-faded. */
+html[data-motion="off"] :focus-visible {
+  transition-duration: 0.01ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="on"]) :focus-visible {
     transition-duration: 0.01ms !important;
   }
 }

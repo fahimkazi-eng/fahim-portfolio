@@ -13,7 +13,7 @@ export default function Loading() {
           handover from loading to loaded is not a jump. */}
       <div
         aria-hidden="true"
-        className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-accent/60 [animation:load-bar_1.4s_ease-in-out_infinite_alternate] motion-reduce:[animation:none]"
+        className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-accent/60 [animation:load-bar_1.4s_ease-in-out_infinite_alternate] motion-off:[animation:none]"
       />
 
       <div className="gutter shell pt-[clamp(7rem,16vw,13rem)]">

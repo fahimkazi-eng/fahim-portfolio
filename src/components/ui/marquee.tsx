@@ -154,7 +154,7 @@ export function Marquee({
       )}
     >
       <div
-        className="flex min-w-full shrink-0 items-center gap-8 pr-8 will-change-transform motion-reduce:animate-none"
+        className="flex min-w-full shrink-0 items-center gap-8 pr-8 will-change-transform motion-off:animate-none"
         style={{
           animation: `marquee-x ${speed}s linear infinite`,
           animationDirection: reverse ? "reverse" : "normal",
@@ -168,7 +168,7 @@ export function Marquee({
       {/* Second copy exists only to make the -50% loop seamless. */}
       <div
         aria-hidden="true"
-        className="flex min-w-full shrink-0 items-center gap-8 pr-8 will-change-transform motion-reduce:animate-none"
+        className="flex min-w-full shrink-0 items-center gap-8 pr-8 will-change-transform motion-off:animate-none"
         style={{
           animation: `marquee-x ${speed}s linear infinite`,
           animationDirection: reverse ? "reverse" : "normal",
@@ -188,7 +188,7 @@ export function Marquee({
 
 export function PageTransition({ children }: { children: ReactNode }) {
   return (
-    <div className="[&]:animate-[page-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] motion-reduce:animate-none">
+    <div className="[&]:animate-[page-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] motion-off:animate-none">
       {children}
     </div>
   );

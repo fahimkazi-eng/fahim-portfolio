@@ -354,7 +354,7 @@ export function Hero({ projectCount }: { projectCount: number }) {
                 aria-hidden="true"
                 className="grid-lines absolute -inset-x-8 -inset-y-10 -z-10 rounded-card opacity-60 [mask-image:radial-gradient(70%_70%_at_50%_40%,black,transparent)]"
               />
-              <div className="rounded-card border border-line bg-surface-strong/70 backdrop-blur-md shadow-[0_24px_70px_-34px_rgba(4,6,11,0.9)]">
+              <div className="rounded-card border border-line bg-surface-strong/70 backdrop-blur-md shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)]">
                 <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
                   <span className="type-mono text-fg-muted">
                     System Status

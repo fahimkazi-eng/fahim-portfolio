@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { motionReduced } from "@/components/animations/motion-primitives";
 
 /* ==========================================================================
    Cursor — a single-element custom cursor driven by refs and rAF. No React
@@ -22,8 +23,7 @@ export function CustomCursor() {
 
   useEffect(() => {
     const fine = window.matchMedia("(pointer: fine)");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (!fine.matches || reduced.matches) return;
+    if (!fine.matches || motionReduced()) return;
 
     const ring = ringRef.current;
     if (!ring) return;

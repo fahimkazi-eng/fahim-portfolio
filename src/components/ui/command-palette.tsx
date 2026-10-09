@@ -4,6 +4,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, CornerDownLeft, Search } from "lucide-react";
 import { navItems, site } from "@/lib/site";
 import { useTheme, type ThemePreference } from "./theme-provider";
+import {
+  motionReduced,
+  setMotionPreference,
+  useMotionPreference,
+  type MotionPreference,
+} from "@/components/animations/motion-primitives";
 import { cn } from "@/lib/utils";
 
 /* ==========================================================================
@@ -31,6 +37,13 @@ const nextTheme: Record<ThemePreference, ThemePreference> = {
   system: "light",
 };
 
+/** Motion control cycles auto → on → off, exactly like the theme button. */
+const nextMotion: Record<MotionPreference, MotionPreference> = {
+  auto: "on",
+  on: "off",
+  off: "auto",
+};
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -38,6 +51,7 @@ export function CommandPalette() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLUListElement | null>(null);
   const { preference, setPreference } = useTheme();
+  const motion = useMotionPreference();
 
   const openPalette = useCallback(() => {
     setQuery("");
@@ -95,10 +109,7 @@ export function CommandPalette() {
             document
               .getElementById(item.id)
               ?.scrollIntoView({
-                behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-                  .matches
-                  ? "auto"
-                  : "smooth",
+                behavior: motionReduced() ? "auto" : "smooth",
               });
             setOpen(false);
           },
@@ -113,6 +124,14 @@ export function CommandPalette() {
         hint: nextTheme[preference] === "dark" ? "Go dark" : "Next theme",
         keywords: "theme dark light mode colour color system",
         run: () => setPreference(nextTheme[preference]),
+      },
+      {
+        id: "motion-cycle",
+        label: "Toggle motion",
+        hint: `Motion: ${motion.preference} → ${nextMotion[motion.preference]}`,
+        keywords:
+          "motion animation animate effects reduced reduce play pause auto",
+        run: () => setMotionPreference(nextMotion[motion.preference]),
       },
       {
         id: "github",
@@ -143,7 +162,7 @@ export function CommandPalette() {
         },
       },
     ];
-  }, [preference, setPreference]);
+  }, [preference, setPreference, motion.preference]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -243,7 +262,11 @@ export function CommandPalette() {
                   onMouseEnter={() => setSelected(i)}
                   onClick={() => {
                     command.run();
-                    if (command.id !== "theme") setOpen(false);
+                    if (
+                      command.id !== "theme" &&
+                      command.id !== "motion-cycle"
+                    )
+                      setOpen(false);
                   }}
                   className={cn(
                     "flex w-full items-center justify-between gap-4 rounded-lg px-4 py-3 text-left transition-colors duration-150",

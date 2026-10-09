@@ -243,7 +243,7 @@ export function Spinner({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn(
         "size-3.5 rounded-full border-2 border-current border-r-transparent",
-        "animate-spin motion-reduce:animate-none",
+        "animate-spin motion-off:animate-none",
         className,
       )}
     />

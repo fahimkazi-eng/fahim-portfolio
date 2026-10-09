@@ -3,7 +3,10 @@ import { Bricolage_Grotesque, Geist, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { site, siteOrigin } from "@/lib/site";
 import { ThemeProvider, themeInitScript } from "@/components/ui/theme-provider";
-import { MotionProvider } from "@/components/animations/motion-primitives";
+import {
+  MotionProvider,
+  motionInitScript,
+} from "@/components/animations/motion-primitives";
 import { CustomCursor } from "@/components/ui/cursor";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { ScrollProgress } from "@/components/animations/scroll-motion";
@@ -108,6 +111,13 @@ export default function RootLayout({
         {/* Runs before first paint so the correct theme is applied with no flash. */}
         <script
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
+          suppressHydrationWarning
+        />
+        {/* Same for motion: resolves kf-motion into <html data-motion> before
+            any stylesheet applies, so reduced-motion rules land on the right
+            frame and a forced "on" beats the OS preference. */}
+        <script
+          dangerouslySetInnerHTML={{ __html: motionInitScript }}
           suppressHydrationWarning
         />
       </head>

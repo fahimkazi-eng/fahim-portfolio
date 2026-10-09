@@ -181,7 +181,7 @@ export function ProjectLoopVideo({
 
       {/* Oversized so the hover scale never exposes an edge inside the
           overflow-hidden, rounded frame. */}
-      <div className="absolute -inset-[3%] will-change-transform [transition:transform_900ms_cubic-bezier(0.16,1,0.3,1)] group-hover/lv:scale-[1.035] motion-reduce:transition-none motion-reduce:group-hover/lv:scale-100">
+      <div className="absolute -inset-[3%] will-change-transform [transition:transform_900ms_cubic-bezier(0.16,1,0.3,1)] group-hover/lv:scale-[1.035] motion-off:transition-none motion-off:group-hover/lv:scale-100">
         {showVideo ? (
           <video
             ref={videoRef}
@@ -196,7 +196,7 @@ export function ProjectLoopVideo({
             onError={() => setFailed(true)}
             className={cn(
               "absolute inset-0 size-full object-contain",
-              "[transition:opacity_700ms_ease-out] motion-reduce:transition-none",
+              "[transition:opacity_700ms_ease-out] motion-off:transition-none",
               ready ? "opacity-100" : "opacity-0",
             )}
           />
@@ -225,7 +225,7 @@ export function ProjectLoopVideo({
       {/* Hover focus ring — border-color only, so it never fights a transform. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-card ring-1 ring-inset ring-white/10 [transition:box-shadow_500ms_ease-out] group-hover/lv:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_70%,transparent)] motion-reduce:transition-none"
+        className="pointer-events-none absolute inset-0 rounded-card ring-1 ring-inset ring-white/10 [transition:box-shadow_500ms_ease-out] group-hover/lv:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_70%,transparent)] motion-off:transition-none"
       />
     </div>
   );

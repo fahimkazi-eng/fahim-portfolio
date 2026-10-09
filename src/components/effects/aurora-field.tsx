@@ -46,6 +46,7 @@ const fragment = /* glsl */ `
   uniform float uScroll;
   uniform vec2  uMouse;
   uniform vec3  uAccent;
+  uniform vec3  uAura;
   uniform float uIntensity;
 
   // Cheap value noise — enough for organic drift, far cheaper than simplex.
@@ -101,10 +102,13 @@ const fragment = /* glsl */ `
 
     float density = smoothstep(0.34, 0.86, field) * falloff;
 
-    // Derivative of the accent, shifted toward magenta in the outer field.
+    // Mixed field: cool accent in the calm centre, warm accent toward the
+    // action, and a violet→magenta atmospheric push (the reference build's
+    // accent family: blue → indigo → violet → magenta) on the densest noise.
     vec3 warm = uAccent;
     vec3 cool = vec3(uAccent.b, uAccent.g * 0.55, uAccent.r * 0.85);
     vec3 tint = mix(cool, warm, smoothstep(0.2, 0.9, field));
+    tint = mix(tint, uAura, smoothstep(0.52, 0.97, field) * 0.45);
 
     vec3 color = tint * density * uIntensity;
 
@@ -178,6 +182,9 @@ export default function AuroraField({
     gl.clearColor(0, 0, 0, 0);
 
     const accent = new Color(hexToRgb(readAccent()));
+    // The reference build's atmospheric violet: #8f3eac. Kept literal so the
+    // shader's magenta push and the static CSS atmosphere stay in family.
+    const aura = new Color(hexToRgb("#8f3eac"));
 
     const program = new Program(gl, {
       vertex,
@@ -187,6 +194,7 @@ export default function AuroraField({
         uScroll: { value: 0 },
         uMouse: { value: [0.5, 0.5] },
         uAccent: { value: accent },
+        uAura: { value: aura },
         uIntensity: { value: intensity },
       },
       transparent: true,

@@ -28,36 +28,170 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
      ScrollTrigger is skipped so the DOM is left in its final state.
    ========================================================================== */
 
-/**
- * True when the visitor has asked for reduced motion.
- *
- * Read through `useSyncExternalStore` rather than useState + useEffect: the
- * media query is an external system, and this keeps the server and client
- * first renders identical (server snapshot: "no preference").
- */
+/* ==========================================================================
+   MOTION PREFERENCE — the single source of truth for "does the visitor see
+   motion?"
+
+   Mirrors the theme provider's shape. A `kf-motion` localStorage value of
+   `auto` | `on` | `off` is resolved by `motionInitScript` before first
+   paint into <html data-motion="on|off">. Every gate on the site reads that
+   one attribute:
+
+   - the reduced-motion block in globals.css (`html[data-motion="off"]`),
+   - every `motion-off:` Tailwind utility (see the custom variant there),
+   - and the JS gates here (Lenis, ScrollTrigger, canvases, cursor).
+
+   An explicit `on` therefore overrides the OS preference, and `off`
+   disables motion even when the OS allows it. `auto` follows the system,
+   live — if the OS setting flips while the page is open, the media
+   listener re-resolves the attribute.
+   ========================================================================== */
+
+export type MotionPreference = "auto" | "on" | "off";
+
+const MOTION_KEY = "kf-motion";
+
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
 
-function subscribeReducedMotion(onChange: () => void) {
-  const query = window.matchMedia(REDUCED_QUERY);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
+function isMotionPreference(value: unknown): value is MotionPreference {
+  return value === "auto" || value === "on" || value === "off";
 }
 
-function getReducedMotionSnapshot() {
+function readMotionPreference(): MotionPreference {
+  try {
+    const stored = localStorage.getItem(MOTION_KEY);
+    return isMotionPreference(stored) ? stored : "auto";
+  } catch {
+    // Private mode, or storage blocked. Follow the system.
+    return "auto";
+  }
+}
+
+function systemReduced(): boolean {
   return window.matchMedia(REDUCED_QUERY).matches;
 }
 
-/** Server render: assume motion is allowed, which is the common case. */
-function getReducedMotionServerSnapshot() {
-  return false;
+/** Does this preference resolve to "motion off"? */
+function resolveReduced(pref: MotionPreference): boolean {
+  if (pref === "on") return false;
+  if (pref === "off") return true;
+  return systemReduced();
 }
 
+/** Writes the resolved state to <html>. The only DOM side effect. */
+function applyMotionToRoot(reduced: boolean) {
+  document.documentElement.dataset.motion = reduced ? "off" : "on";
+}
+
+/**
+ * Runs before hydration, ahead of any stylesheet application, so the
+ * reduced-motion rules land on the correct frame. Kept as a string in the
+ * document head, exactly like the theme init script.
+ */
+export const motionInitScript = `
+(function () {
+  try {
+    var stored = localStorage.getItem('${MOTION_KEY}');
+    var pref = stored === 'on' || stored === 'off' || stored === 'auto' ? stored : 'auto';
+    var reduced = pref === 'off' || (pref === 'auto' && window.matchMedia('${REDUCED_QUERY}').matches);
+    document.documentElement.dataset.motion = reduced ? 'off' : 'on';
+  } catch (e) {}
+})();
+`;
+
+/**
+ * Store shape: `{ preference, reduced }` as one object so a single snapshot
+ * serves both subscribers and they can never disagree with each other for a
+ * frame. `reduced: true` means "motion is OFF".
+ */
+type MotionSnapshot = { preference: MotionPreference; reduced: boolean };
+
+/** Server render: assume motion is allowed, which is the common case. */
+const SERVER_MOTION_SNAPSHOT: MotionSnapshot = { preference: "auto", reduced: false };
+
+let motionCached: MotionSnapshot | null = null;
+const motionListeners = new Set<() => void>();
+
+function emitMotion() {
+  motionCached = null;
+  for (const listener of motionListeners) listener();
+}
+
+function getMotionSnapshot(): MotionSnapshot {
+  if (!motionCached) {
+    const preference = readMotionPreference();
+    motionCached = { preference, reduced: resolveReduced(preference) };
+  }
+  return motionCached;
+}
+
+function subscribeMotion(listener: () => void): () => void {
+  motionListeners.add(listener);
+
+  // Only wire the media listener once, however many components subscribe.
+  if (motionListeners.size === 1) {
+    const media = window.matchMedia(REDUCED_QUERY);
+    media.addEventListener("change", onMotionExternalChange);
+    window.addEventListener("storage", onMotionExternalChange);
+  }
+
+  return () => {
+    motionListeners.delete(listener);
+    if (motionListeners.size === 0) {
+      const media = window.matchMedia(REDUCED_QUERY);
+      media.removeEventListener("change", onMotionExternalChange);
+      window.removeEventListener("storage", onMotionExternalChange);
+    }
+  };
+}
+
+/**
+ * Fires when the OS motion setting flips (auto mode) or another tab writes
+ * the preference.
+ */
+function onMotionExternalChange() {
+  const preference = readMotionPreference();
+  applyMotionToRoot(resolveReduced(preference));
+  emitMotion();
+}
+
+/** Persist + apply a preference. Emits so every subscriber re-renders. */
+export function setMotionPreference(value: MotionPreference) {
+  try {
+    localStorage.setItem(MOTION_KEY, value);
+  } catch {
+    // Private mode: still applies for this session.
+  }
+  applyMotionToRoot(resolveReduced(value));
+  emitMotion();
+}
+
+/**
+ * True when the visitor should not see motion. Reads the resolved state
+ * (preference + OS), not the raw media query, so a forced "on" wins.
+ */
 export function usePrefersReducedMotion() {
   return useSyncExternalStore(
-    subscribeReducedMotion,
-    getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot,
+    subscribeMotion,
+    () => getMotionSnapshot().reduced,
+    () => false,
   );
+}
+
+/** Full preference + resolved state, for controls (nav toggle, palette). */
+export function useMotionPreference() {
+  return useSyncExternalStore(
+    subscribeMotion,
+    getMotionSnapshot,
+    () => SERVER_MOTION_SNAPSHOT,
+  );
+}
+
+/** Sync read for one-off handlers (scroll behavior, cursor init). */
+export function motionReduced(): boolean {
+  const attr = document.documentElement.dataset.motion;
+  if (attr) return attr === "off";
+  return systemReduced();
 }
 
 /**
