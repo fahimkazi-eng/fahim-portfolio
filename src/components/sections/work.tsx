@@ -179,7 +179,7 @@ function WorkCard({ project, index }: { project: Project; index: number }) {
       : null;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-card border border-line bg-surface transition-[border-color,box-shadow] duration-500 ease-out hover:border-accent/50 hover:shadow-[0_18px_44px_-22px_rgba(61,108,242,0.35)]">
+    <article className="group card-lift edge-glow border-sweep relative flex flex-col overflow-hidden rounded-card border border-line bg-surface">
       {/* Visual: demo recording when present, still otherwise */}
       <ProjectLoopVideo
         src={project.videoUrl}

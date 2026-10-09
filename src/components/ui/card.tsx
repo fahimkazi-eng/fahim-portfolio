@@ -94,7 +94,10 @@ export function Section({
   return (
     <section
       id={id}
-      className={cn("relative scroll-mt-24 border-t border-line", className)}
+      className={cn(
+        "section-glow-top relative scroll-mt-24 border-t border-line",
+        className,
+      )}
       aria-labelledby={label ? `${id}-heading` : undefined}
     >
       <div className="gutter shell py-[clamp(2.5rem,6vw,5.5rem)]">{children}</div>
@@ -121,11 +124,13 @@ export function SectionHeading({
   return (
     <div className={cn("mb-[clamp(2.5rem,5vw,4.5rem)]", className)}>
       <div className="mb-6 flex items-center gap-3">
-        <span className="type-mono text-accent tabular-nums">{index}</span>
+        <span className="type-mono rounded-pill border border-accent/40 bg-accent/10 px-2.5 py-1 text-accent tabular-nums">
+          {index}
+        </span>
         <span className="type-mono text-fg-muted">{eyebrow}</span>
         <span
           aria-hidden="true"
-          className="h-px flex-1 origin-left bg-line-strong [animation:rule-in_1.1s_cubic-bezier(0.16,1,0.3,1)_both]"
+          className="h-px flex-1 origin-left bg-gradient-to-r from-accent/70 via-violet-400/40 to-transparent [animation:rule-in_1.1s_cubic-bezier(0.16,1,0.3,1)_both]"
         />
       </div>
       <h2

@@ -99,7 +99,7 @@ export function AboutSection() {
         {/* ---- Right: identity sheet ---- */}
         <div className="lg:col-span-5">
           <Reveal delay={0.1}>
-            <div className="overflow-hidden rounded-card border border-line bg-surface-strong/60">
+            <div className="edge-glow overflow-hidden rounded-card border border-line bg-surface-strong/60 shadow-[0_24px_70px_-40px_rgba(5,10,22,0.9)]">
               {/* Editorial portrait — the full 2:3 frame, presented large
                   and framed like a still rather than a circular badge. */}
               <div className="relative border-b border-line">
@@ -107,7 +107,7 @@ export function AboutSection() {
                   aria-hidden="true"
                   className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent"
                 />
-                <div className="relative aspect-[3/4] overflow-hidden sm:aspect-[4/5] lg:aspect-[3/4]">
+                <div className="beam-ring relative aspect-[3/4] overflow-hidden sm:aspect-[4/5] lg:aspect-[3/4]">
                   <Image
                     src={ABOUT_PORTRAIT}
                     alt={site.portrait.alt}

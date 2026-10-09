@@ -2009,6 +2009,203 @@
 }
 
 /* ==========================================================================
+   PREMIUM SYSTEM — rich color, live motion, glass depth.
+   All loops are transform/opacity/background-position only (compositor-cheap)
+   and are neutralised by the global reduced-motion block below.
+   ========================================================================== */
+
+@keyframes float-y {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+
+@keyframes gradient-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes beam-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shine-x {
+  from { transform: translateX(-130%) skewX(-18deg); }
+  to { transform: translateX(230%) skewX(-18deg); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes live-ping-soft {
+  0% { transform: scale(1); opacity: 0.8; }
+  70% { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+@layer base {
+  /* Rich tri-color display gradient: blue → violet → cyan, animated. */
+  .text-premium-gradient {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-signal-300) 0%,
+      var(--color-violet-300) 32%,
+      var(--color-pulse-300) 55%,
+      var(--color-signal-300) 80%,
+      var(--color-violet-300) 100%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-pan 9s ease-in-out infinite;
+  }
+
+  .dark .text-premium-gradient {
+    background-image: linear-gradient(
+      100deg,
+      #cfe0ff 0%,
+      var(--color-signal-300) 26%,
+      var(--color-violet-300) 50%,
+      var(--color-pulse-300) 72%,
+      #cfe0ff 100%
+    );
+    background-size: 220% 100%;
+  }
+
+  /* Deep glass: stronger blur + inner top highlight for premium panels. */
+  .glass-strong {
+    background-color: color-mix(in oklab, var(--surface-strong) 72%, transparent);
+    backdrop-filter: blur(24px) saturate(170%);
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
+    border: 1px solid var(--line-strong);
+    box-shadow:
+      0 1px 0 0 color-mix(in oklab, #ffffff 14%, transparent) inset,
+      0 24px 70px -30px color-mix(in oklab, var(--color-ink-950) 70%, transparent),
+      0 0 44px -18px color-mix(in oklab, var(--color-signal-500) 40%, transparent);
+  }
+
+  /* Luminous top edge for cards/panels. */
+  .edge-glow {
+    position: relative;
+  }
+  .edge-glow::before {
+    content: "";
+    position: absolute;
+    inset-inline: 12%;
+    top: -1px;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-signal-400) 85%, transparent) 30%,
+      color-mix(in oklab, var(--color-violet-400) 85%, transparent) 55%,
+      color-mix(in oklab, var(--color-pulse-300) 80%, transparent) 75%,
+      transparent
+    );
+    opacity: 0.9;
+  }
+
+  /* Animated conic beam ring for framed media (portrait, hero visual). */
+  .beam-ring {
+    position: relative;
+  }
+  .beam-ring::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      color-mix(in oklab, var(--color-signal-400) 90%, transparent) 55deg,
+      color-mix(in oklab, var(--color-violet-400) 90%, transparent) 110deg,
+      color-mix(in oklab, var(--color-pulse-300) 85%, transparent) 160deg,
+      transparent 220deg,
+      transparent 360deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.85;
+    pointer-events: none;
+    animation: beam-spin 7s linear infinite;
+  }
+
+  /* Button shine sweep on hover. */
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 45%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, #ffffff 38%, transparent),
+      transparent
+    );
+    transform: translateX(-130%) skewX(-18deg);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .btn-shine:hover::after {
+    opacity: 1;
+    animation: shine-x 0.9s var(--ease-out-expo);
+  }
+
+  /* Premium card lift: subtle rise + glow on hover. */
+  .card-lift {
+    transition: transform 0.5s var(--ease-out-expo), box-shadow 0.5s var(--ease-out-expo), border-color 0.5s var(--ease-out-expo);
+  }
+  .card-lift:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--color-signal-400) 45%, var(--line));
+    box-shadow:
+      0 18px 50px -20px color-mix(in oklab, var(--color-ink-950) 60%, transparent),
+      0 0 36px -12px color-mix(in oklab, var(--color-signal-500) 45%, transparent);
+  }
+
+  .float-slow { animation: float-y 7s ease-in-out infinite; }
+  .float-slower { animation: float-y 10s ease-in-out infinite; }
+
+  .glow-orb { animation: glow-pulse 5.5s ease-in-out infinite; }
+
+  .live-dot-ring { animation: live-ping-soft 2.2s ease-out infinite; }
+
+  /* Section top glow divider: replaces a flat hairline with a lit rule. */
+  .section-glow-top {
+    position: relative;
+  }
+  .section-glow-top::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 2%,
+      color-mix(in oklab, var(--color-signal-400) 55%, transparent) 25%,
+      color-mix(in oklab, var(--color-violet-400) 50%, transparent) 50%,
+      color-mix(in oklab, var(--color-pulse-300) 45%, transparent) 75%,
+      transparent 98%
+    );
+    opacity: 0.7;
+    pointer-events: none;
+  }
+}
+
+/* ==========================================================================
    Reduced motion: kill ambient loops, keep content visible.
    ========================================================================== */
 

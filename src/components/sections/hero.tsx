@@ -42,9 +42,8 @@ const TICKER = [
 const FIRST = "Kazi";
 const LAST = "Fahim";
 
-/* The cinematic space portrait: 16:9, generated to sit behind the hero copy
-   with the figure centre-right and the planet glow filling the frame. It is
-   committed to `public/`; the path is stable. */
+/* The owner's real portrait (F:\web\hero avatar.jpeg), committed to `public/`.
+   Presented as a beamed, live-framed photograph — no composite, no stand-in. */
 const HERO_PORTRAIT = "/portraits/hero-portrait.jpg";
 
 /* --------------------------------------------------------------------------
@@ -298,18 +297,21 @@ export function Hero() {
       >
         {/* CSS base gradient: always painted, so the hero still looks right
             with WebGL disabled, reduced motion on, or before hydration. */}
-        <div className="absolute inset-0 bg-[radial-gradient(62%_55%_at_78%_14%,color-mix(in_oklab,var(--accent)_16%,transparent),transparent_72%),radial-gradient(46%_42%_at_6%_78%,color-mix(in_oklab,var(--violet)_12%,transparent),transparent_74%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(62%_55%_at_78%_14%,color-mix(in_oklab,var(--accent)_26%,transparent),transparent_72%),radial-gradient(46%_42%_at_6%_78%,color-mix(in_oklab,var(--violet)_22%,transparent),transparent_74%),radial-gradient(38%_30%_at_50%_108%,color-mix(in_oklab,var(--color-pulse-400)_10%,transparent),transparent_70%)]" />
 
-        {/* Drifting nebula bands — very low opacity, transform-only, and
+        {/* Drifting nebula bands — rich but transform-only, and
             neutralised by the global reduced-motion rule. */}
-        <div className="absolute -left-[12%] top-[6%] size-[42rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-violet-500)_13%,transparent),transparent_70%)] blur-3xl [animation:mesh-drift_38s_ease-in-out_infinite]" />
-        <div className="absolute right-[-10%] top-[44%] size-[34rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-signal-500)_12%,transparent),transparent_72%)] blur-3xl [animation:mesh-drift_46s_ease-in-out_infinite_reverse]" />
+        <div className="absolute -left-[12%] top-[6%] size-[42rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-violet-500)_24%,transparent),transparent_70%)] blur-3xl [animation:mesh-drift_38s_ease-in-out_infinite]" />
+        <div className="absolute right-[-10%] top-[44%] size-[34rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-signal-500)_22%,transparent),transparent_72%)] blur-3xl [animation:mesh-drift_46s_ease-in-out_infinite_reverse]" />
+        <div className="glow-orb absolute left-[38%] top-[8%] size-[26rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-pulse-400)_13%,transparent),transparent_70%)] blur-3xl" />
 
         {/* Faint light shafts raking down from the top edge. */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-1/3 left-[16%] h-[170%] w-[42%] rotate-[18deg] bg-[linear-gradient(to_bottom,transparent,color-mix(in_oklab,var(--color-signal-400)_7%,transparent),transparent)] blur-2xl" />
-          <div className="absolute -top-1/3 right-[22%] h-[170%] w-[30%] rotate-[-14deg] bg-[linear-gradient(to_bottom,transparent,color-mix(in_oklab,var(--color-violet-400)_6%,transparent),transparent)] blur-2xl" />
+          <div className="absolute -top-1/3 left-[16%] h-[170%] w-[42%] rotate-[18deg] bg-[linear-gradient(to_bottom,transparent,color-mix(in_oklab,var(--color-signal-400)_13%,transparent),transparent)] blur-2xl" />
+          <div className="absolute -top-1/3 right-[22%] h-[170%] w-[30%] rotate-[-14deg] bg-[linear-gradient(to_bottom,transparent,color-mix(in_oklab,var(--color-violet-400)_11%,transparent),transparent)] blur-2xl" />
         </div>
+        {/* Top highlight wash so the hero opens with light, not black. */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-accent/[0.09] via-violet-500/[0.05] to-transparent" />
 
         <div
           data-hero-velocity
@@ -323,10 +325,9 @@ export function Hero() {
           <div className="grid-lines absolute inset-0 [mask-image:radial-gradient(78%_62%_at_50%_40%,black,transparent)]" />
         </div>
 
-        {/* Restrained orbital path around the planet quadrant. Desktop-only so
-            it never rakes across the stacked mobile composition; a single
-            transform-only spin, faded to a whisper. */}
-        <div className="absolute right-[-8%] top-[4%] hidden h-[46rem] w-[46rem] opacity-[0.16] lg:block">
+        {/* Orbital paths around the portrait quadrant. Desktop-only so
+            they never rake across the stacked mobile composition. */}
+        <div className="absolute right-[-8%] top-[4%] hidden h-[46rem] w-[46rem] opacity-[0.34] lg:block">
           <svg
             viewBox="0 0 400 400"
             className="h-full w-full [animation:orbit-spin_90s_linear_infinite]"
@@ -368,13 +369,26 @@ export function Hero() {
             {/* Identity label */}
             <p
               data-hero-meta
-              className="type-mono mb-[clamp(1.25rem,2.6vw,2rem)] flex items-center gap-3 text-fg-muted"
+              className="type-mono mb-[clamp(1.25rem,2.6vw,2rem)] flex flex-wrap items-center gap-3 text-fg-muted"
             >
               <span
                 aria-hidden="true"
-                className="h-px w-10 bg-accent/70"
+                className="h-px w-10 bg-gradient-to-r from-accent to-violet-400"
               />
               {heroIdentity}
+            </p>
+            {/* Live availability chip */}
+            <p
+              data-hero-meta
+              className="mb-[clamp(1rem,2vw,1.5rem)] inline-flex items-center gap-2.5 rounded-pill border border-ok-400/30 bg-ok-500/10 px-3.5 py-1.5 backdrop-blur-sm"
+            >
+              <span aria-hidden="true" className="relative grid size-2 place-items-center">
+                <span className="absolute size-2 rounded-full bg-ok-400" />
+                <span className="live-dot-ring absolute size-2 rounded-full bg-ok-400" />
+              </span>
+              <span className="type-mono text-ok-300">
+                {heroMetrics.availability} · {heroStatus.location}
+              </span>
             </p>
 
             {/* Name */}
@@ -389,7 +403,7 @@ export function Hero() {
                 <MaskedLine text={FIRST} className="block text-fg" />
                 <MaskedLine
                   text={LAST}
-                  className="block pl-[7%] text-fg lg:pl-0"
+                  className="text-premium-gradient block pl-[7%] lg:pl-0"
                 />
               </span>
             </h1>
@@ -399,7 +413,7 @@ export function Hero() {
               <span className="sr-only">{heroHeadline}</span>
               <span
                 aria-hidden="true"
-                className="font-display text-[clamp(1.4rem,1.15rem+1.6vw,2.5rem)] font-semibold leading-[1.02] tracking-[-0.02em] text-fg-muted"
+                className="font-display text-[clamp(1.4rem,1.15rem+1.6vw,2.5rem)] font-semibold leading-[1.02] tracking-[-0.02em] text-fg"
               >
                 <MaskedLineHook text={heroHeadline} />
               </span>
@@ -411,7 +425,7 @@ export function Hero() {
               className="mt-[clamp(1.75rem,3.6vw,2.75rem)] flex flex-wrap items-center gap-3"
             >
               <Magnetic strength={9}>
-                <Button asChild size="lg" variant="accent">
+                <Button asChild size="lg" variant="accent" className="btn-shine">
                   <a href={heroCtaPrimary.href}>
                     {heroCtaPrimary.label}
                     <ArrowUpRight className="size-4" strokeWidth={2} />
@@ -419,53 +433,57 @@ export function Hero() {
                 </Button>
               </Magnetic>
               <Magnetic strength={9}>
-                <Button asChild size="lg" variant="outline">
+                <Button asChild size="lg" variant="outline" className="backdrop-blur-sm">
                   <a href={heroCtaSecondary.href}>{heroCtaSecondary.label}</a>
                 </Button>
               </Magnetic>
             </div>
 
-            {/* Metrics — truthful numbers only */}
+            {/* Metrics — truthful numbers only, presented as live stat cards */}
             <div
               data-hero-metrics
-              className="mt-[clamp(2.25rem,4.5vw,3.5rem)] flex flex-wrap items-center gap-x-8 gap-y-2"
+              className="mt-[clamp(2.25rem,4.5vw,3.5rem)] grid max-w-[34rem] grid-cols-2 gap-3 sm:grid-cols-3"
             >
-              <MetricStat value={heroMetrics.products} label="Products Shipped" />
-              <span aria-hidden="true" className="hidden h-4 w-px bg-line-strong sm:block" />
-              <MetricStat value={heroMetrics.builds} label="Public Builds" />
-              <span aria-hidden="true" className="hidden h-4 w-px bg-line-strong sm:block" />
-              <span className="type-mono flex items-center gap-2 text-fg-muted">
-                <span
-                  aria-hidden="true"
-                  className="size-1.5 rounded-full bg-ok-400 shadow-[0_0_10px_2px_color-mix(in_oklab,var(--color-ok-400)_55%,transparent)]"
-                />
-                {heroMetrics.availability}
-              </span>
+              <MetricCard value={heroMetrics.products} label="Products Shipped" accent="from-signal-400 to-violet-400" />
+              <MetricCard value={heroMetrics.builds} label="Public Builds" accent="from-violet-400 to-pulse-300" />
+              <div className="glass-strong edge-glow col-span-2 flex items-center gap-3 rounded-card px-4 py-3.5 sm:col-span-1">
+                <span aria-hidden="true" className="relative grid size-2.5 shrink-0 place-items-center">
+                  <span className="absolute size-2.5 rounded-full bg-ok-400 shadow-[0_0_12px_2px_color-mix(in_oklab,var(--color-ok-400)_60%,transparent)]" />
+                  <span className="live-dot-ring absolute size-2.5 rounded-full bg-ok-400" />
+                </span>
+                <span className="type-mono leading-snug text-fg">
+                  {heroMetrics.availability}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* ======== RIGHT: cinematic space portrait + system status ========
+          {/* ======== RIGHT: real portrait + live system status =========
               Desktop: the portrait bleeds off the column (into the page edge
-              and under the text column's fading edge) so the planet reads
+              and under the text column's fading edge) so the photo reads
               full-bleed cinema; the System Status panel floats over its lower
               edge as the glass overlay. Mobile: the portrait is its own framed
               block below the text, with the panel beneath it. */}
           <div className="relative lg:col-span-5 lg:self-stretch">
             <div className="flex flex-col gap-[clamp(1.75rem,3.5vw,2.5rem)] lg:block">
+              {/* Portrait glow bed */}
+              <div
+                aria-hidden="true"
+                className="glow-orb pointer-events-none absolute -inset-6 rounded-card bg-[radial-gradient(55%_50%_at_50%_40%,color-mix(in_oklab,var(--color-signal-500)_20%,transparent),color-mix(in_oklab,var(--color-violet-500)_12%,transparent),transparent_75%)] blur-2xl lg:block"
+              />
               <div
                 ref={portraitRef}
                 data-hero-photo
-                className="relative aspect-[16/10] overflow-hidden rounded-card border border-line bg-surface-strong/50 shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)] sm:aspect-[16/9] lg:absolute lg:inset-y-[-6%] lg:-left-[4%] lg:-right-[20%] lg:aspect-auto lg:border-transparent lg:shadow-none will-change-transform"
+                className="beam-ring relative aspect-[16/10] overflow-hidden rounded-card border border-line bg-surface-strong/50 shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)] sm:aspect-[16/9] lg:absolute lg:inset-y-[-6%] lg:-left-[4%] lg:-right-[20%] lg:aspect-auto lg:border-transparent lg:shadow-none will-change-transform"
               >
                 <Image
                   src={HERO_PORTRAIT}
-                  alt=""
-                  aria-hidden="true"
+                  alt="Portrait of Kazi Fahim"
                   fill
                   priority
                   sizes="(max-width: 1023px) 100vw, 55vw"
-                  quality={80}
-                  className="object-cover object-[center_32%]"
+                  quality={82}
+                  className="object-cover object-[center_28%]"
                 />
                 {/* Edge melts: the portrait ends in the navy canvas, not in a
                     rectangle — into the text side, into the nav above, into
@@ -487,6 +505,17 @@ export function Hero() {
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 rounded-card ring-1 ring-inset ring-white/10"
                 />
+                {/* Floating live chips over the portrait */}
+                <div className="float-slow absolute left-4 top-4 flex items-center gap-2 rounded-pill border border-line-strong/70 bg-canvas/70 px-3 py-1.5 backdrop-blur-md">
+                  <span aria-hidden="true" className="relative grid size-2 place-items-center">
+                    <span className="absolute size-2 rounded-full bg-pulse-300" />
+                    <span className="live-dot-ring absolute size-2 rounded-full bg-pulse-300" />
+                  </span>
+                  <span className="type-mono text-fg">Building {heroStatus.currently}</span>
+                </div>
+                <div className="float-slower absolute bottom-4 right-4 hidden items-center gap-2 rounded-pill border border-line-strong/70 bg-canvas/70 px-3 py-1.5 backdrop-blur-md sm:flex">
+                  <span className="type-mono text-fg-muted">Next.js / TypeScript / PostgreSQL</span>
+                </div>
               </div>
 
               <div
@@ -498,10 +527,11 @@ export function Hero() {
                   aria-hidden="true"
                   className="grid-lines absolute -inset-x-8 -inset-y-10 -z-10 rounded-card opacity-60 [mask-image:radial-gradient(70%_70%_at_50%_40%,black,transparent)]"
                 />
-                <div className="rounded-card border border-line bg-surface-strong/70 backdrop-blur-md shadow-[0_24px_70px_-34px_rgba(5,10,22,0.9)]">
+                <div className="glass-strong edge-glow rounded-card">
                   <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
-                    <span className="type-mono text-fg-muted">
-                      System Status
+                    <span className="type-mono flex items-center gap-2 text-fg">
+                      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-signal-400 to-pulse-300" />
+                      Live System Status
                     </span>
                     <LiveDot />
                   </div>
@@ -600,15 +630,25 @@ export function Hero() {
    Local helpers
    --------------------------------------------------------------------------- */
 
-/** A mono metric with the number set in the display weight. */
-function MetricStat({ value, label }: { value: string; label: string }) {
+/** A premium glass metric card with gradient numerals. */
+function MetricCard({
+  value,
+  label,
+  accent,
+}: {
+  value: string;
+  label: string;
+  accent: string;
+}) {
   return (
-    <span className="type-mono flex items-baseline gap-2 text-fg-muted">
-      <span className="font-display text-[1.4rem] font-semibold leading-none tracking-[-0.02em] text-fg tabular-nums">
+    <div className="glass-strong edge-glow card-lift rounded-card px-4 py-3.5">
+      <p
+        className={`bg-gradient-to-r ${accent} bg-clip-text font-display text-[1.9rem] font-semibold leading-none tracking-[-0.02em] text-transparent tabular-nums`}
+      >
         {value}
-      </span>
-      {label}
-    </span>
+      </p>
+      <p className="type-mono mt-2 text-fg-muted">{label}</p>
+    </div>
   );
 }
 
