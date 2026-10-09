@@ -40,9 +40,9 @@ export const site = {
   availability: "Open to internships, freelance and collaboration",
   languages: ["Bengali", "English", "Hindi"],
   bio: [
-    "I'm a Computer Science & Engineering undergraduate at Northern University Bangladesh, working across full-stack web development, data modelling and the unglamorous coordination work that makes software actually ship.",
-    "My strongest work happens when a product problem needs both an interface and a backend: shaping the data model, wiring the server, then refining the interaction until it feels inevitable.",
-    "Outside the editor I bring project management, public relations and team leadership — skills that come from coordinating real people around real deadlines.",
+    "I'm Kazi Fahim, a Computer Science student at Northern University Bangladesh (2023–2027). I build full-stack web applications, explore interactive experiences, and turn ideas into real products.",
+    "I care about how software works, how it feels to use, and whether it genuinely solves a problem.",
+    "I like turning ideas into working products, learning in public, and continuously improving.",
   ],
   seo: {
     title: "Kazi Fahim — CSE Student & Software Developer",
@@ -119,7 +119,7 @@ export const navItems: NavItem[] = [
   { id: "hero", label: "Home" },
   { id: "work", label: "Work" },
   { id: "lab", label: "Lab" },
-  { id: "notes", label: "Notes" },
+  { id: "notes", label: "Blog" },
   { id: "about", label: "About" },
   { id: "now", label: "Now" },
   { id: "uses", label: "Uses" },
@@ -151,53 +151,48 @@ export const heroStatus = {
   statusLine: "Available for selected work",
   location: "Dhaka, Bangladesh",
   timeZone: "Asia/Dhaka",
-  currently: "Building digital products",
+  currently: "UniMate",
   stack: ["Next.js", "TypeScript", "PostgreSQL", "GSAP"],
 } as const;
 
-/** Metrics row under the hero CTAs. Truthful numbers only. */
+/** Metrics row under the hero CTAs. The two headline figures are the
+    owner-specified portfolio numbers; nothing else is claimed here. */
 export const heroMetrics = {
-  /** Published products in the DB (server passes the live count). */
-  builds: 8, // public repos verified via GitHub API, 2026-10-09
-  availability: "Open to opportunities",
+  products: "10+",
+  builds: "15+",
+  availability: "Open for Opportunities",
 } as const;
 
 /* --------------------------------------------------------------------------
-   Journey (03) — the identity arc. Six phases of how the work got here.
-   Every line is an honest phase label or a verifiable fact (education,
-   shipped products); nothing here invents achievements. Editable in one
-   place for the owner.
+   Journey (03) — the identity arc, told as a dated timeline. The five
+   milestones are the owner's narrative; each line is a phase, not an invented
+   achievement. Editable in one place for the owner.
    -------------------------------------------------------------------------- */
 export const journeyStages = [
   {
-    index: "01",
-    title: "Early Experience",
-    body: "Service, coordination and people work — the ground floor of shipping for real users.",
+    index: "2022",
+    title: "First line of code",
+    body: "Discovered programming and began developing an interest in building digital things.",
   },
   {
-    index: "02",
-    title: "Customer / People",
-    body: "Customer-facing roles first: listening, explaining and delivering under real deadlines.",
+    index: "2023",
+    title: "Started CSE",
+    body: "Joined Northern University Bangladesh and began my Computer Science education.",
   },
   {
-    index: "03",
-    title: "CSE",
-    body: "BSc in Computer Science & Engineering at Northern University Bangladesh, 2023–2027.",
+    index: "2024",
+    title: "Built real projects",
+    body: "Started developing full-stack applications and exploring practical product ideas.",
   },
   {
-    index: "04",
-    title: "Web Development",
-    body: "Next.js, TypeScript and PostgreSQL — building products end to end, schema to interface.",
+    index: "2025",
+    title: "Launched multiple products",
+    body: "Worked on products and real-world web application concepts, including UniMate, FixBondhu and Lumina Digital.",
   },
   {
-    index: "05",
-    title: "Product Building",
-    body: "Three shipped products: UniMate, FixBondhu and Lumina Digital.",
-  },
-  {
-    index: "06",
-    title: "AI / Systems / Future",
-    body: "Where the arc heads next — automation, agentic systems and larger full-stack surfaces.",
+    index: "2026",
+    title: "Growing further",
+    body: "Continuing to improve my engineering skills, interactive development and product-building process.",
   },
 ] as const;
 
@@ -213,32 +208,32 @@ export const buildStages: BuildStage[] = [
   {
     index: "01",
     label: "Idea",
-    body: "Find the problem worth solving. Write it down until it is sharp enough to test.",
+    body: "Identify the problem and define why it matters.",
   },
   {
     index: "02",
     label: "Research",
-    body: "Users, constraints, what already exists. The cheapest mistakes live here.",
+    body: "Understand users, constraints and existing solutions.",
   },
   {
     index: "03",
     label: "Design",
-    body: "Interfaces and flows on paper before pixels — structure first, polish later.",
+    body: "Plan the experience, structure and interface.",
   },
   {
     index: "04",
     label: "Engineering",
-    body: "Schema, authentication, APIs, then the interface sitting on top of them.",
+    body: "Build the product, integrate systems and iterate.",
   },
   {
     index: "05",
     label: "Test",
-    body: "Real devices, real network speeds, real users — before it is called done.",
+    body: "Validate the behavior, fix problems and improve quality.",
   },
   {
     index: "06",
     label: "Ship",
-    body: "Deploy, measure, iterate. Shipping is the start of the next loop.",
+    body: "Release a polished product and keep improving it.",
   },
 ];
 

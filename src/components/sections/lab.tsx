@@ -48,7 +48,7 @@ const EXPERIMENTS: { index: string; title: string; desc: string }[] = [
   {
     index: "02",
     title: "Text Distortion",
-    desc: "Glyphs torsí on hover — CSS keyframes driven by per-character variables.",
+    desc: "Glyphs twist on hover — CSS keyframes driven by per-character variables.",
   },
   {
     index: "03",

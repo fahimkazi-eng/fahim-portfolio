@@ -14,9 +14,11 @@
     "db:push": "node scripts/with-env.mjs drizzle-kit push",
     "db:studio": "node scripts/with-env.mjs drizzle-kit studio",
     "db:seed": "node scripts/seed.mjs",
+    "db:seed-notes": "node scripts/seed-notes.mjs",
     "db:setup": "npm run db:migrate && npm run db:seed",
     "db:set-password": "node scripts/with-env.mjs node scripts/set-admin-password.mjs",
-    "db:check": "node scripts/check-db.mjs"
+    "db:check": "node scripts/check-db.mjs",
+    "resume:build": "node scripts/make-resume.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

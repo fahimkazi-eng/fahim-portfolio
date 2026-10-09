@@ -26,7 +26,7 @@ const CAPABILITIES = [
    light. Committed to `public/`; the path is stable. */
 const ABOUT_PORTRAIT = "/portraits/about-portrait.jpg";
 
-export function AboutSection({ projectCount }: { projectCount: number }) {
+export function AboutSection() {
   return (
     <Section id="about">
       <SectionHeading
@@ -124,6 +124,22 @@ export function AboutSection({ projectCount }: { projectCount: number }) {
                   />
                   <div
                     aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-canvas/70 to-transparent"
+                  />
+                  {/* Fine architectural corner ticks + technical annotations,
+                      so the still reads as a framed plate rather than a crop. */}
+                  <span aria-hidden="true" className="pointer-events-none absolute left-3 top-3 size-4 border-l border-t border-accent/70" />
+                  <span aria-hidden="true" className="pointer-events-none absolute right-3 top-3 size-4 border-r border-t border-accent/70" />
+                  <span aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 size-4 border-b border-l border-accent/70" />
+                  <span aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 size-4 border-b border-r border-accent/70" />
+                  <span className="type-mono pointer-events-none absolute left-7 top-3.5 text-[0.625rem] text-fg-muted">
+                    Fig. 01 — Portrait
+                  </span>
+                  <span className="type-mono pointer-events-none absolute right-7 top-3.5 text-[0.625rem] text-fg-muted">
+                    2023 — 2027
+                  </span>
+                  <div
+                    aria-hidden="true"
                     className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10"
                   />
                 </div>
@@ -187,8 +203,8 @@ export function AboutSection({ projectCount }: { projectCount: number }) {
         className="mt-[clamp(3rem,7vw,5.5rem)] grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line md:grid-cols-4"
       >
         {[
-          { value: projectCount, suffix: "", label: "Products shipped" },
-          { value: 8, suffix: "", label: "Public builds" },
+          { value: 10, suffix: "", label: "Products shipped" },
+          { value: 15, suffix: "", label: "Public builds" },
           { value: site.languages.length, suffix: "", label: "Languages spoken" },
           { value: CAPABILITIES.length, suffix: "", label: "Capabilities" },
         ].map((stat) => (

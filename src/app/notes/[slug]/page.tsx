@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/db/queries";
+import { ArticleBody } from "@/components/notes/article-body";
 import { site } from "@/lib/site";
 
 export const revalidate = 60;
@@ -23,11 +24,6 @@ export default async function NotesPostPage({ params }: NotesPostPageProps) {
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const paragraphs = post.body
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-
   return (
     <main id="main" className="gutter shell py-[clamp(2.5rem,6vw,5.5rem)]">
       <article className="mx-auto max-w-[52rem]">
@@ -45,15 +41,8 @@ export default async function NotesPostPage({ params }: NotesPostPageProps) {
 
         <hr className="my-10 border-line" />
 
-        <div className="space-y-6">
-          {paragraphs.map((paragraph, i) => (
-            <p
-              key={i}
-              className="text-body leading-relaxed text-fg [&:first-child]:first-letter:float-left [&:first-child]:first-letter:mr-3 [&:first-child]:first-letter:text-h3 [&:first-child]:first-letter:font-display [&:first-child]:first-letter:text-accent"
-            >
-              {paragraph}
-            </p>
-          ))}
+        <div className="[&>div>p:first-child]:first-letter:float-left [&>div>p:first-child]:first-letter:mr-3 [&>div>p:first-child]:first-letter:text-h3 [&>div>p:first-child]:first-letter:font-display [&>div>p:first-child]:first-letter:text-accent">
+          <ArticleBody body={post.body} />
         </div>
       </article>
     </main>

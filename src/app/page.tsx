@@ -25,6 +25,7 @@ import {
 } from "@/lib/db/queries";
 import { site } from "@/lib/site";
 import { portraitAssetExists } from "@/lib/portrait-asset";
+import { resumeAssetExists } from "@/lib/resume-asset";
 import { buildPersonSchema, buildWebSiteSchema } from "@/lib/seo";
 
 /* --------------------------------------------------------------------------
@@ -68,6 +69,11 @@ export default async function HomePage() {
      image that this deployment does not have. */
   const portraitSrc = portraitAssetExists() ? site.portrait.src : null;
 
+  /* The admin `resume_url` setting wins; otherwise the committed one-page PDF
+     is linked directly. `null` is the only state that degrades to mailto. */
+  const resumeHref =
+    resumeUrl ?? (resumeAssetExists() ? "/resume.pdf" : null);
+
   return (
     <>
       <script
@@ -81,8 +87,8 @@ export default async function HomePage() {
       <FloatingNav portraitSrc={portraitSrc} />
 
       <main id="main">
-        <Hero projectCount={projects.length} />
-        <AboutSection projectCount={projects.length} />
+        <Hero />
+        <AboutSection />
         <JourneySection experiences={experiences} educations={educations} />
         <WorkSection projects={projects} />
         <StackSection skills={skills} />
@@ -93,7 +99,7 @@ export default async function HomePage() {
         <NotesSection posts={posts} />
         <UsesSection items={usesItems} />
         <ContactSection />
-        <ResumeSection resumeUrl={resumeUrl} />
+        <ResumeSection resumeUrl={resumeHref} />
       </main>
 
       <Footer />

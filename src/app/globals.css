@@ -41,61 +41,68 @@
   /* Measured against the reference build: the canvas reads as a visible
      navy (≈ #050a16), not a pure near-black, and the deepest card surfaces
      carry the same blue. Bright text sits closer to white. */
-  --color-ink-950: #050a16;
-  --color-ink-900: #0a1120;
-  --color-ink-850: #101a30;
-  --color-ink-800: #141f36;
-  --color-ink-700: #1d2a44;
-  --color-ink-600: #2a3145;
-  --color-ink-500: #3c455d;
-  --color-ink-450: #4d5872;
-  --color-ink-400: #5e6a86;
-  --color-ink-350: #98a2b8;
-  --color-ink-300: #8b95ad;
-  --color-ink-200: #b3bccd;
-  --color-ink-100: #d6dbe6;
-  --color-ink-50: #eef1f9;
+  --color-ink-950: #05070d;
+  --color-ink-900: #080d18;
+  --color-ink-850: #0c1220;
+  --color-ink-800: #101827;
+  --color-ink-700: #1a2338;
+  --color-ink-600: #28324a;
+  --color-ink-500: #3a4561;
+  --color-ink-450: #4c5874;
+  --color-ink-400: #5e6a88;
+  --color-ink-350: #949fba;
+  --color-ink-300: #8995af;
+  --color-ink-200: #b2bcd3;
+  --color-ink-100: #d6dced;
+  --color-ink-50: #f2f5ff;
   --color-paper: #eef1f6;
 
   /* ---- Primary accent: electric blue -----------------------------------
        Same ramp structure as the old vermillion "signal" ramp, new hue
        family. The name is kept so every existing consumer of `signal`
        inherits the retheme without a rename sweep. */
-  --color-signal-50: #edf3ff;
-  --color-signal-100: #d9e5ff;
-  --color-signal-200: #b4c9ff;
-  --color-signal-300: #8ba8ff;
-  --color-signal-400: #5f86fb;
-  --color-signal-500: #3d6cf2;
-  --color-signal-600: #2a54d1;
-  --color-signal-700: #2345ad;
-  --color-signal-800: #1e3a8c;
-  --color-signal-900: #162a63;
+  --color-signal-50: #eef3ff;
+  --color-signal-100: #dae5ff;
+  --color-signal-200: #b6ccff;
+  --color-signal-300: #8dabff;
+  --color-signal-400: #6b90ff;
+  --color-signal-500: #477bff;
+  --color-signal-600: #3563e0;
+  --color-signal-700: #2c4fb5;
+  --color-signal-800: #27408f;
+  --color-signal-900: #1d2f66;
 
   /* ---- Locked secondary roles ------------------------------------------- */
   /* Cyan: live/secondary status, technical highlights. */
-  --color-pulse-50: #ecfeff;
-  --color-pulse-100: #cef9ff;
-  --color-pulse-200: #9ff2fb;
-  --color-pulse-300: #63e2f3;
-  --color-pulse-400: #2cc8e4;
-  --color-pulse-500: #12abcc;
-  --color-pulse-600: #0d87a6;
-  --color-pulse-700: #116d87;
-  --color-pulse-800: #135a6e;
-  --color-pulse-900: #124b5c;
+  --color-pulse-50: #edfeff;
+  --color-pulse-100: #d0fafe;
+  --color-pulse-200: #a3f3fd;
+  --color-pulse-300: #63e8f5;
+  --color-pulse-400: #50e5ff;
+  --color-pulse-500: #22c4e6;
+  --color-pulse-600: #1097b8;
+  --color-pulse-700: #117a94;
+  --color-pulse-800: #146478;
+  --color-pulse-900: #154f61;
 
   /* Violet: tertiary accent, motion/mist. */
-  --color-violet-50: #f3f1ff;
-  --color-violet-100: #e9e5ff;
-  --color-violet-200: #d4ccff;
-  --color-violet-300: #b6a7ff;
-  --color-violet-400: #967eff;
-  --color-violet-500: #7a5af5;
-  --color-violet-600: #673edb;
-  --color-violet-700: #5631b5;
-  --color-violet-800: #472b92;
-  --color-violet-900: #3b2676;
+  --color-violet-50: #f4f0ff;
+  --color-violet-100: #eae2ff;
+  --color-violet-200: #d4c5ff;
+  --color-violet-300: #b69cff;
+  --color-violet-400: #9d78ff;
+  --color-violet-500: #8655ff;
+  --color-violet-600: #733ce0;
+  --color-violet-700: #5f2fbd;
+  --color-violet-800: #4d2897;
+  --color-violet-900: #402478;
+
+  /* Success: availability and positive status ONLY. Deliberately restrained so
+     a green dot reads as a live state rather than as a second brand colour. */
+  --color-ok-300: #7fe0a6;
+  --color-ok-400: #41cf82;
+  --color-ok-500: #21b567;
+  --color-ok-600: #178a4e;
 
   /* Magenta: atmospheric highlights ONLY. Never a UI state colour. */
   --color-atmo-300: #f6b8ee;

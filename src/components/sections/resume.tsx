@@ -20,12 +20,19 @@ type ResumeSectionProps = {
 };
 
 export function ResumeSection({ resumeUrl }: ResumeSectionProps) {
-  const viewHref = resumeUrl ?? `mailto:${site.email}?subject=${encodeURIComponent(
-    `Resume request — ${site.name}`,
-  )}`;
-  const downloadHref = `mailto:${site.email}?subject=${encodeURIComponent(
-    resumeUrl ? `Resume download — ${site.name}` : `Please send your resume — ${site.name}`,
-  )}`;
+  /* A resolved asset (the admin setting, or the committed /resume.pdf fallback)
+     wins for both actions. Only when neither exists do the buttons degrade to
+     an honest mailto request. */
+  const viewHref =
+    resumeUrl ??
+    `mailto:${site.email}?subject=${encodeURIComponent(
+      `Resume request — ${site.name}`,
+    )}`;
+  const downloadHref =
+    resumeUrl ??
+    `mailto:${site.email}?subject=${encodeURIComponent(
+      `Please send your resume — ${site.name}`,
+    )}`;
 
   return (
     <Section id="resume">
@@ -47,6 +54,8 @@ export function ResumeSection({ resumeUrl }: ResumeSectionProps) {
         <div className="flex flex-wrap gap-3">
           <a
             href={viewHref}
+            target={resumeUrl ? "_blank" : undefined}
+            rel={resumeUrl ? "noreferrer" : undefined}
             data-cursor="view"
             className="inline-flex h-12 items-center rounded-pill bg-accent px-6 text-[0.9rem] font-medium text-accent-fg transition-[filter] duration-300 hover:brightness-110"
           >
@@ -55,18 +64,19 @@ export function ResumeSection({ resumeUrl }: ResumeSectionProps) {
           </a>
           <a
             href={downloadHref}
+            download={resumeUrl && resumeUrl.startsWith("/") ? true : undefined}
             data-cursor="view"
             className="inline-flex h-12 items-center rounded-pill border border-line-strong px-6 text-[0.9rem] font-medium text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
           >
             <Download className="mr-2 size-4" strokeWidth={2} />
-            Get a copy
+            Download resume
           </a>
         </div>
       </div>
 
       {resumeUrl ? null : (
         <PlaceholderNote className="mt-4">
-          No PDF is uploaded to the site yet — both buttons email a request
+          No PDF is available on the site yet — both buttons email a request
           instead. Upload one as the{" "}
           <code className="text-fg">resume_url</code> setting to link the file
           directly.

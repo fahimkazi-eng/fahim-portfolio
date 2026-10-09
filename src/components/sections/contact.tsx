@@ -9,6 +9,7 @@ import {
   Field,
   FormStatus,
   Input,
+  Select,
   SubmitButton,
   Textarea,
 } from "@/components/ui/field";
@@ -26,6 +27,25 @@ import { Section, SectionHeading } from "@/components/ui/card";
    only client boundary; everything around it is static markup.
    ========================================================================== */
 
+/** The brief's project-type vocabulary. Stored as text, not an enum, so the
+    admin stays the source of truth and old rows never fail validation. */
+const PROJECT_TYPES = [
+  "Website",
+  "Web App",
+  "E-commerce",
+  "Dashboard",
+  "AI Agent",
+  "Other",
+] as const;
+
+const PROJECT_STAGES = [
+  "Idea",
+  "Design",
+  "Development",
+  "Redesign",
+  "Experimental",
+] as const;
+
 export function ContactSection() {
   return (
     <Section id="contact">
@@ -34,9 +54,9 @@ export function ContactSection() {
           <SectionHeading
             index="/ 12"
             eyebrow="Contact"
-            title={<SplitText text="Let's build something." duration={1} />}
+            title={<SplitText text="Let's build something great together." duration={1} />}
             lede={
-              "A project in mind, a role to fill, or a question about how something works — all three are fine reasons to write."
+              "Have a product idea, a project to discuss, or an opportunity worth exploring? Tell me what you're working on."
             }
             className="mb-0"
           />
@@ -60,7 +80,7 @@ export function ContactSection() {
               {[
                 { term: "Based in", value: site.location },
                 { term: "University", value: site.university },
-                { term: "Status", value: "Open to work" },
+                { term: "Status", value: "Open for opportunities" },
                 { term: "Reply time", value: "Within a few days" },
               ].map((item) => (
                 <div key={item.term} className="bg-canvas p-4">
@@ -150,47 +170,30 @@ function ContactFormFields({ state }: { state: ActionState }) {
       </div>
 
       <div className="grid gap-x-5 sm:grid-cols-2">
-        <Field label="Subject" htmlFor="subject" error={errors?.subject} hint="Optional">
-          <Input
-            id="subject"
-            name="subject"
-            placeholder="What is this about?"
-            invalid={Boolean(errors?.subject)}
-            aria-describedby="subject-error"
-            maxLength={200}
-          />
-        </Field>
         <Field label="Project type" htmlFor="projectType" hint="Optional">
-          <Input
-            id="projectType"
-            name="projectType"
-            placeholder="Website / Web App / E-commerce / Dashboard / AI Agent / Other"
-            maxLength={120}
-          />
+          <Select id="projectType" name="projectType" defaultValue="">
+            <option value="">Select a type…</option>
+            {PROJECT_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </Select>
         </Field>
-      </div>
-
-      <div className="grid gap-x-5 sm:grid-cols-2">
-        <Field label="Stage" htmlFor="stage" hint="Optional">
-          <Input
-            id="stage"
-            name="stage"
-            placeholder="Idea / Design / Development / Redesign"
-            maxLength={120}
-          />
-        </Field>
-        <Field label="Budget / Timeline" htmlFor="budget" hint="Optional">
-          <Input
-            id="budget"
-            name="budget"
-            placeholder="Budget range or timeline (e.g. $2k–$5k, 2–4 weeks)"
-            maxLength={120}
-          />
+        <Field label="Project stage" htmlFor="stage" hint="Optional">
+          <Select id="stage" name="stage" defaultValue="">
+            <option value="">Select a stage…</option>
+            {PROJECT_STAGES.map((stage) => (
+              <option key={stage} value={stage}>
+                {stage}
+              </option>
+            ))}
+          </Select>
         </Field>
       </div>
 
       <Field
-        label="Message"
+        label="Project description"
         htmlFor="message"
         required
         error={errors?.message}

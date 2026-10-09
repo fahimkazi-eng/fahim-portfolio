@@ -37,13 +37,15 @@ export function WorkSection({ projects }: { projects: Project[] }) {
 
   const [filter, setFilter] = useState<FilterKey>("all");
 
-  /* Pills only for categories that have published projects — a filter with
-     nothing behind it is a dead control, and the reference row still reads
-     correctly as it grows: ALL / WEB APP / SAAS / E-COMMERCE / EXPERIMENT. */
+  /* Pills only for categories that have a project *in the grid* — a filter
+     with nothing behind it is a dead control. Deriving from `list` (not the
+     wider published set) keeps every visible pill from ever reading 00, and
+     the reference row reads correctly: ALL / WEB APP / SAAS / E-COMMERCE /
+     EXPERIMENT. */
   const present = useMemo(() => {
-    const used = new Set(published.map((p) => p.category));
+    const used = new Set(list.map((p) => p.category));
     return PROJECT_CATEGORIES.filter((c) => used.has(c.value as FilterKey));
-  }, [published]);
+  }, [list]);
 
   const visible = useMemo(
     () =>
@@ -108,6 +110,24 @@ export function WorkSection({ projects }: { projects: Project[] }) {
           ))}
         </Stagger>
       )}
+
+      {/* View all — the archive below holds every published build that is not
+          in the featured grid. */}
+      <div className="mt-[clamp(1.75rem,3.5vw,2.75rem)] flex justify-end">
+        <a
+          href="#archive"
+          data-cursor="view"
+          className="group inline-flex items-center gap-2 text-[0.9rem] font-medium text-fg transition-colors duration-300 hover:text-accent"
+        >
+          View all builds
+          <span
+            aria-hidden="true"
+            className="transition-transform duration-300 group-hover:translate-x-1"
+          >
+            →
+          </span>
+        </a>
+      </div>
     </Section>
   );
 }

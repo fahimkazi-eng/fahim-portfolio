@@ -84,14 +84,14 @@ export function JourneySection({
         index="/ 03"
         eyebrow="Journey"
         title={<SplitText text="My journey." duration={1} />}
-        lede="Six phases of how the work got here — then the record, education and experience, straight from the database."
+        lede="A dated arc of how the work got here — then the record, education and experience, straight from the database."
       />
 
       {/* ---- Identity arc ---- */}
       <Stagger
         as="ol"
         step={0.06}
-        className="relative space-y-6 border-l border-line pl-7 md:grid md:grid-cols-3 md:gap-x-6 md:gap-y-10 md:space-y-0 md:border-l-0 md:pl-0 xl:grid-cols-6"
+        className="relative space-y-6 border-l border-line pl-7 md:grid md:grid-cols-3 md:gap-x-6 md:gap-y-10 md:space-y-0 md:border-l-0 md:pl-0 xl:grid-cols-5"
       >
         {journeyStages.map((stage) => (
           <li key={stage.index} className="relative md:border-t md:border-line md:pt-5">

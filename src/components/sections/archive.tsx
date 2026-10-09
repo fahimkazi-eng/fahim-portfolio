@@ -125,9 +125,24 @@ export function ArchiveSection({ projects }: { projects: Project[] }) {
             ))}
           </div>
 
-          <p className="type-mono mt-4 text-[0.6875rem] text-fg-subtle">
-            drag / swipe to explore — every card links out
-          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="type-mono text-[0.6875rem] text-fg-subtle">
+              drag / swipe to explore — every card links out
+            </p>
+            <a
+              href="https://github.com/fahimkazi-eng"
+              target="_blank"
+              rel="noreferrer"
+              data-cursor="view"
+              className="group inline-flex items-center gap-2 text-[0.875rem] font-medium text-fg transition-colors duration-300 hover:text-accent"
+            >
+              See more on GitHub
+              <ArrowUpRight
+                className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                strokeWidth={2}
+              />
+            </a>
+          </div>
         </div>
       )}
     </Section>

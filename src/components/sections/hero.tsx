@@ -20,6 +20,7 @@ import { Magnetic } from "@/components/ui/magnetic";
 import { usePrefersReducedMotion } from "@/components/animations/motion-primitives";
 import { Preloader, Marquee } from "@/components/ui/marquee";
 import { Button } from "@/components/ui/button";
+import { HeroStarfield } from "@/components/effects/starfield";
 
 /* The WebGL field is a client-only browser dependency: dynamic import with
    ssr:false keeps it out of the server bundle and off the critical path. */
@@ -58,7 +59,7 @@ const HERO_PORTRAIT = "/portraits/hero-portrait.jpg";
    two tweens write the same element's transform (MOTION.md).
    -------------------------------------------------------------------------- */
 
-export function Hero({ projectCount }: { projectCount: number }) {
+export function Hero() {
   const rootRef = useRef<HTMLElement | null>(null);
   const mediaRef = useRef<HTMLDivElement | null>(null);
   const portraitRef = useRef<HTMLDivElement | null>(null);
@@ -298,15 +299,64 @@ export function Hero({ projectCount }: { projectCount: number }) {
         {/* CSS base gradient: always painted, so the hero still looks right
             with WebGL disabled, reduced motion on, or before hydration. */}
         <div className="absolute inset-0 bg-[radial-gradient(62%_55%_at_78%_14%,color-mix(in_oklab,var(--accent)_16%,transparent),transparent_72%),radial-gradient(46%_42%_at_6%_78%,color-mix(in_oklab,var(--violet)_12%,transparent),transparent_74%)]" />
+
+        {/* Drifting nebula bands — very low opacity, transform-only, and
+            neutralised by the global reduced-motion rule. */}
+        <div className="absolute -left-[12%] top-[6%] size-[42rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-violet-500)_13%,transparent),transparent_70%)] blur-3xl [animation:mesh-drift_38s_ease-in-out_infinite]" />
+        <div className="absolute right-[-10%] top-[44%] size-[34rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-signal-500)_12%,transparent),transparent_72%)] blur-3xl [animation:mesh-drift_46s_ease-in-out_infinite_reverse]" />
+
+        {/* Faint light shafts raking down from the top edge. */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-1/3 left-[16%] h-[170%] w-[42%] rotate-[18deg] bg-[linear-gradient(to_bottom,transparent,color-mix(in_oklab,var(--color-signal-400)_7%,transparent),transparent)] blur-2xl" />
+          <div className="absolute -top-1/3 right-[22%] h-[170%] w-[30%] rotate-[-14deg] bg-[linear-gradient(to_bottom,transparent,color-mix(in_oklab,var(--color-violet-400)_6%,transparent),transparent)] blur-2xl" />
+        </div>
+
         <div
           data-hero-velocity
           className="absolute inset-0 will-change-transform"
         >
+          <HeroStarfield className="absolute inset-0 h-full w-full" />
           <AuroraField
             intensity={1.05}
             className="absolute inset-0 h-full w-full opacity-[var(--aurora-opacity)]"
           />
           <div className="grid-lines absolute inset-0 [mask-image:radial-gradient(78%_62%_at_50%_40%,black,transparent)]" />
+        </div>
+
+        {/* Restrained orbital path around the planet quadrant. Desktop-only so
+            it never rakes across the stacked mobile composition; a single
+            transform-only spin, faded to a whisper. */}
+        <div className="absolute right-[-8%] top-[4%] hidden h-[46rem] w-[46rem] opacity-[0.16] lg:block">
+          <svg
+            viewBox="0 0 400 400"
+            className="h-full w-full [animation:orbit-spin_90s_linear_infinite]"
+          >
+            <ellipse
+              cx="200"
+              cy="200"
+              rx="190"
+              ry="118"
+              fill="none"
+              stroke="var(--color-signal-400)"
+              strokeWidth="0.6"
+              strokeDasharray="2 8"
+              transform="rotate(-20 200 200)"
+            />
+            <ellipse
+              cx="200"
+              cy="200"
+              rx="150"
+              ry="150"
+              fill="none"
+              stroke="var(--color-violet-400)"
+              strokeWidth="0.4"
+              strokeDasharray="1 10"
+            />
+          </svg>
+          {/* A single travelling node on the ring. */}
+          <div className="absolute inset-0 [animation:orbit-spin_26s_linear_infinite]">
+            <span className="absolute left-1/2 top-[6%] size-1.5 -translate-x-1/2 rounded-full bg-pulse-300 shadow-[0_0_12px_3px_color-mix(in_oklab,var(--color-pulse-400)_60%,transparent)]" />
+          </div>
         </div>
       </div>
 
@@ -380,14 +430,14 @@ export function Hero({ projectCount }: { projectCount: number }) {
               data-hero-metrics
               className="mt-[clamp(2.25rem,4.5vw,3.5rem)] flex flex-wrap items-center gap-x-8 gap-y-2"
             >
-              <MetricStat value={`${projectCount}`} label="Products" />
+              <MetricStat value={heroMetrics.products} label="Products Shipped" />
               <span aria-hidden="true" className="hidden h-4 w-px bg-line-strong sm:block" />
-              <MetricStat value={`${heroMetrics.builds}`} label="Builds" />
+              <MetricStat value={heroMetrics.builds} label="Public Builds" />
               <span aria-hidden="true" className="hidden h-4 w-px bg-line-strong sm:block" />
               <span className="type-mono flex items-center gap-2 text-fg-muted">
                 <span
                   aria-hidden="true"
-                  className="size-1.5 rounded-full bg-pulse-400"
+                  className="size-1.5 rounded-full bg-ok-400 shadow-[0_0_10px_2px_color-mix(in_oklab,var(--color-ok-400)_55%,transparent)]"
                 />
                 {heroMetrics.availability}
               </span>
@@ -462,13 +512,13 @@ export function Hero({ projectCount }: { projectCount: number }) {
                       aria-hidden="true"
                       className="relative grid size-2 place-items-center"
                     >
-                      <span className="absolute size-2 rounded-full bg-pulse-400" />
+                      <span className="absolute size-2 rounded-full bg-ok-400" />
                       <span
                         aria-hidden="true"
-                        className="absolute size-2 rounded-full bg-pulse-400 [animation:pulse-ring_2.4s_ease-out_infinite]"
+                        className="absolute size-2 rounded-full bg-ok-400 [animation:pulse-ring_2.4s_ease-out_infinite]"
                       />
                     </span>
-                    <span className="type-mono text-pulse-300">
+                    <span className="type-mono text-ok-300">
                       {heroStatus.statusLine}
                     </span>
                   </p>
@@ -478,7 +528,10 @@ export function Hero({ projectCount }: { projectCount: number }) {
                     <StatusRow label="Local Time">
                       <LocalClock />
                     </StatusRow>
-                    <StatusRow label="Currently" value={heroStatus.currently} />
+                    <StatusRow
+                      label="Currently building"
+                      value={heroStatus.currently}
+                    />
                     <StatusRow
                       label="Stack"
                       value={heroStatus.stack.join("  /  ")}
