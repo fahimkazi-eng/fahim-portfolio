@@ -5,10 +5,20 @@ import type { ContactMessage } from "@/lib/db/schema";
 /**
  * Email notifications for contact messages.
  *
- * Deliberately optional: with no RESEND_API_KEY the message is still stored
+ * Server-only (see `import "server-only"` above): the Resend key and both
+ * mailbox addresses live in server environment variables and never reach
+ * the browser.
+ *
+ *   RESEND_API_KEY      — Resend API key (server env only).
+ *   CONTACT_TO_EMAIL    — inbox that receives the notification.
+ *   CONTACT_FROM_EMAIL  — verified sender identity, e.g.
+ *                         "Portfolio <hello@yourdomain.com>".
+ *
+ * Deliberately optional: with no key configured the message is still stored
  * in Postgres and visible in the dashboard. Email is a bonus channel, never
  * the system of record — a missing key degrades the feature instead of
- * losing the message.
+ * losing the message. CONTACT_NOTIFY_EMAIL is still honoured as a legacy
+ * fallback for the recipient so an existing deployment keeps working.
  */
 export type NotifyResult = { sent: boolean; reason: string };
 
@@ -16,19 +26,22 @@ export async function notifyNewMessage(
   message: ContactMessage,
 ): Promise<NotifyResult> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_NOTIFY_EMAIL;
+  const to = process.env.CONTACT_TO_EMAIL ?? process.env.CONTACT_NOTIFY_EMAIL;
+  const from =
+    process.env.CONTACT_FROM_EMAIL ?? "Portfolio <onboarding@resend.dev>";
 
   if (!apiKey || !to) {
     return {
       sent: false,
-      reason: "Email notifications are not configured (RESEND_API_KEY / CONTACT_NOTIFY_EMAIL). Message stored in the database only.",
+      reason:
+        "Email notifications are not configured (RESEND_API_KEY / CONTACT_TO_EMAIL). Message stored in the database only.",
     };
   }
 
   try {
     const resend = new Resend(apiKey);
     await resend.emails.send({
-      from: "Portfolio <onboarding@resend.dev>",
+      from,
       to,
       replyTo: message.email,
       subject: `New portfolio message: ${message.subject || "No subject"}`,

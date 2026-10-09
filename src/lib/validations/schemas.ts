@@ -64,8 +64,15 @@ export const contactFieldSchema = z.object({
   projectType: trimmed.max(120, "Too long").optional().default(""),
   stage: trimmed.max(120, "Too long").optional().default(""),
   budget: trimmed.max(120, "Too long").optional().default(""),
-  /** Honeypot. Must stay empty. */
-  website: z.literal("").optional().default(""),
+  /** Honeypot. Must stay empty — enforced in the action (fake success),
+      not in the schema, so bots are never told they were caught. */
+  website: z.string().optional().default(""),
+  /**
+   * Time-trap. The client stamps when the form mounted; submissions faster
+   * than a human can write are bots. `0`/missing (e.g. no-JS) skips the
+   * trap — the honeypot and the rate limits still apply.
+   */
+  startedAt: z.coerce.number().min(0).optional().default(0),
 });
 
 export type ContactInput = z.infer<typeof contactFieldSchema>;

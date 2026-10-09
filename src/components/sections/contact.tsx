@@ -134,6 +134,14 @@ function ContactForm() {
 
 function ContactFormFields({ state }: { state: ActionState }) {
   const errors = state.status === "error" ? state.fieldErrors : undefined;
+  /* Time-trap stamp: set on the client after mount (empty without JS, in
+     which case the server skips the trap and the other guards still apply). */
+  const startedRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (startedRef.current && !startedRef.current.value) {
+      startedRef.current.value = String(Date.now());
+    }
+  }, []);
 
   return (
     <div className="relative z-10 space-y-1">
@@ -217,6 +225,7 @@ function ContactFormFields({ state }: { state: ActionState }) {
       <div aria-hidden="true" className="absolute left-[-9999px] top-0 h-0 w-0 overflow-hidden">
         <label htmlFor="website">Website</label>
         <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <input ref={startedRef} type="hidden" name="startedAt" value="" />
       </div>
     </div>
   );

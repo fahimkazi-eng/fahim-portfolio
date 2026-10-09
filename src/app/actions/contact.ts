@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, count, eq, gt } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { contactMessages } from "@/lib/db/schema";
 import { notifyNewMessage } from "@/lib/email";
@@ -15,15 +15,44 @@ import { site } from "@/lib/site";
    Public contact form.
 
    - Server-side Zod validation on the raw FormData.
-   - Honeypot check before any write.
+   - Honeypot + time-trap before any write (both cheap, no DB cost).
+   - Rate limits are enforced against the contact_messages table itself, so
+     they hold across serverless instances (an in-process map would not).
    - Persist first, then attempt email. A provider failure never loses the
-     message and never surfaces as a user-visible error.
+     message and never surfaces as a user-visible error: the row stays in
+     Postgres with email_status='failed' and the admin inbox shows it.
    - Returns the same ActionState shape as the admin actions.
    -------------------------------------------------------------------------- */
 
-/** Cheap in-process throttle. Survives a single instance; documented limit. */
-const recentSubmissions = new Map<string, number>();
-const RATE_LIMIT_MS = 30_000;
+/** Rejects submissions faster than a human can write. */
+const FORM_MIN_AGE_MS = 2_500;
+/** Upper bound generous enough to never punish a slow human. */
+const FORM_MAX_AGE_MS = 24 * 3_600_000;
+/** Tolerated clock skew between the client stamp and server time. */
+const FORM_SKEW_MS = 60_000;
+
+/** Burst window: one message per address per 30s. */
+const BURST_WINDOW_MS = 30_000;
+/** Sustained cap: five messages per address per hour. */
+const HOURLY_WINDOW_MS = 3_600_000;
+const HOURLY_MAX = 5;
+
+const saveFailedMessage =
+  "Your message could not be saved just now. Please email me directly instead.";
+
+/** How many messages this address stored inside the trailing window. */
+async function recentCount(email: string, windowMs: number): Promise<number> {
+  const [row] = await db
+    .select({ n: count() })
+    .from(contactMessages)
+    .where(
+      and(
+        eq(contactMessages.email, email),
+        gt(contactMessages.createdAt, new Date(Date.now() - windowMs)),
+      ),
+    );
+  return row?.n ?? 0;
+}
 
 export async function submitContactMessage(
   _prev: ActionState,
@@ -38,6 +67,7 @@ export async function submitContactMessage(
     stage: formData.get("stage") ?? "",
     budget: formData.get("budget") ?? "",
     website: formData.get("website") ?? "",
+    startedAt: formData.get("startedAt") ?? 0,
   });
 
   if (!parsed.success) {
@@ -48,7 +78,7 @@ export async function submitContactMessage(
     };
   }
 
-  const { name, email, subject, message, projectType, stage, website } =
+  const { name, email, subject, message, projectType, stage, website, startedAt } =
     parsed.data;
 
   /* Honeypot: a real visitor never sees this field, so anything in it is a
@@ -60,13 +90,40 @@ export async function submitContactMessage(
     };
   }
 
-  const last = recentSubmissions.get(email);
-  const now = Date.now();
-  if (last && now - last < RATE_LIMIT_MS) {
-    return {
-      status: "error",
-      message: "That was quick. Give it a few seconds before sending another message.",
-    };
+  /* Time-trap: submitted faster than a human can write. Skipped when the
+     stamp is absent (e.g. no-JS) — the honeypot and rate limits still apply. */
+  if (startedAt > 0) {
+    const age = Date.now() - startedAt;
+    if (
+      startedAt > Date.now() + FORM_SKEW_MS ||
+      age < FORM_MIN_AGE_MS ||
+      age > FORM_MAX_AGE_MS
+    ) {
+      return {
+        status: "error",
+        message: "Please take a moment to write your message and try again.",
+      };
+    }
+  }
+
+  /* DB-backed rate limits: hold across serverless instances, unlike an
+     in-process map. A failing check degrades to the same honest error the
+     insert itself would produce, since the insert could not succeed either. */
+  try {
+    if ((await recentCount(email, BURST_WINDOW_MS)) > 0) {
+      return {
+        status: "error",
+        message: "That was quick. Give it a few seconds before sending another message.",
+      };
+    }
+    if ((await recentCount(email, HOURLY_WINDOW_MS)) >= HOURLY_MAX) {
+      return {
+        status: "error",
+        message: `You've sent several messages recently. Please email me directly at ${site.email} instead.`,
+      };
+    }
+  } catch {
+    return { status: "error", message: saveFailedMessage };
   }
 
   /* The project-type/stage selects have no dedicated columns, so they are
@@ -91,19 +148,23 @@ export async function submitContactMessage(
   } catch {
     return {
       status: "error",
-      message:
-        "Your message could not be saved just now. Please email me directly instead.",
+      message: saveFailedMessage,
     };
   }
 
-  recentSubmissions.set(email, now);
-
+  /* The message is safe in Postgres from here on. Email is best-effort: a
+     provider failure is recorded on the row (email_status='failed', shown in
+     the admin inbox) and the visitor still gets the honest confirmation. */
   const result = await notifyNewMessage(inserted);
 
-  await db
-    .update(contactMessages)
-    .set({ emailStatus: result.sent ? "sent" : "false" })
-    .where(eq(contactMessages.id, inserted.id));
+  try {
+    await db
+      .update(contactMessages)
+      .set({ emailStatus: result.sent ? "sent" : "failed" })
+      .where(eq(contactMessages.id, inserted.id));
+  } catch {
+    /* The status flag is cosmetic — the message itself is already stored. */
+  }
 
   return {
     status: "success",
