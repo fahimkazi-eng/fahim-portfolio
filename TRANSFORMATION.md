@@ -94,6 +94,7 @@ fixes that: colours are present with or without motion.
 | E | 10 Notes (posts table, admin, `/notes/[slug]`) + 11 Uses (uses_items + admin, 10 verified items seeded) + 12 Contact (`/ 12`, “Let’s build something.”) + 13 Resume (DB-driven, honest mailto fallback) | DONE — `df0f263` |
 | F | 14 custom 404 (verified existing) + Ctrl/Cmd+K command palette + cursor language + SEO/JSON-LD/sitemap/robots/security headers (verified existing) + lint/typecheck/build + QA | DONE — `a57da4f` |
 | G | Site-level Motion control (kf-motion auto/on/off → `<html data-motion>`, `motion-off` variant, nav toggle + palette commands) + visual fidelity pass from the measured reference (navy canvas `#050a16`, static indigo atmosphere on `.dark body`, whiter text, aurora `uAura` = reference violet `#8f3eac`) | DONE — `27e0abc` |
+| H | Cinematic portraits: Hero 01 gets the generated 16:9 space portrait as a full-bleed layered visual (desktop: bleeds off the right column into the page edge, edge melts into the canvas, glass System Status overlay; mobile: framed block stacked below the copy; scroll-linked yPercent parallax, reduced-motion aware). About 02 replaces the circular badge with a large 2:3 editorial still (edge-to-edge in the identity sheet, accent hairline, bottom melt); left column stretched (`lg:flex`, CTAs pinned to the foot) to balance the tall portrait. Assets `public/portraits/hero-portrait.jpg` + `about-portrait.jpg` | DONE — `55afb7a` |
 
 ## Verification after each phase
 
