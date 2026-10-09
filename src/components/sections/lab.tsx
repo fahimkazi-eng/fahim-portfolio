@@ -58,7 +58,7 @@ const EXPERIMENTS: { index: string; title: string; desc: string }[] = [
   {
     index: "04",
     title: "Shader Experiment",
-    desc: "A WebGL plasma field fed by the site accent — OGL behind a CSS fallback.",
+    desc: "A WebGL plasma field fed by the site accent — move across it to stir the waves.",
   },
   {
     index: "05",
@@ -98,7 +98,7 @@ export function LabSection() {
         <LabPanel {...EXPERIMENTS[3]}>
           <ShaderCanvas className="absolute inset-0 z-0 h-full w-full" />
           <p className="pointer-events-none absolute inset-x-0 bottom-3 z-10 text-center type-mono text-fg-subtle">
-            GET /shader
+            move to stir the field
           </p>
         </LabPanel>
         <LabPanel {...EXPERIMENTS[4]}>
@@ -251,12 +251,23 @@ function TrailDemo() {
   const rootRef = useRef<HTMLDivElement>(null);
   const { visible } = usePanelVisible<HTMLDivElement>();
   const reduced = usePrefersReducedMotion();
+  const [coarse, setCoarse] = useState<boolean>(() =>
+    typeof window === "undefined"
+      ? false
+      : window.matchMedia("(pointer: coarse)").matches,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse)");
+    const onChange = (event: MediaQueryListEvent) => setCoarse(event.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const root = rootRef.current;
     if (!canvas || !root || reduced || !visible) return;
-    if (window.matchMedia("(pointer: coarse)").matches) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -319,7 +330,7 @@ function TrailDemo() {
     <div ref={rootRef} className="relative flex-1">
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       <span className="type-mono absolute bottom-3 left-5 text-fg-subtle">
-        move your cursor
+        {reduced ? "static under reduced motion" : coarse ? "drag to trace" : "move your cursor"}
       </span>
     </div>
   );

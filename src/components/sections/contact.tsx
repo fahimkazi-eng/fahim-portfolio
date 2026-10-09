@@ -80,7 +80,7 @@ export function ContactSection() {
               {[
                 { term: "Based in", value: site.location },
                 { term: "University", value: site.university },
-                { term: "Status", value: "Open for opportunities" },
+                { term: "Status", value: "Open for Opportunities" },
                 { term: "Reply time", value: "Within a few days" },
               ].map((item) => (
                 <div key={item.term} className="bg-canvas p-4">

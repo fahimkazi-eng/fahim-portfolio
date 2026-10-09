@@ -23,7 +23,7 @@ export function NotesSection({ posts }: NotesSectionProps) {
         index="/ 10"
         eyebrow="Notes"
         title={<SplitText text="Notes from the build." duration={1} />}
-        lede="Short write-ups on the products, the stack and the process. Publishing notes as projects land — nothing here is backdated or fabricated."
+        lede="Short write-ups on the products, the stack and the process. Publishing notes as projects land — every entry is written from the actual build."
       />
 
       {posts.length === 0 ? (

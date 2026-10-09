@@ -26,7 +26,7 @@ const CAPABILITIES = [
    light. Committed to `public/`; the path is stable. */
 const ABOUT_PORTRAIT = "/portraits/about-portrait.jpg";
 
-export function AboutSection() {
+export function AboutSection({ resumeUrl }: { resumeUrl: string | null }) {
   return (
     <Section id="about">
       <SectionHeading
@@ -86,7 +86,15 @@ export function AboutSection() {
               </Magnetic>
               <Magnetic strength={8}>
                 <Button asChild size="lg" variant="outline">
-                  <a href={`mailto:${site.email}?subject=Resume%20request`}>
+                  <a
+                    href={
+                      resumeUrl ??
+                      `mailto:${site.email}?subject=Resume%20request`
+                    }
+                    {...(resumeUrl
+                      ? { target: "_blank", rel: "noreferrer" }
+                      : {})}
+                  >
                     Download resume
                     <ArrowUpRight className="size-4" strokeWidth={2} />
                   </a>
@@ -203,8 +211,8 @@ export function AboutSection() {
         className="mt-[clamp(3rem,7vw,5.5rem)] grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line md:grid-cols-4"
       >
         {[
-          { value: 10, suffix: "", label: "Products shipped" },
-          { value: 15, suffix: "", label: "Public builds" },
+          { value: 10, suffix: "+", label: "Products shipped" },
+          { value: 15, suffix: "+", label: "Public builds" },
           { value: site.languages.length, suffix: "", label: "Languages spoken" },
           { value: CAPABILITIES.length, suffix: "", label: "Capabilities" },
         ].map((stat) => (

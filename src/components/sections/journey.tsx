@@ -3,12 +3,13 @@ import { Section, SectionHeading } from "@/components/ui/card";
 import { Stagger } from "@/components/animations/motion-primitives";
 import { SplitText } from "@/components/animations/split-text";
 import { TimelineStrip } from "./timeline-strip";
+import { JourneySpine } from "./journey-spine";
 import { journeyStages } from "@/lib/site";
 
 /* ==========================================================================
    Journey (03) — reference composition.
 
-   Top: the identity arc — six honest phases with a connecting line.
+   Top: the identity arc — five honest phases with a connecting line.
    Below: the DB-driven timeline (education + experience) with scroll
    activation. Facts come from the database; the arc is editable copy, with
    every claim kept to what is true (degree, shipped products, direction).
@@ -88,6 +89,7 @@ export function JourneySection({
       />
 
       {/* ---- Identity arc ---- */}
+      <JourneySpine>
       <Stagger
         as="ol"
         step={0.06}
@@ -98,7 +100,8 @@ export function JourneySection({
             {/* Connection node */}
             <span
               aria-hidden="true"
-              className="absolute left-0 top-1 size-2 -translate-x-1/2 rounded-full border border-accent bg-canvas md:left-0 md:top-0 md:-translate-y-1/2"
+              data-journey-node
+              className="absolute left-0 top-1 size-2 -translate-x-1/2 rounded-full border border-accent bg-canvas transition-colors duration-500 data-[lit=true]:bg-accent data-[lit=true]:shadow-[0_0_12px_2px_color-mix(in_oklab,var(--color-signal-500)_55%,transparent)] md:left-0 md:top-0 md:-translate-y-1/2"
             />
             <p className="type-mono text-accent">{stage.index}</p>
             <h3 className="mt-1.5 font-display text-h4 tracking-tight text-fg">
@@ -110,6 +113,7 @@ export function JourneySection({
           </li>
         ))}
       </Stagger>
+      </JourneySpine>
 
       {/* ---- DB record ---- */}
       {markers.length > 0 ? (

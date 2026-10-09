@@ -76,3 +76,19 @@ Used as code, not as bundled artwork. Licences are those of the packages in
 - **No licensed hero background.** The original brief allowed for a licensed
   internet asset, but a code-drawn field keeps the page light, animatable and
   free of attribution constraints — so the code was kept.
+
+## Internet-asset review (master redesign brief, Part 19)
+
+External sources (Unsplash/Pexels/LottieFiles/SVG repos) were considered
+against the selection criteria. Decision: **no external downloads.**
+
+- The hero/about portraits, product stills and demo loops above are the
+  owner's own material — anything stock would weaken identity, not improve it.
+- Nebula/planet/particles/grain/grids are drawn in code (starfield canvas,
+  OGL aurora + shader demos, CSS meshes), which keeps them theme-aware,
+  animatable, lightweight and licence-free — better than a static download on
+  criteria 4, 5 and 7.
+- No section was found where a downloaded image materially beat the
+  code-generated treatment, so nothing was added. This file stays the single
+  record; any future external asset must be listed here with source and
+  licence.

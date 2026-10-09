@@ -7,6 +7,7 @@ import {
   SectionHeading,
 } from "@/components/ui/card";
 import { Reveal, Stagger } from "@/components/animations/motion-primitives";
+import { ProcessProgress } from "./process-progress";
 import { SplitText } from "@/components/animations/split-text";
 import { Spotlight, Tilt } from "@/components/ui/magnetic";
 import { CountUp } from "@/components/animations/scroll-motion";
@@ -31,6 +32,7 @@ export function ServicesSection({ services }: { services: Service[] }) {
       />
 
       {/* ---- process strip ---- */}
+      <ProcessProgress stages={buildStages}>
       <Stagger
         as="ol"
         step={0.09}
@@ -61,6 +63,7 @@ export function ServicesSection({ services }: { services: Service[] }) {
           </li>
         ))}
       </Stagger>
+      </ProcessProgress>
 
       {/* ---- services from the database ---- */}
       <div className="mt-[clamp(2.5rem,5vw,4rem)]">

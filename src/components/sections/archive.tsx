@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Project } from "@/lib/db/schema";
 import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 import {
@@ -89,6 +89,28 @@ export function ArchiveSection({ projects }: { projects: Project[] }) {
     .filter((p) => p.published && !p.featured)
     .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
   const trackRef = useDragScroll<HTMLDivElement>();
+  const [filter, setFilter] = useState<string>("all");
+
+  /* Filter pills only for categories actually present — never a dead pill. */
+  const present = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const p of archive) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
+    return PROJECT_CATEGORIES.filter((c) => counts.has(c.value)).map((c) => ({
+      ...c,
+      count: counts.get(c.value) ?? 0,
+    }));
+  }, [archive]);
+
+  const visible =
+    filter === "all" ? archive : archive.filter((p) => p.category === filter);
+
+  const scrollTrack = (dir: 1 | -1) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.querySelector<HTMLElement>("article");
+    const step = card ? card.offsetWidth + 16 : Math.max(280, track.clientWidth * 0.8);
+    track.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
 
   return (
     <Section id="archive">
@@ -106,6 +128,29 @@ export function ArchiveSection({ projects }: { projects: Project[] }) {
         </PlaceholderNote>
       ) : (
         <div className="relative">
+          {/* Filters — same language as Featured Work */}
+          <div
+            role="group"
+            aria-label="Filter archived builds"
+            className="mb-6 flex flex-wrap items-center gap-2"
+          >
+            <FilterPill
+              active={filter === "all"}
+              onClick={() => setFilter("all")}
+              label="All"
+              count={archive.length}
+            />
+            {present.map((c) => (
+              <FilterPill
+                key={c.value}
+                active={filter === c.value}
+                onClick={() => setFilter(c.value)}
+                label={c.label}
+                count={c.count}
+              />
+            ))}
+          </div>
+
           {/* edge fades hint there is more off-screen */}
           <div
             aria-hidden="true"
@@ -120,7 +165,7 @@ export function ArchiveSection({ projects }: { projects: Project[] }) {
             ref={trackRef}
             className="flex gap-4 overflow-x-auto pb-2 pt-1 select-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {archive.map((project, i) => (
+            {visible.map((project, i) => (
               <ArchiveCard key={project.id} project={project} index={i} />
             ))}
           </div>
@@ -129,23 +174,77 @@ export function ArchiveSection({ projects }: { projects: Project[] }) {
             <p className="type-mono text-[0.6875rem] text-fg-subtle">
               drag / swipe to explore — every card links out
             </p>
-            <a
-              href="https://github.com/fahimkazi-eng"
-              target="_blank"
-              rel="noreferrer"
-              data-cursor="view"
-              className="group inline-flex items-center gap-2 text-[0.875rem] font-medium text-fg transition-colors duration-300 hover:text-accent"
-            >
-              See more on GitHub
-              <ArrowUpRight
-                className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                strokeWidth={2}
-              />
-            </a>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollTrack(-1)}
+                aria-label="Scroll archive backward"
+                className="grid size-10 place-items-center rounded-full border border-line text-fg-muted transition-colors duration-300 hover:border-accent hover:text-fg"
+              >
+                <ArrowLeft className="size-4" strokeWidth={2} />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollTrack(1)}
+                aria-label="Scroll archive forward"
+                className="grid size-10 place-items-center rounded-full border border-line text-fg-muted transition-colors duration-300 hover:border-accent hover:text-fg"
+              >
+                <ArrowRight className="size-4" strokeWidth={2} />
+              </button>
+              <a
+                href="https://github.com/fahimkazi-eng"
+                target="_blank"
+                rel="noreferrer"
+                data-cursor="view"
+                className="group ml-2 inline-flex items-center gap-2 text-[0.875rem] font-medium text-fg transition-colors duration-300 hover:text-accent"
+              >
+                See more on GitHub
+                <ArrowUpRight
+                  className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  strokeWidth={2}
+                />
+              </a>
+            </div>
           </div>
         </div>
       )}
     </Section>
+  );
+}
+
+function FilterPill({
+  active,
+  onClick,
+  label,
+  count,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  count: number;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      data-pressed={active || undefined}
+      className={cn(
+        "inline-flex h-10 items-center gap-2 rounded-pill border px-4 text-[0.8125rem] uppercase tracking-[0.06em] transition-colors duration-300",
+        "data-[pressed=true]:border-accent data-[pressed=true]:bg-accent/10 data-[pressed=true]:text-fg",
+        "border-line text-fg-muted hover:border-line-strong hover:text-fg",
+      )}
+    >
+      {label}
+      <span
+        className={cn(
+          "type-mono text-[0.6875rem] tabular-nums",
+          active ? "text-accent" : "text-fg-subtle",
+        )}
+      >
+        {String(count).padStart(2, "0")}
+      </span>
+    </button>
   );
 }
 
@@ -160,7 +259,7 @@ function ArchiveCard({ project, index }: { project: Project; index: number }) {
   const external = Boolean(project.repoUrl);
 
   return (
-    <article className="group flex w-[min(82vw,21rem)] shrink-0 snap-start flex-col overflow-hidden rounded-card border border-line bg-surface transition-colors duration-500 hover:border-accent/50">
+    <article className="group card-lift edge-glow flex w-[min(82vw,21rem)] shrink-0 snap-start flex-col overflow-hidden rounded-card border border-line bg-surface">
       <ProjectLoopVideo
         src={undefined}
         poster={undefined}

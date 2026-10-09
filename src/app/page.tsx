@@ -88,7 +88,7 @@ export default async function HomePage() {
 
       <main id="main">
         <Hero />
-        <AboutSection />
+        <AboutSection resumeUrl={resumeHref} />
         <JourneySection experiences={experiences} educations={educations} />
         <WorkSection projects={projects} />
         <StackSection skills={skills} />

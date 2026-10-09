@@ -36,6 +36,29 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeId, setActiveId] = useState<string>("hero");
   const [open, setOpen] = useState(false);
+  /* `render` keeps the sheet mounted through the close transition; `open`
+     drives the transition itself. */
+  const [render, setRender] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openSheet = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setRender(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setOpen(true));
+    });
+  };
+  const closeSheet = () => {
+    setOpen(false);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setRender(false), 380);
+  };
+  useEffect(
+    () => () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    },
+    [],
+  );
   const { preference, resolved, setPreference } = useTheme();
   const motion = useMotionPreference();
 
@@ -121,17 +144,17 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
 
   /* ---- lock body scroll while the mobile sheet is open ---- */
   useEffect(() => {
-    if (!open) return;
+    if (!render) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previous;
     };
-  }, [open]);
+  }, [render]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") closeSheet();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -302,7 +325,7 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
 
             <button
               type="button"
-              onClick={() => setOpen((v) => !v)}
+              onClick={() => (open ? closeSheet() : openSheet())}
               aria-expanded={open}
               aria-controls="mobile-nav"
               aria-label={open ? "Close menu" : "Open menu"}
@@ -321,23 +344,33 @@ export function FloatingNav({ portraitSrc }: { portraitSrc: string | null }) {
       {/* Mobile sheet */}
       <div
         id="mobile-nav"
-        hidden={!open}
+        hidden={!render}
         className="fixed inset-0 z-40 md:hidden"
       >
         <button
           type="button"
           tabIndex={-1}
           aria-hidden="true"
-          onClick={() => setOpen(false)}
-          className="absolute inset-0 bg-ink-950/60 backdrop-blur-sm"
+          onClick={closeSheet}
+          className={cn(
+            "absolute inset-0 bg-ink-950/60 backdrop-blur-sm transition-opacity duration-300 ease-out",
+            open ? "opacity-100" : "pointer-events-none opacity-0",
+          )}
         />
-        <div className="absolute inset-x-0 top-0 glass rounded-b-[2rem] px-[clamp(1.15rem,0.6rem+2.6vw,4.5rem)] pb-10 pt-24">
+        <div
+          className={cn(
+            "absolute inset-x-0 top-0 glass rounded-b-[2rem] px-[clamp(1.15rem,0.6rem+2.6vw,4.5rem)] pb-10 pt-24 transition-[transform,opacity] duration-300 ease-out",
+            open
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none -translate-y-6 opacity-0",
+          )}
+        >
           <ul className="space-y-1">
             {items.map((item, i) => (
               <li key={item.id}>
                 <a
                   href={`#${item.id}`}
-                  onClick={() => setOpen(false)}
+                  onClick={closeSheet}
                   style={{ animationDelay: `${i * 45}ms` }}
                   className="flex items-baseline gap-4 border-b border-line py-3.5 font-display text-[1.75rem] font-semibold tracking-tight text-fg [animation:rule-in_0.5s_cubic-bezier(0.16,1,0.3,1)_both]"
                 >

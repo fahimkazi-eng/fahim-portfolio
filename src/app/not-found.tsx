@@ -14,10 +14,11 @@ export default function NotFound() {
       />
 
       <div className="max-w-xl text-center">
-        <p className="type-mono text-accent">404 — nothing here</p>
+        <p className="type-mono text-accent">404</p>
         <h1 className="type-display mt-4 text-h1 leading-[0.85] text-fg">
-          This page does not exist.
+          This page doesn&rsquo;t exist.
         </h1>
+        <p className="type-mono mt-6 text-fg-muted">But this one does.</p>
         <p className="mx-auto mt-6 max-w-[46ch] text-lead text-fg-muted">
           The link may be out of date, or the case study it pointed at is still
           a draft and has not been published yet.
@@ -25,7 +26,7 @@ export default function NotFound() {
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg">
-            <Link href="/">Back to the homepage</Link>
+            <Link href="/">Return to Home →</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
             <Link href="/#work">See the work</Link>

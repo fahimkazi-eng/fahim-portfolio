@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/db/queries";
 import { ArticleBody } from "@/components/notes/article-body";
@@ -44,6 +45,29 @@ export default async function NotesPostPage({ params }: NotesPostPageProps) {
         <div className="[&>div>p:first-child]:first-letter:float-left [&>div>p:first-child]:first-letter:mr-3 [&>div>p:first-child]:first-letter:text-h3 [&>div>p:first-child]:first-letter:font-display [&>div>p:first-child]:first-letter:text-accent">
           <ArticleBody body={post.body} />
         </div>
+
+        <hr className="my-10 border-line" />
+
+        <nav
+          aria-label="Article"
+          className="flex flex-wrap items-center gap-3"
+        >
+          <Link
+            href="/#notes"
+            className="type-mono text-accent underline-offset-4 hover:underline"
+          >
+            ← Back to notes
+          </Link>
+          <span aria-hidden="true" className="text-fg-subtle">
+            /
+          </span>
+          <Link
+            href="/"
+            className="type-mono text-fg-muted underline-offset-4 hover:text-fg hover:underline"
+          >
+            Home
+          </Link>
+        </nav>
       </article>
     </main>
   );

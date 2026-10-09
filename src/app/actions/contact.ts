@@ -48,7 +48,8 @@ export async function submitContactMessage(
     };
   }
 
-  const { name, email, subject, message, website } = parsed.data;
+  const { name, email, subject, message, projectType, stage, website } =
+    parsed.data;
 
   /* Honeypot: a real visitor never sees this field, so anything in it is a
      bot. Pretend it succeeded rather than telling the bot it was caught. */
@@ -68,6 +69,13 @@ export async function submitContactMessage(
     };
   }
 
+  /* The project-type/stage selects have no dedicated columns, so they are
+     composed into the subject line — dropping them silently would lose the
+     visitor's context. */
+  const contextBits = [projectType, stage].filter(Boolean);
+  const composedSubject =
+    subject || (contextBits.length > 0 ? contextBits.join(" · ") : null);
+
   let inserted;
   try {
     [inserted] = await db
@@ -75,7 +83,7 @@ export async function submitContactMessage(
       .values({
         name,
         email,
-        subject: subject || null,
+        subject: composedSubject,
         message,
         emailStatus: "pending",
       })
