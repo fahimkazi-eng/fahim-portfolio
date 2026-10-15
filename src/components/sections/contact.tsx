@@ -52,7 +52,7 @@ export function ContactSection() {
       <div className="grid grid-cols-1 gap-[clamp(2.5rem,6vw,6rem)] lg:grid-cols-12">
         <div className="lg:col-span-5">
           <SectionHeading
-            index="/ 12"
+            index="/ 13"
             eyebrow="Contact"
             title={<SplitText text="Let's build something great together." duration={1} />}
             lede={

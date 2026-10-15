@@ -8,7 +8,7 @@ import { SplitText } from "@/components/animations/split-text";
 import { site } from "@/lib/site";
 
 /* ==========================================================================
-   Resume (13) — closes the page.
+   Resume (14) — closes the page.
 
    DB-driven: when a `resume_url` setting exists in site_settings it wins for
    both actions. Until one is uploaded the buttons degrade to an honest
@@ -37,7 +37,7 @@ export function ResumeSection({ resumeUrl }: ResumeSectionProps) {
   return (
     <Section id="resume">
       <SectionHeading
-        index="/ 13"
+        index="/ 14"
         eyebrow="Resume"
         title={<SplitText text="The one-page version." duration={1} />}
         lede="The whole career story, compressed. Real dates, real numbers — the same facts as every other section on this page, just denser."

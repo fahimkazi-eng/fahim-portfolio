@@ -202,7 +202,7 @@ export type BuildStage = {
   body: string;
 };
 
-/** How I build (08) — the six-step process, rendered as a scroll-activated
+/** How I build (09) — the six-step process, rendered as a scroll-activated
     editorial strip. The steps are a process, not a claim about counts. */
 export const buildStages: BuildStage[] = [
   {

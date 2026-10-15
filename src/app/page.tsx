@@ -4,6 +4,7 @@ import { AboutSection } from "@/components/sections/about";
 import { JourneySection } from "@/components/sections/journey";
 import { StackSection } from "@/components/sections/stack";
 import { WorkSection } from "@/components/sections/work";
+import { WorksWheelSection } from "@/components/sections/works-wheel-section";
 import { CurrentlyExploringSection } from "@/components/sections/currently-exploring";
 import { LabSection } from "@/components/sections/lab";
 import { ArchiveSection } from "@/components/sections/archive";
@@ -91,6 +92,7 @@ export default async function HomePage() {
         <AboutSection resumeUrl={resumeHref} />
         <JourneySection experiences={experiences} educations={educations} />
         <WorkSection projects={projects} />
+        <WorksWheelSection projects={projects} />
         <StackSection skills={skills} />
         <LabSection />
         <CurrentlyExploringSection />
@@ -109,8 +111,8 @@ export default async function HomePage() {
       <p className="sr-only">
         Portfolio of {site.name}, {site.roleLine} Based in {site.location},
         studying at {site.university}. Sections on this page: about, journey,
-        selected work, capabilities, lab, now, how I build, more builds,
-        notes, uses, contact, and resume.
+        selected work, the works wheel, capabilities, lab, now, how I build,
+        more builds, notes, uses, contact, and resume.
       </p>
     </>
   );

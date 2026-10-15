@@ -13,7 +13,7 @@ import { Spotlight, Tilt } from "@/components/ui/magnetic";
 import { CountUp } from "@/components/animations/scroll-motion";
 
 /* ==========================================================================
-   How I Build (08) — reference composition.
+   How I Build (09) — reference composition.
 
    The opening is the six-step process (IDEA → RESEARCH → DESIGN →
    ENGINEERING → TEST → SHIP), rendered as an editorial strip that activates
@@ -25,7 +25,7 @@ export function ServicesSection({ services }: { services: Service[] }) {
   return (
     <Section id="build">
       <SectionHeading
-        index="/ 08"
+        index="/ 09"
         eyebrow="How I build"
         title={<SplitText text="From idea to shipped." duration={1} />}
         lede="A repeatable process, not a vibe. Six steps, each with a concrete exit condition, from the first sketch to the day it ships."

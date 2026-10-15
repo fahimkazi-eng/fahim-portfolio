@@ -8,7 +8,7 @@ import {
 import { SplitText } from "@/components/animations/split-text";
 
 /* ==========================================================================
-   Notes (10) — the index. Published posts only; drafts never render here.
+   Notes (11) — the index. Published posts only; drafts never render here.
    No posts yet is a valid, honest state: the section says so plainly.
    ========================================================================== */
 
@@ -20,7 +20,7 @@ export function NotesSection({ posts }: NotesSectionProps) {
   return (
     <Section id="notes">
       <SectionHeading
-        index="/ 10"
+        index="/ 11"
         eyebrow="Notes"
         title={<SplitText text="Notes from the build." duration={1} />}
         lede="Short write-ups on the products, the stack and the process. Publishing notes as projects land — every entry is written from the actual build."

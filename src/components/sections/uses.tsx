@@ -11,7 +11,7 @@ import { SplitText } from "@/components/animations/split-text";
 import { cn } from "@/lib/utils";
 
 /* ==========================================================================
-   Uses (11) — the kit.
+   Uses (12) — the kit.
 
    One tab per real category, plus an honest Hardware tab. Every row is real
    and admin-editable; the notes are one-line reasons and are left blank
@@ -55,7 +55,7 @@ export function UsesSection({ items }: { items: UsesItem[] }) {
   return (
     <Section id="uses">
       <SectionHeading
-        index="/ 11"
+        index="/ 12"
         eyebrow="Uses"
         title={<SplitText text="The kit." duration={1} />}
         lede="Software I actually run this site and its products on — nothing claimed that isn't in the build. Hardware stays an honest blank until there's something truthful to say."

@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { ProjectLoopVideo } from "./project-loop-video";
 
 /* ==========================================================================
-   More builds (09) — the archive.
+   More builds (10) — the archive.
 
    Everything published but not in the featured grid lives here, in a
    horizontal track: drag on desktop, native swipe on mobile, one-liner
@@ -115,7 +115,7 @@ export function ArchiveSection({ projects }: { projects: Project[] }) {
   return (
     <Section id="archive">
       <SectionHeading
-        index="/ 09"
+        index="/ 10"
         eyebrow="More builds"
         title={<SplitText text="The archive." duration={1} />}
         lede="Student projects and prototypes that shipped to GitHub — the earlier entries on the way to the featured three."

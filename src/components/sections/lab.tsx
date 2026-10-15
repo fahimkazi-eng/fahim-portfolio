@@ -25,7 +25,7 @@ const ShaderCanvas = dynamic(() => import("./lab/experiments/shader-demo"), {
 });
 
 /* ==========================================================================
-   Lab (06) — the playground, reference composition.
+   Lab (07) — the playground, reference composition.
 
    Six self-contained experiments, each one actually interactive rather than a
    screenshot of an idea: Magnetic button, text distortion, cursor trail,
@@ -76,7 +76,7 @@ export function LabSection() {
   return (
     <Section id="lab">
       <SectionHeading
-        index="/ 06"
+        index="/ 07"
         eyebrow="Lab / Playground"
         title={<SplitText text="Tiny experiments." duration={1} />}
         lede="A small laboratory of isolated micro-interactions and creative bits. Each one is a real working demo, not a picture of one."

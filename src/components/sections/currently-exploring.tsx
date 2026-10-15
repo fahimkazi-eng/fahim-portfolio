@@ -50,7 +50,7 @@ export function CurrentlyExploringSection() {
   return (
     <Section id="now">
       <SectionHeading
-        index="/ 07"
+        index="/ 08"
         eyebrow="Now / Currently exploring"
         title={<SplitText text="Currently exploring." duration={1} />}
         lede="Areas I'm actively exploring and building toward as I grow as a product builder."
