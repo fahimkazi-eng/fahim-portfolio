@@ -699,7 +699,12 @@ export function HorizonHeroSection({
 
       <h1
         ref={titleRef}
-        className="font-display text-[clamp(2.75rem,13vw,10rem)] leading-[0.92] font-bold tracking-tight uppercase"
+        className={cn(
+          "font-display text-[clamp(2.75rem,13vw,10rem)] leading-[0.92] font-bold tracking-tight uppercase",
+          /* The homepage opening scene brands the name in red; the standalone
+             /horizon route keeps the original ink. */
+          isStage && "text-ember",
+        )}
       >
         <span className="sr-only">{panels[0]?.title}</span>
         <SplitChars text={panels[0]?.title ?? ""} />

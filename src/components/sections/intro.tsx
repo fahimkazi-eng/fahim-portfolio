@@ -178,7 +178,7 @@ export function CinematicIntro({ children }: { children: ReactNode }) {
               <span className="type-mono text-fg-subtle">
                 {INTRO_COPY.eyebrow}
               </span>
-              <h2 className="mt-4 font-display text-[clamp(2.25rem,9vw,7rem)] leading-[0.95] font-bold tracking-tight uppercase">
+              <h2 className="mt-4 font-display text-[clamp(2.25rem,9vw,7rem)] leading-[0.95] font-bold tracking-tight text-ember uppercase">
                 {INTRO_COPY.heading}
               </h2>
               <p className="mt-5 max-w-[34ch] text-lead text-fg-muted">

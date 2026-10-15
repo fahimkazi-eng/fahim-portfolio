@@ -232,6 +232,10 @@
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
+  /* A fixed red for the opening scene's name and call. It is deliberately
+     theme-independent: both sit on the near-black cosmos, not on a themed
+     surface, so it must read on ink whatever the site theme is. */
+  --color-ember: #ff3b30;
 }
 
 /* The portrait's own container query context. `Portrait` sizes its fallback
