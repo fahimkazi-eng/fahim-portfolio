@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     /* motion / gsap / drizzle ship large barrel files; let Turbopack strip
        them to the symbols actually imported. lucide-react is already on the
        default list. */
-    optimizePackageImports: ["motion", "motion/react", "gsap", "lenis", "ogl"],
+    optimizePackageImports: ["motion", "motion/react", "gsap", "lenis", "ogl", "three"],
   },
 
   typedRoutes: true,
