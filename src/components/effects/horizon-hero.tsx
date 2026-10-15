@@ -33,13 +33,20 @@ export function HorizonExperience() {
         Back to portfolio
       </Link>
 
-      {reduced ? <HorizonStatic /> : <HorizonHeroSection />}
+      {reduced ? (
+        <HorizonStatic hint="Static scene — motion is reduced" />
+      ) : (
+        <HorizonHeroSection />
+      )}
     </>
   );
 }
 
-/** The static scene: same composition, no canvas. */
-function HorizonStatic() {
+/** The static scene: same composition, no canvas. Used both while the WebGL
+    chunk loads and as the permanent state under reduced motion; `hint` only
+    renders in the latter case, so a motion-enabled visitor never sees a
+    "motion is reduced" claim. */
+function HorizonStatic({ hint }: { hint?: string }) {
   const first = HORIZON_PANELS[0];
 
   return (
@@ -56,9 +63,9 @@ function HorizonStatic() {
           <p>{first.line1}</p>
           <p>{first.line2}</p>
         </div>
-        <p className="type-mono mt-10 text-fg-subtle">
-          Static scene — motion is reduced
-        </p>
+        {hint ? (
+          <p className="type-mono mt-10 text-fg-subtle">{hint}</p>
+        ) : null}
       </section>
     </>
   );
