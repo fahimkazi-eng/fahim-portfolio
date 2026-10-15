@@ -2282,6 +2282,28 @@ html[data-motion="off"] [data-preloader] {
   }
 }
 
+/* The homepage opening scene (components/sections/intro.tsx) is likewise
+   theatre: reduced motion removes the scroll-length spacer, and the content
+   wrapper that overlaps its final viewport is pulled back down so the
+   portfolio starts at the top of the page instead of a viewport under it. */
+html[data-motion="off"] [data-intro] {
+  display: none !important;
+}
+
+html[data-motion="off"] [data-intro-content] {
+  margin-top: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="on"]) [data-intro] {
+    display: none !important;
+  }
+
+  html:not([data-motion="on"]) [data-intro-content] {
+    margin-top: 0 !important;
+  }
+}
+
 /* Focus rings must stay instant, not 0.001ms-faded. */
 html[data-motion="off"] :focus-visible {
   transition-duration: 0.01ms !important;

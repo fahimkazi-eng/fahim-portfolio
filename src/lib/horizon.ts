@@ -34,3 +34,17 @@ export const HORIZON_PANELS: readonly HorizonPanel[] = [
     line2: "Based in Dhaka, Bangladesh",
   },
 ];
+
+/**
+ * Copy for the homepage opening scene (components/sections/intro.tsx).
+ *
+ * The scene's cosmos and first panel come from HORIZON_PANELS above; this is
+ * the call that resolves it — the aircraft crosses "KAZI FAHIM" / "DIVE INTO
+ * MY WORLD" and the visitor is invited to scroll into the portfolio itself.
+ */
+export const INTRO_COPY = {
+  eyebrow: "KAZI FAHIM",
+  heading: "DIVE INTO MY WORLD",
+  supporting: "Ideas. Code. Experiences.",
+  prompt: "SCROLL TO EXPLORE",
+} as const;

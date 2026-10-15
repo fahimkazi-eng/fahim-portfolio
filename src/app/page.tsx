@@ -1,4 +1,5 @@
 import { FloatingNav } from "@/components/ui/nav";
+import { CinematicIntro } from "@/components/sections/intro";
 import { Hero } from "@/components/sections/hero";
 import { AboutSection } from "@/components/sections/about";
 import { JourneySection } from "@/components/sections/journey";
@@ -88,20 +89,24 @@ export default async function HomePage() {
       <FloatingNav portraitSrc={portraitSrc} />
 
       <main id="main">
-        <Hero />
-        <AboutSection resumeUrl={resumeHref} />
-        <JourneySection experiences={experiences} educations={educations} />
-        <WorkSection projects={projects} />
-        <WorksWheelSection projects={projects} />
-        <StackSection skills={skills} />
-        <LabSection />
-        <CurrentlyExploringSection />
-        <ServicesSection services={services} />
-        <ArchiveSection projects={projects} />
-        <NotesSection posts={posts} />
-        <UsesSection items={usesItems} />
-        <ContactSection />
-        <ResumeSection resumeUrl={resumeHref} />
+        {/* Opening scene: cosmos → aircraft → mask reveal of the site below.
+            Reduced motion and no-JS drop it entirely and start at the hero. */}
+        <CinematicIntro>
+          <Hero />
+          <AboutSection resumeUrl={resumeHref} />
+          <JourneySection experiences={experiences} educations={educations} />
+          <WorkSection projects={projects} />
+          <WorksWheelSection projects={projects} />
+          <StackSection skills={skills} />
+          <LabSection />
+          <CurrentlyExploringSection />
+          <ServicesSection services={services} />
+          <ArchiveSection projects={projects} />
+          <NotesSection posts={posts} />
+          <UsesSection items={usesItems} />
+          <ContactSection />
+          <ResumeSection resumeUrl={resumeHref} />
+        </CinematicIntro>
       </main>
 
       <Footer />

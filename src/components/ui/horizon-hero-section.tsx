@@ -38,7 +38,7 @@
    Scene geometry, camera stops and shaders follow the source values.
    ========================================================================== */
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { ArrowUpRight, Menu } from "lucide-react";
 import * as THREE from "three";
 import { gsap } from "gsap";
@@ -65,6 +65,19 @@ export interface HorizonHeroSectionProps {
    * (not next/link) so `#fragment` and `mailto:` targets both work.
    */
   cta?: { label: string; href: string } | null;
+  /**
+   * `page` (default) is the standalone `/horizon` hero: a 3-viewport block
+   * that owns its own ScrollTrigger. `stage` fills an absolutely-positioned
+   * box instead and reads scroll progress from `progressRef`, so the homepage
+   * opening scene can reuse this exact scene with one scroll pipeline.
+   */
+  variant?: "page" | "stage";
+  /**
+   * Stage mode only. The intro writes 0→1 progress (already remapped to this
+   * scene) into `progressRef.current.progress`; the WebGL loop and the HUD
+   * read it from the shared GSAP ticker instead of a private ScrollTrigger.
+   */
+  progressRef?: RefObject<{ progress: number }>;
   className?: string;
 }
 
@@ -209,8 +222,11 @@ export function HorizonHeroSection({
   panels = HORIZON_PANELS,
   brand = "SPACE",
   cta = null,
+  variant = "page",
+  progressRef,
   className,
 }: HorizonHeroSectionProps) {
+  const isStage = variant === "stage";
   const rootRef = useRef<HTMLDivElement>(null);
   const holderRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -219,6 +235,7 @@ export function HorizonHeroSection({
   const hudRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
+  const stageTextRef = useRef<HTMLDivElement>(null);
 
   const reduced = usePrefersReducedMotion();
   /* Quality tier is fixed for the life of the scene and read once, during the
@@ -235,12 +252,17 @@ export function HorizonHeroSection({
 
   /* ---- scroll progress: owned by GSAP, read by the render loop ----
      ScrollTrigger is already updated by Lenis (MotionProvider), so this
-     adds no second scroll listener and no second rAF loop. */
-  const scroll = useRef({ progress: 0 });
+     adds no second scroll listener and no second rAF loop.
+
+     Page mode owns its own trigger (below). Stage mode is driven from
+     outside: the intro writes into `progressRef`, so this scene contributes
+     no scroll listener at all and the page keeps a single scroll pipeline. */
+  const internalScroll = useRef({ progress: 0 });
+  const scroll = isStage ? (progressRef ?? internalScroll) : internalScroll;
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || reduced) return;
+    if (!root || reduced || isStage) return;
 
     const write = (progress: number) => {
       if (fillRef.current) {
@@ -268,7 +290,41 @@ export function HorizonHeroSection({
 
     write(0);
     return () => trigger.kill();
-  }, [reduced, lastStop]);
+  }, [reduced, lastStop, isStage, scroll]);
+
+  /* ---- stage mode: mirror the injected progress into the HUD and text ----
+     `gsap.ticker` is the loop Lenis already drives, so this adds no second
+     rAF. Writes go straight to the DOM — no per-frame React render. */
+  useEffect(() => {
+    if (!isStage || reduced) return;
+
+    let last = Number.NaN;
+    const tick = () => {
+      const progress = scroll.current.progress;
+      if (progress === last) return;
+      last = progress;
+
+      if (fillRef.current) {
+        fillRef.current.style.transform = `scaleX(${progress.toFixed(4)})`;
+      }
+      if (counterRef.current) {
+        const index = Math.min(Math.floor(progress * lastStop), lastStop);
+        counterRef.current.textContent = `${String(index).padStart(2, "0")} / ${String(lastStop).padStart(2, "0")}`;
+      }
+      /* The scene's own type leaves before the aircraft act; the intro's CTA
+         takes over from there. Under reduced motion this effect never runs
+         and the static text simply stays put. */
+      if (stageTextRef.current) {
+        const fade = 1 - THREE.MathUtils.smoothstep(progress, 0.5, 0.88);
+        stageTextRef.current.style.opacity = fade.toFixed(3);
+        stageTextRef.current.style.transform = `translateY(${(-60 * (1 - fade)).toFixed(1)}px)`;
+      }
+    };
+
+    gsap.ticker.add(tick);
+    tick();
+    return () => gsap.ticker.remove(tick);
+  }, [isStage, reduced, lastStop, scroll]);
 
   /* ---- intro timeline ----
      Content is visible by default (rule 5): GSAP adds the "from" state at
@@ -618,100 +674,129 @@ export function HorizonHeroSection({
       }
       canvas.remove();
     };
-  }, [reduced, lite, lastStop]);
+  }, [reduced, lite, lastStop, scroll]);
+
+  /* The scene's opening panel: brand mark, title, lines, scroll HUD. Rendered
+     inside a full-height flow section in `page` mode, or inside the intro's
+     held frame in `stage` mode — same elements, same animation, in both. */
+  const panelZero = (
+    <>
+      {/* Decorative side mark. Left `aria-hidden` on purpose: the source has
+          no menu behind it, and a control that does nothing is worse than a
+          mark that claims nothing. */}
+      <div
+        ref={menuRef}
+        aria-hidden="true"
+        className="absolute top-8 left-6 flex flex-col items-center gap-4 sm:left-10"
+      >
+        <span className="grid size-11 place-items-center rounded-pill border border-line bg-surface/60 backdrop-blur-sm">
+          <Menu className="size-5" strokeWidth={1.75} />
+        </span>
+        <span className="type-mono text-fg-subtle [writing-mode:vertical-rl]">
+          {brand}
+        </span>
+      </div>
+
+      <h1
+        ref={titleRef}
+        className="font-display text-[clamp(2.75rem,13vw,10rem)] leading-[0.92] font-bold tracking-tight uppercase"
+      >
+        <span className="sr-only">{panels[0]?.title}</span>
+        <SplitChars text={panels[0]?.title ?? ""} />
+      </h1>
+
+      <div
+        ref={subtitleRef}
+        className="mt-6 max-w-[46ch] text-lead text-fg-muted"
+      >
+        <p className="horizon-line">{panels[0]?.line1}</p>
+        <p className="horizon-line">{panels[0]?.line2}</p>
+      </div>
+
+      <div
+        ref={hudRef}
+        className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2.5"
+      >
+        <span className="type-mono text-fg-subtle">Scroll</span>
+        <div className="h-px w-40 bg-line">
+          <div
+            ref={fillRef}
+            className="h-full origin-left scale-x-0 bg-accent"
+          />
+        </div>
+        <span className="type-mono text-fg-subtle tabular-nums">
+          <span ref={counterRef}>00 / {String(lastStop).padStart(2, "0")}</span>
+        </span>
+      </div>
+    </>
+  );
 
   return (
     <div
       ref={rootRef}
-      className={cn("relative w-full bg-canvas text-fg", className)}
+      className={cn(
+        "bg-canvas text-fg",
+        isStage ? "absolute inset-0 overflow-hidden" : "relative w-full",
+        className,
+      )}
     >
       {/* Static backdrop: the opening frame before the canvas paints, and the
-          permanent fallback when WebGL is unavailable or reduced motion is on. */}
+          permanent fallback when WebGL is unavailable or reduced motion is on.
+          Pinned to the viewport in `page` mode; filling the stage otherwise. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0 bg-canvas bg-[radial-gradient(120%_80%_at_50%_115%,rgba(0,51,255,0.28),transparent_62%),radial-gradient(90%_60%_at_50%_-10%,rgba(255,0,102,0.14),transparent_70%)]"
+        className={cn(
+          "pointer-events-none z-0 bg-canvas bg-[radial-gradient(120%_80%_at_50%_115%,rgba(0,51,255,0.28),transparent_62%),radial-gradient(90%_60%_at_50%_-10%,rgba(255,0,102,0.14),transparent_70%)]",
+          isStage ? "absolute inset-0" : "fixed inset-0",
+        )}
       >
         <div ref={holderRef} className="absolute inset-0" />
       </div>
 
-      {/* ---- panel 0 ---- */}
-      <section className="relative z-10 flex h-svh flex-col items-center justify-center px-6 text-center">
-        {/* Decorative side mark. Left `aria-hidden` on purpose: the source has
-            no menu behind it, and a control that does nothing is worse than a
-            mark that claims nothing. */}
-        <div
-          ref={menuRef}
-          aria-hidden="true"
-          className="absolute top-8 left-6 flex flex-col items-center gap-4 sm:left-10"
-        >
-          <span className="grid size-11 place-items-center rounded-pill border border-line bg-surface/60 backdrop-blur-sm">
-            <Menu className="size-5" strokeWidth={1.75} />
-          </span>
-          <span className="type-mono text-fg-subtle [writing-mode:vertical-rl]">
-            {brand}
-          </span>
-        </div>
-
-        <h1
-          ref={titleRef}
-          className="font-display text-[clamp(2.75rem,13vw,10rem)] leading-[0.92] font-bold tracking-tight uppercase"
-        >
-          <span className="sr-only">{panels[0]?.title}</span>
-          <SplitChars text={panels[0]?.title ?? ""} />
-        </h1>
-
-        <div
-          ref={subtitleRef}
-          className="mt-6 max-w-[46ch] text-lead text-fg-muted"
-        >
-          <p className="horizon-line">{panels[0]?.line1}</p>
-          <p className="horizon-line">{panels[0]?.line2}</p>
-        </div>
-
-        <div
-          ref={hudRef}
-          className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2.5"
-        >
-          <span className="type-mono text-fg-subtle">Scroll</span>
-          <div className="h-px w-40 bg-line">
-            <div
-              ref={fillRef}
-              className="h-full origin-left scale-x-0 bg-accent"
-            />
+      {isStage ? (
+        /* A single held frame. The intro fades this block out as the aircraft
+           arrives, so only the opening panel is ever shown here. */
+        <div ref={stageTextRef} className="absolute inset-0 z-10">
+          <div className="relative flex h-full flex-col items-center justify-center px-6 text-center">
+            {panelZero}
           </div>
-          <span className="type-mono text-fg-subtle tabular-nums">
-            <span ref={counterRef}>00 / {String(lastStop).padStart(2, "0")}</span>
-          </span>
         </div>
-      </section>
-
-      {/* ---- remaining panels ---- */}
-      {panels.slice(1).map((panel, i) => {
-        const isLast = i === panels.length - 2;
-        return (
-          <section
-            key={panel.title}
-            className="relative z-10 flex h-svh flex-col items-center justify-center px-6 text-center"
-          >
-            <h2 className="font-display text-[clamp(2.25rem,10vw,7rem)] leading-[0.95] font-bold tracking-tight uppercase">
-              {panel.title}
-            </h2>
-            <div className="mt-6 max-w-[46ch] text-lead text-fg-muted">
-              <p>{panel.line1}</p>
-              <p>{panel.line2}</p>
-            </div>
-            {isLast && cta ? (
-              <a
-                href={cta.href}
-                className="type-mono mt-10 inline-flex items-center gap-2 rounded-pill border border-line bg-surface/60 px-4 py-2 text-fg-muted backdrop-blur-sm transition-colors duration-300 hover:border-accent/50 hover:text-fg"
-              >
-                {cta.label}
-                <ArrowUpRight aria-hidden="true" className="size-3.5" />
-              </a>
-            ) : null}
+      ) : (
+        <>
+          {/* ---- panel 0 ---- */}
+          <section className="relative z-10 flex h-svh flex-col items-center justify-center px-6 text-center">
+            {panelZero}
           </section>
-        );
-      })}
+
+          {/* ---- remaining panels ---- */}
+          {panels.slice(1).map((panel, i) => {
+            const isLast = i === panels.length - 2;
+            return (
+              <section
+                key={panel.title}
+                className="relative z-10 flex h-svh flex-col items-center justify-center px-6 text-center"
+              >
+                <h2 className="font-display text-[clamp(2.25rem,10vw,7rem)] leading-[0.95] font-bold tracking-tight uppercase">
+                  {panel.title}
+                </h2>
+                <div className="mt-6 max-w-[46ch] text-lead text-fg-muted">
+                  <p>{panel.line1}</p>
+                  <p>{panel.line2}</p>
+                </div>
+                {isLast && cta ? (
+                  <a
+                    href={cta.href}
+                    className="type-mono mt-10 inline-flex items-center gap-2 rounded-pill border border-line bg-surface/60 px-4 py-2 text-fg-muted backdrop-blur-sm transition-colors duration-300 hover:border-accent/50 hover:text-fg"
+                  >
+                    {cta.label}
+                    <ArrowUpRight aria-hidden="true" className="size-3.5" />
+                  </a>
+                ) : null}
+              </section>
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }
