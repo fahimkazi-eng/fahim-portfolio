@@ -11,7 +11,7 @@ import { HORIZON_PANELS } from "@/lib/horizon";
 export const metadata: Metadata = {
   title: "Horizon",
   description:
-    "An interactive Three.js scene: scroll through HORIZON, COSMOS and INFINITY.",
+    "Kazi Fahim — software engineer and CSE student. An interactive Three.js scene you scroll through.",
   /* An experiment, not portfolio content: kept out of search results so it
      never competes with the real pages. */
   robots: { index: false, follow: true },

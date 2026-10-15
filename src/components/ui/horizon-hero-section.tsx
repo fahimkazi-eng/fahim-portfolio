@@ -3,11 +3,11 @@
 /* ==========================================================================
    HorizonHeroSection — a Three.js "cosmos" hero you scroll through.
 
-   Three full-viewport panels (HORIZON → COSMOS → INFINITY) sit over one
-   fixed WebGL scene: three additive star fields, a shader nebula, four
-   silhouette ridges and a fresnel atmosphere, rendered through an
-   EffectComposer with UnrealBloom. Page scroll drives the camera between
-   three stops; the ridges dissolve once the camera is deep in the field.
+   Three full-viewport panels sit over one fixed WebGL scene: three additive
+   star fields, a shader nebula, four silhouette ridges and a fresnel
+   atmosphere, rendered through an EffectComposer with UnrealBloom. Page
+   scroll drives the camera between three stops; the ridges dissolve once the
+   camera is deep in the field.
 
    How this differs from the source component it was adapted from, and why:
 
@@ -39,7 +39,7 @@
    ========================================================================== */
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Menu } from "lucide-react";
+import { ArrowUpRight, Menu } from "lucide-react";
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -60,6 +60,11 @@ export interface HorizonHeroSectionProps {
   panels?: readonly HorizonPanel[];
   /** Vertical label beside the decorative side mark. */
   brand?: string;
+  /**
+   * Optional link rendered at the foot of the final panel. A plain anchor
+   * (not next/link) so `#fragment` and `mailto:` targets both work.
+   */
+  cta?: { label: string; href: string } | null;
   className?: string;
 }
 
@@ -203,6 +208,7 @@ function SplitChars({ text }: { text: string }) {
 export function HorizonHeroSection({
   panels = HORIZON_PANELS,
   brand = "SPACE",
+  cta = null,
   className,
 }: HorizonHeroSectionProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -680,20 +686,32 @@ export function HorizonHeroSection({
       </section>
 
       {/* ---- remaining panels ---- */}
-      {panels.slice(1).map((panel) => (
-        <section
-          key={panel.title}
-          className="relative z-10 flex h-svh flex-col items-center justify-center px-6 text-center"
-        >
-          <h2 className="font-display text-[clamp(2.25rem,10vw,7rem)] leading-[0.95] font-bold tracking-tight uppercase">
-            {panel.title}
-          </h2>
-          <div className="mt-6 max-w-[46ch] text-lead text-fg-muted">
-            <p>{panel.line1}</p>
-            <p>{panel.line2}</p>
-          </div>
-        </section>
-      ))}
+      {panels.slice(1).map((panel, i) => {
+        const isLast = i === panels.length - 2;
+        return (
+          <section
+            key={panel.title}
+            className="relative z-10 flex h-svh flex-col items-center justify-center px-6 text-center"
+          >
+            <h2 className="font-display text-[clamp(2.25rem,10vw,7rem)] leading-[0.95] font-bold tracking-tight uppercase">
+              {panel.title}
+            </h2>
+            <div className="mt-6 max-w-[46ch] text-lead text-fg-muted">
+              <p>{panel.line1}</p>
+              <p>{panel.line2}</p>
+            </div>
+            {isLast && cta ? (
+              <a
+                href={cta.href}
+                className="type-mono mt-10 inline-flex items-center gap-2 rounded-pill border border-line bg-surface/60 px-4 py-2 text-fg-muted backdrop-blur-sm transition-colors duration-300 hover:border-accent/50 hover:text-fg"
+              >
+                {cta.label}
+                <ArrowUpRight aria-hidden="true" className="size-3.5" />
+              </a>
+            ) : null}
+          </section>
+        );
+      })}
     </div>
   );
 }

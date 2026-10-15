@@ -5,8 +5,9 @@
  * fallback and the route metadata can read the same strings without pulling
  * the WebGL bundle in with them.
  *
- * The lines are the source component's placeholder marketing copy. Swap them
- * here and every panel (and the static fallback) follows.
+ * The three panels read as one arc: who you are → what you build → how to
+ * work with you. Facts here are drawn from lib/site.ts so nothing is claimed
+ * that the rest of the site does not already say.
  */
 
 export interface HorizonPanel {
@@ -18,18 +19,18 @@ export interface HorizonPanel {
 
 export const HORIZON_PANELS: readonly HorizonPanel[] = [
   {
-    title: "HORIZON",
-    line1: "Where vision meets reality,",
-    line2: "we shape the future of tomorrow",
+    title: "KAZI FAHIM",
+    line1: "Software engineer and CSE student,",
+    line2: "building digital products that solve real problems",
   },
   {
-    title: "COSMOS",
-    line1: "Beyond the boundaries of imagination,",
-    line2: "lies the universe of possibilities",
+    title: "MY WORK",
+    line1: "UniMate, FixBondhu and Lumina Digital.",
+    line2: "Built end to end — schema, server, interface",
   },
   {
-    title: "INFINITY",
-    line1: "In the space between thought and creation,",
-    line2: "we find the essence of true innovation",
+    title: "LET'S BUILD",
+    line1: "Open to internships, freelance and collaboration.",
+    line2: "Based in Dhaka, Bangladesh",
   },
 ];

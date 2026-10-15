@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { usePrefersReducedMotion } from "@/components/animations/motion-primitives";
 import { HORIZON_PANELS } from "@/lib/horizon";
+import { site } from "@/lib/site";
 
 /* Three.js is a browser-only, ~600 KB dependency. It is code-split here and
    never reaches the server bundle, matching the AuroraField/ShaderCanvas
@@ -36,7 +37,10 @@ export function HorizonExperience() {
       {reduced ? (
         <HorizonStatic hint="Static scene — motion is reduced" />
       ) : (
-        <HorizonHeroSection />
+        <HorizonHeroSection
+          brand={site.name}
+          cta={{ label: "Get in touch", href: "/#contact" }}
+        />
       )}
     </>
   );
