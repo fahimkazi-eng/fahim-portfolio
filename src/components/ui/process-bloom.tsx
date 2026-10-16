@@ -63,11 +63,19 @@ export type ProcessBloomProps = {
    Literals, not theme tokens: the WebGL side converts them to linear light,
    and the scene is deliberately theme-independent — a red chrome lily only
    reads on ink, exactly as the opening scene's cosmos does. The values are
-   the site's own. */
-const INK = "#05070d" // --color-ink-950 — the dark canvas
+   the site's own.
+
+   Note what is *not* here: no background. The stage is transparent on purpose.
+   The body paints `--canvas` (the same ink) plus the `.dark body` atmospheric
+   wash, and every neighbouring section leaves it showing through — a filled
+   rectangle in this one spot would read as a panel laid over the page rather
+   than part of it. */
 const FG = "#f2f5ff" // --color-ink-50  — primary type
 const FG_MUTED = "#949fba" // --color-ink-350 — supporting type
 const EMBER = "#ff3b30" // --color-ember   — the site red (same as the intro)
+
+/** The haze's base box, scaled rather than resized so no frame costs a layout. */
+const GLOW_BASE = 600
 
 /* ---- type ---------------------------------------------------------------
    The site's three faces, via the same custom properties the global type
@@ -870,7 +878,7 @@ export function ProcessBloom({
       const sr = stage.getBoundingClientRect()
       W = Math.max(1, sr.width)
       H = Math.max(1, sr.height)
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5)
       const cw = Math.round(W * dpr)
       const ch = Math.round(H * dpr)
       if (canvas.width !== cw || canvas.height !== ch) {
@@ -924,7 +932,6 @@ export function ProcessBloom({
     // ---- loop -------------------------------------------------------------------
     let raf = 0
     let running = false
-    let visible = true
     let last = performance.now()
     /* The bloom plays the first time the section is actually on screen, not on
        page load — otherwise it would be over before the visitor arrives. */
@@ -933,6 +940,7 @@ export function ProcessBloom({
     let time = 0
     let prog01 = -1
     let shownScene = -1
+    let lastGlow = ""
 
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame)
@@ -943,8 +951,21 @@ export function ProcessBloom({
       if (moving) time += dt
 
       const r = root.getBoundingClientRect()
+      /* Off the viewport the canvas is not composited, so there is no frame to
+         keep alive. Park the loop here and let a scroll or resize wake it
+         again — without this it goes on drawing for the rest of the page. */
+      if (r.bottom < -240 || r.top > H + 240) {
+        stop()
+        return
+      }
+      if (!hasArrived) {
+        hasArrived = true
+        born = now
+      }
       const p = progressFrom(r.top, r.height, H)
-      prog01 = prog01 < 0 || L.reduced ? p : prog01 + (p - prog01) * (1 - Math.exp(-dt * 9))
+      // Follow the scroll closely. Lenis already smooths the wheel, so a second
+      // slow filter here only reads as the whole scene trailing the page.
+      prog01 = prog01 < 0 || L.reduced ? p : prog01 + (p - prog01) * (1 - Math.exp(-dt * 12))
       const coord = sceneCoord(prog01, sceneCount, HOLD)
       const scene = Math.round(coord)
       if (scene !== shownScene) {
@@ -976,13 +997,19 @@ export function ProcessBloom({
       const model = multiply(rotY(k.spin + spin + px * 0.35), rotX(py * 0.05))
       const bloom = L.reduced ? 1 : clamp01((now - born) / 2600)
 
-      // the red haze behind the flower tracks where the heart lands
+      // the red haze behind the flower tracks where the heart lands. Position
+      // and scale only: the element has a fixed box, so a frame never triggers
+      // layout or a repaint of the gradient — the compositor moves it.
       const gx = (0.5 + k.ox / 2) * W
       const gy = (0.5 - k.oy / 2) * H
       const gr = k.size * minDim * 1.25
-      glow.style.transform =
-        "translate(" + (gx - gr).toFixed(1) + "px," + (gy - gr).toFixed(1) + "px)"
-      glow.style.width = glow.style.height = (gr * 2).toFixed(1) + "px"
+      const gt =
+        "translate(" + (gx - gr).toFixed(1) + "px," + (gy - gr).toFixed(1) + "px) scale(" +
+        ((gr * 2) / GLOW_BASE).toFixed(4) + ")"
+      if (gt !== lastGlow) {
+        lastGlow = gt
+        glow.style.transform = gt
+      }
 
       if (gl && prog) {
         const g = gl
@@ -1056,13 +1083,12 @@ export function ProcessBloom({
           s.transform = "translateY(" + ((1 - q) * 0.4 * dir).toFixed(3) + "em)"
         } else {
           s.transform = "translateY(" + ((1 - q) * 34 * dir).toFixed(1) + "px)"
-          s.filter = q > 0.995 ? "" : "blur(" + ((1 - q) * 8).toFixed(1) + "px)"
         }
       }
     }
 
     const start = () => {
-      if (running || !visible || document.hidden) return
+      if (running || document.hidden) return
       running = true
       last = performance.now()
       raf = requestAnimationFrame(frame)
@@ -1071,25 +1097,26 @@ export function ProcessBloom({
       running = false
       cancelAnimationFrame(raf)
     }
-    const io = new IntersectionObserver(([e]) => {
-      visible = e.isIntersecting
-      if (visible && !hasArrived) {
-        hasArrived = true
-        born = performance.now()
-      }
-      if (visible) start()
-      else stop()
-    })
-    io.observe(root)
+    /* The loop parks itself the moment the stage leaves the viewport (see
+       `frame`), so every way back into view has to re-arm it. `start` is
+       idempotent, so firing on scroll is cheap. */
+    const wake = () => start()
     const onVis = () => (document.hidden ? stop() : start())
     document.addEventListener("visibilitychange", onVis)
+    window.addEventListener("scroll", wake, { passive: true })
+    window.addEventListener("resize", wake)
+    window.addEventListener("focus", wake)
+    window.addEventListener("pageshow", wake)
     start()
 
     return () => {
       stop()
-      io.disconnect()
       ro.disconnect()
       document.removeEventListener("visibilitychange", onVis)
+      window.removeEventListener("scroll", wake)
+      window.removeEventListener("resize", wake)
+      window.removeEventListener("focus", wake)
+      window.removeEventListener("pageshow", wake)
       stage.removeEventListener("pointermove", onMove)
       stage.removeEventListener("pointerdown", onDown)
       window.removeEventListener("pointerup", onUp)
@@ -1114,7 +1141,6 @@ export function ProcessBloom({
       className={"relative w-full " + className}
       style={{
         height: "calc(" + height + " * " + (1 + (sceneCount - 1) * sceneScroll).toFixed(3) + ")",
-        background: INK,
       }}
       aria-label="How I build"
     >
@@ -1140,21 +1166,16 @@ export function ProcessBloom({
         ref={stageRef}
         data-pb-stage
         className="pb-stage sticky top-0 w-full select-none overflow-hidden"
-        style={{ height, background: INK, color: FG }}
+        style={{ height, color: FG }}
       >
-        {/* a faint bleed at the edges, so the board reads as a lit surface */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background: "radial-gradient(120% 90% at 50% 45%, transparent 54%, " + FG + "0f 100%)",
-          }}
-        />
         <div
           ref={glowRef}
           aria-hidden="true"
           className="pointer-events-none absolute left-0 top-0 rounded-full"
           style={{
+            width: GLOW_BASE,
+            height: GLOW_BASE,
+            transformOrigin: "0 0",
             background: "radial-gradient(closest-side, " + EMBER + "3d, " + EMBER + "12 45%, transparent 100%)",
             willChange: "transform",
           }}
@@ -1238,21 +1259,6 @@ export function ProcessBloom({
             <i key={i} {...(i === active ? { "data-on": "" } : {})} />
           ))}
         </div>
-
-        {/* grain, static — the surface is lit, not rendered */}
-        <svg
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          width="100%"
-          height="100%"
-          style={{ opacity: 0.075, mixBlendMode: "screen" }}
-        >
-          <filter id="pb-grain">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves={2} stitchTiles="stitch" />
-            <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0" />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#pb-grain)" />
-        </svg>
       </div>
     </section>
   )
