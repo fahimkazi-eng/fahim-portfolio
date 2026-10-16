@@ -237,6 +237,28 @@ export const buildStages: BuildStage[] = [
   },
 ];
 
+/**
+ * How I build (09) — the closing beat of the process sequence. The six stages
+ * above are the method; this is the invitation that ends it, linking to the
+ * real Contact section (see `navItems`, id "contact").
+ */
+export type BuildClosing = {
+  eyebrow: string;
+  headline: string;
+  body: string;
+  /** Anchor text and target for the one link in the closing frame. */
+  ctaLabel: string;
+  ctaHref: string;
+};
+
+export const buildClosing: BuildClosing = {
+  eyebrow: "Next",
+  headline: "Have an idea worth building?",
+  body: "Let's make it real.",
+  ctaLabel: "Start a conversation",
+  ctaHref: "#contact",
+};
+
 export type Pillar = {
   /** Key into the ICON_MAP registry in components/ui/icon.tsx */
   icon: "code" | "layers" | "users";

@@ -30,9 +30,8 @@ const ShaderCanvas = dynamic(() => import("./lab/experiments/shader-demo"), {
 
    Six self-contained experiments, each one actually interactive rather than a
    screenshot of an idea: Magnetic button, text distortion, cursor trail,
-   shader field, particle field and a scroll-linked reveal. The last two panels
-   are doorways — to the full-page Horizon scene at /horizon and the scroll-
-   scrubbed Lycoris type specimen at /lycoris — each of which owns its own
+   shader field, particle field and a scroll-linked reveal. The last panel is a
+   doorway to the full-page Horizon scene at /horizon, which owns its own
    scroll and so cannot live inside a grid cell.
 
    Rules held here (see MOTION.md):
@@ -79,11 +78,6 @@ const EXPERIMENTS: { index: string; title: string; desc: string }[] = [
     title: "Horizon Scene",
     desc: "A full-page Three.js cosmos — star fields, nebula and ridges — with the camera driven by scroll. Opens as its own page.",
   },
-  {
-    index: "08",
-    title: "Lycoris Specimen",
-    desc: "A scroll-scrubbed type specimen: a procedurally modelled red chrome spider lily in raw WebGL, six frames deep. Opens as its own page.",
-  },
 ];
 
 export function LabSection() {
@@ -93,7 +87,7 @@ export function LabSection() {
         index="/ 07"
         eyebrow="Lab / Playground"
         title={<SplitText text="Tiny experiments." duration={1} />}
-        lede="A small laboratory of isolated micro-interactions and creative bits. Each one is a real working demo, not a picture of one — including the full-page Horizon scene and the Lycoris type specimen at the end."
+        lede="A small laboratory of isolated micro-interactions and creative bits. Each one is a real working demo, not a picture of one — including the full-page Horizon scene at the end."
       />
 
       <Stagger
@@ -131,20 +125,6 @@ export function LabSection() {
             </span>
             <span className="type-mono inline-flex items-center gap-2 text-fg-muted transition-colors duration-300 group-hover/horizon:text-accent">
               Open the full scene
-              <ArrowUpRight aria-hidden="true" className="size-3.5" />
-            </span>
-          </Link>
-        </LabPanel>
-        <LabPanel {...EXPERIMENTS[7]}>
-          <Link
-            href="/lycoris"
-            className="group/lycoris absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 overflow-hidden bg-[radial-gradient(120%_90%_at_50%_120%,rgba(227,19,27,0.34),transparent_65%),radial-gradient(80%_60%_at_50%_0%,rgba(182,176,149,0.16),transparent_70%)]"
-          >
-            <span className="font-display text-h3 tracking-tight text-fg uppercase transition-transform duration-500 group-hover/lycoris:-translate-y-0.5">
-              Lycoris
-            </span>
-            <span className="type-mono inline-flex items-center gap-2 text-fg-muted transition-colors duration-300 group-hover/lycoris:text-accent">
-              Open the specimen
               <ArrowUpRight aria-hidden="true" className="size-3.5" />
             </span>
           </Link>

@@ -1,5 +1,5 @@
 import type { Service } from "@/lib/db/schema";
-import { buildStages } from "@/lib/site";
+import { buildClosing, buildStages } from "@/lib/site";
 import {
   Card,
   PlaceholderNote,
@@ -7,7 +7,7 @@ import {
   SectionHeading,
 } from "@/components/ui/card";
 import { Reveal, Stagger } from "@/components/animations/motion-primitives";
-import { ProcessProgress } from "./process-progress";
+import { ProcessBloom } from "@/components/ui/process-bloom";
 import { SplitText } from "@/components/animations/split-text";
 import { Spotlight, Tilt } from "@/components/ui/magnetic";
 import { CountUp } from "@/components/animations/scroll-motion";
@@ -16,9 +16,12 @@ import { CountUp } from "@/components/animations/scroll-motion";
    How I Build (09) — reference composition.
 
    The opening is the six-step process (IDEA → RESEARCH → DESIGN →
-   ENGINEERING → TEST → SHIP), rendered as an editorial strip that activates
-   on scroll. Beneath it sits the real, admin-editable service list ("what I
-   build"), then the availability closer. The nav item "Services" lands here.
+   ENGINEERING → TEST → SHIP) as a scroll-scrubbed sequence, built around one
+   object: a procedurally modelled red chrome spider lily in raw WebGL
+   (components/ui/process-bloom.tsx). The copy is the same `buildStages` data
+   the strip used to list; the animation now tells it instead of enumerating
+   it. Beneath it sits the real, admin-editable service list ("what I build"),
+   then the availability closer. The nav item "Services" lands here.
    ========================================================================== */
 
 export function ServicesSection({ services }: { services: Service[] }) {
@@ -31,39 +34,8 @@ export function ServicesSection({ services }: { services: Service[] }) {
         lede="A repeatable process, not a vibe. Six steps, each with a concrete exit condition, from the first sketch to the day it ships."
       />
 
-      {/* ---- process strip ---- */}
-      <ProcessProgress stages={buildStages}>
-      <Stagger
-        as="ol"
-        step={0.09}
-        className="grid grid-cols-1 gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2 lg:grid-cols-6"
-      >
-        {buildStages.map((stage) => (
-          <li
-            key={stage.index}
-            className="group flex min-h-[13rem] flex-col justify-between gap-10 bg-surface p-6 transition-colors duration-500 hover:bg-surface-strong"
-          >
-            <div className="flex items-center justify-between">
-              <span className="type-mono text-[0.6875rem] text-fg-subtle">
-                {stage.index}
-              </span>
-              <span
-                aria-hidden="true"
-                className="h-px w-6 bg-line transition-colors duration-500 group-hover:bg-accent/60"
-              />
-            </div>
-            <div>
-              <h3 className="type-mono text-[0.8125rem] uppercase tracking-[0.14em] text-fg">
-                {stage.label}
-              </h3>
-              <p className="mt-3 max-w-[24ch] text-sm leading-relaxed text-fg-muted">
-                {stage.body}
-              </p>
-            </div>
-          </li>
-        ))}
-      </Stagger>
-      </ProcessProgress>
+      {/* ---- the process: six stages, one scroll-scrubbed sequence ---- */}
+      <ProcessBloom stages={buildStages} closing={buildClosing} />
 
       {/* ---- services from the database ---- */}
       <div className="mt-[clamp(2.5rem,5vw,4rem)]">
